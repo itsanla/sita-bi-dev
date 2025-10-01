@@ -59,8 +59,9 @@ const LinkModal = ({
       }
       onSave();
       onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Gagal menyimpan link.");
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || "Gagal menyimpan link.");
     } finally {
       setSubmitting(false);
     }
@@ -109,7 +110,7 @@ export default function LinksPage() {
       setLoading(true);
       const response = await api<{ data: { data: Link[] } }>("/links");
       setLinks(response.data.data || []);
-    } catch (err) {
+    } catch {
       setError("Gagal memuat data links.");
     } finally {
       setLoading(false);
@@ -139,7 +140,7 @@ export default function LinksPage() {
       try {
         await api(`/links/${id}`, { method: 'DELETE' });
         fetchLinks();
-      } catch (err) {
+      } catch {
         alert("Gagal menghapus link.");
       }
     }

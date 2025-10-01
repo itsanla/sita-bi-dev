@@ -90,8 +90,9 @@ const JadwalSidangModal = ({
       });
       onJadwalCreated(); // Callback to refresh the list
       onClose(); // Close modal on success
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Gagal membuat jadwal. Periksa kembali isian Anda.");
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error?.response?.data?.message || "Gagal membuat jadwal. Periksa kembali isian Anda.");
     } finally {
       setSubmitting(false);
     }
@@ -174,7 +175,7 @@ export default function JadwalSidangPage() {
       setRegistrations(regResponse.data.data.data || []);
       setRuanganList(ruanganResponse.data.data || []);
       setDosenList(dosenResponse.data.data.data || []);
-    } catch (err) {
+    } catch {
       setError("Gagal memuat data. Pastikan Anda memiliki hak akses yang sesuai.");
     } finally {
       setLoading(false);

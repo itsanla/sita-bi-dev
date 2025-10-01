@@ -12,7 +12,7 @@ export class FetchError extends Error {
   data: unknown;
 
   constructor(response: Response, data: unknown) {
-    const message = (data as any)?.message || `Request failed with status ${response.status}`;
+    const message = (data as { message: string })?.message || `Request failed with status ${response.status}`;
     super(message);
     this.response = response;
     this.data = data;

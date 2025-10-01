@@ -26,7 +26,8 @@ export default function PengumumanPage() {
         }
 
         setAnnouncements(data.data.pengumumans);
-      } catch (error: any) {
+      } catch (e) {
+        const error = e as Error;
         setError(error.message);
       } finally {
         setLoading(false);

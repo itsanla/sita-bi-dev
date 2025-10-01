@@ -22,7 +22,7 @@ export default function PengumumanPage() {
       try {
         const response = await api<{ data: { data: Pengumuman[] } }>("/pengumuman/all");
         setPengumuman(response.data.data || []);
-      } catch (err) {
+      } catch {
         setError("Gagal memuat pengumuman");
       } finally {
         setLoading(false);
@@ -37,7 +37,7 @@ export default function PengumumanPage() {
       try {
         await api(`/pengumuman/${id}`, { method: 'DELETE' });
         setPengumuman(pengumuman.filter((p) => p.id !== id));
-      } catch (err) {
+      } catch {
         setError("Gagal menghapus pengumuman");
       }
     }
