@@ -11,7 +11,7 @@ const router: Router = Router();
 const usersService = new UsersService();
 
 // Apply JWT Auth and Roles Guard globally for this router
-router.use(jwtAuthMiddleware);
+router.use(asyncHandler(jwtAuthMiddleware));
 
 router.post(
   '/dosen',
@@ -27,8 +27,8 @@ router.get(
   '/dosen',
   // authorizeRoles([Role.admin]),
   asyncHandler(async (req, res) => {
-    const page = req.query.page ? parseInt(req.query.page as string) : undefined;
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+    const page = req.query.page != null ? parseInt(req.query.page as string) : undefined;
+    const limit = req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
     const dosenList = await usersService.findAllDosen(page, limit);
     res.status(200).json({ status: 'sukses', data: dosenList });
   })
@@ -38,8 +38,8 @@ router.get(
   '/mahasiswa',
   authorizeRoles([Role.admin]),
   asyncHandler(async (req, res) => {
-    const page = req.query.page ? parseInt(req.query.page as string) : undefined;
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+    const page = req.query.page != null ? parseInt(req.query.page as string) : undefined;
+    const limit = req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
     const mahasiswaList = await usersService.findAllMahasiswa(page, limit);
     res.status(200).json({ status: 'sukses', data: mahasiswaList });
   })
@@ -51,7 +51,7 @@ router.patch(
   validate(updateDosenSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    if (!id) {
+    if (id == null) {
       res.status(400).json({ status: 'gagal', message: 'ID Dosen diperlukan' });
       return;
     }
@@ -66,7 +66,7 @@ router.patch(
   validate(updateMahasiswaSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    if (!id) {
+    if (id == null) {
       res.status(400).json({ status: 'gagal', message: 'ID Mahasiswa diperlukan' });
       return;
     }
@@ -80,7 +80,7 @@ router.delete(
   authorizeRoles([Role.admin]),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    if (!id) {
+    if (id == null) {
       res.status(400).json({ status: 'gagal', message: 'ID Pengguna diperlukan' });
       return;
     }

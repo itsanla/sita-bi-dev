@@ -1,6 +1,5 @@
 import { PrismaClient, AudiensPengumuman, Pengumuman } from '@repo/db';
 import { CreatePengumumanDto, UpdatePengumumanDto } from '../dto/pengumuman.dto';
-import { paginate } from '../utils/pagination.util';
 
 export class PengumumanService {
   private prisma: PrismaClient;

@@ -12,7 +12,7 @@ const jadwalSidangService = new JadwalSidangService();
 
 router.get(
   '/approved-registrations',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.admin]),
   asyncHandler(async (req, res): Promise<void> => {
     const page = req.query.page != null ? parseInt(req.query.page as string) : undefined;
@@ -24,7 +24,7 @@ router.get(
 
 router.post(
   '/',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.admin]),
   validate(createJadwalSchema),
   asyncHandler(async (req, res): Promise<void> => {
@@ -35,7 +35,7 @@ router.post(
 
 router.get(
   '/for-penguji',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.dosen]),
   asyncHandler(async (req, res): Promise<void> => {
     const dosenId = req.user?.dosen?.id;
@@ -52,7 +52,7 @@ router.get(
 
 router.get(
   '/for-mahasiswa',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.mahasiswa]),
   asyncHandler(async (req, res): Promise<void> => {
     const mahasiswaId = req.user?.mahasiswa?.id;

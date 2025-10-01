@@ -1,6 +1,5 @@
 import { PrismaClient, PeranDosen, StatusTugasAkhir } from '@repo/db';
 import { AssignPembimbingDto } from '../dto/penugasan.dto';
-import { paginate } from '../utils/pagination.util';
 
 export class PenugasanService {
   private prisma: PrismaClient;

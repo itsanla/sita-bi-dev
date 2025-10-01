@@ -1,9 +1,12 @@
 import { PrismaClient, StatusTugasAkhir, TugasAkhir, Prisma } from '@repo/db';
 import { CreateTugasAkhirDto } from '../dto/tugas-akhir.dto';
 import * as stringSimilarity from 'string-similarity';
-import { paginate } from '../utils/pagination.util';
 import { Role } from '../types/roles';
 
+interface SimilarityRating {
+  target: string;
+  rating: number;
+}
 export class TugasAkhirService {
   private prisma: PrismaClient;
 
@@ -16,7 +19,7 @@ export class TugasAkhirService {
       where: { user_id: userId },
     });
 
-    if (!mahasiswa) {
+    if (mahasiswa === null) {
       throw new Error('Profil mahasiswa tidak ditemukan.');
     }
 
@@ -31,7 +34,7 @@ export class TugasAkhirService {
       }
     });
 
-    if (activeTugasAkhir) {
+    if (activeTugasAkhir !== null) {
       throw new Error('Anda sudah memiliki Tugas Akhir yang aktif.');
     }
 
@@ -39,7 +42,7 @@ export class TugasAkhirService {
         where: { judul: { equals: dto.judul } }
     });
 
-    if (existingTitle) {
+    if (existingTitle !== null) {
         throw new Error(`Judul "${dto.judul}" sudah pernah diajukan.`);
     }
 
@@ -131,8 +134,8 @@ export class TugasAkhirService {
     const ratings = stringSimilarity.findBestMatch(targetTa.judul, allTitles);
 
     const results = ratings.ratings
-      .filter((rating: any) => rating.rating > 0.3) // Threshold 30%
-      .map((rating: any) => {
+      .filter((rating: SimilarityRating) => rating.rating > 0.3) // Threshold 30%
+      .map((rating: SimilarityRating) => {
         const match = allOtherTa.find(ta => ta.judul === rating.target);
         return {
           similarity: rating.rating,
@@ -141,7 +144,7 @@ export class TugasAkhirService {
           nim: match?.mahasiswa?.nim,
         };
       })
-      .sort((a: any, b: any) => b.similarity - a.similarity);
+      .sort((a: { similarity: number }, b: { similarity: number }) => b.similarity - a.similarity);
 
     return {
       target: targetTa.judul,
@@ -154,7 +157,7 @@ export class TugasAkhirService {
       where: { id },
       include: { mahasiswa: true },
     });
-    if (!tugasAkhir) {
+    if (tugasAkhir === null) {
       throw new Error(`Tugas Akhir with ID ${id} not found`);
     }
     return tugasAkhir;

@@ -1,6 +1,5 @@
 import { PrismaClient } from '@repo/db';
 import { CreateTawaranTopikDto } from '../dto/tawaran-topik.dto';
-import { paginate } from '../utils/pagination.util';
 
 export class TawaranTopikService {
   private prisma: PrismaClient;
@@ -79,7 +78,7 @@ export class TawaranTopikService {
       where: { id: topicId, kuota: { gt: 0 }, deleted_at: null },
     });
 
-    if (!topic) {
+    if (topic === null) {
       throw new Error('Topic not found or no available quota.');
     }
 
@@ -94,7 +93,7 @@ export class TawaranTopikService {
         }
     });
 
-    if (activeTugasAkhir) {
+    if (activeTugasAkhir !== null) {
         throw new Error('You already have an active final project.');
     }
 
@@ -102,7 +101,7 @@ export class TawaranTopikService {
         where: { mahasiswa_id: mahasiswaId, status: 'diajukan' }
     });
 
-    if (existingApplication) {
+    if (existingApplication !== null) {
         throw new Error('You already have a pending topic application.');
     }
 
@@ -177,7 +176,7 @@ export class TawaranTopikService {
         include: { tawaranTopik: true, mahasiswa: true },
       });
 
-      if (!application || application.tawaranTopik.user_id !== dosenId) {
+      if (application === null || application.tawaranTopik.user_id !== dosenId) {
         throw new Error('Application not found or you do not own this topic.');
       }
 
@@ -227,7 +226,7 @@ export class TawaranTopikService {
       include: { tawaranTopik: true },
     });
 
-    if (!application || application.tawaranTopik.user_id !== dosenId) {
+    if (application === null || application.tawaranTopik.user_id !== dosenId) {
       throw new Error('Application not found or you do not own this topic.');
     }
 

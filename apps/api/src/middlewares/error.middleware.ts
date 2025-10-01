@@ -13,8 +13,8 @@ export class HttpError extends Error {
 }
 
 // The existing error handler middleware, now updated to use HttpError
-export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
-  console.error(err.stack);
+export const errorHandler = (err: Error, req: Request, res: Response, _next: NextFunction): void => {
+  // console.error(err.stack);
 
   // Check if it's an instance of our HttpError
   if (err instanceof HttpError) {

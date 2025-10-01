@@ -1,5 +1,4 @@
 import { PrismaClient, Prisma, User, Prodi } from '@repo/db';
-import { paginate } from '../utils/pagination.util';
 import * as bcrypt from 'bcrypt';
 import { CreateDosenDto, UpdateDosenDto, UpdateMahasiswaDto } from '../dto/users.dto';
 import { Role } from '../types/roles';
@@ -224,7 +223,7 @@ export class UsersService {
 
   async deleteUser(id: number): Promise<User> {
     const user = await this.findUserById(id);
-    if (!user) {
+    if (user === null) {
       throw new Error(`User with ID ${id} not found`);
     }
     return this.prisma.user.delete({ where: { id } });

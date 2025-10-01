@@ -1,4 +1,5 @@
-import { Router, type Request, type Response, type NextFunction } from 'express';
+import { Router, type Request, type Response } from 'express';
+import asyncHandler from 'express-async-handler';
 import multer from 'multer';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -43,36 +44,32 @@ const testUpload = multer({
 router.post(
   '/',
   testUpload.single('file'),
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      if (req.file == null) {
-        res.status(400).json({ status: 'gagal', message: 'Tidak ada file yang diunggah.' });
-        return;
-      }
-
-      const uploadedFile = req.file as S3File;
-
-      const getCommand = new GetObjectCommand({
-        Bucket: uploadedFile.bucket,
-        Key: uploadedFile.key,
-      });
-
-      // URL berlaku selama 15 menit (900 detik)
-      const signedUrl = await getSignedUrl(s3, getCommand, { expiresIn: 900 });
-
-      res.status(200).json({
-        status: 'sukses',
-        message: 'File berhasil diunggah! Gunakan signedUrl untuk mengakses.',
-        data: {
-          signedUrl: signedUrl,
-          originalUrl: uploadedFile.location,
-          ...uploadedFile,
-        },
-      });
-    } catch (error) {
-      next(error);
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    if (req.file == null) {
+      res.status(400).json({ status: 'gagal', message: 'Tidak ada file yang diunggah.' });
+      return;
     }
-  }
+
+    const uploadedFile = req.file as S3File;
+
+    const getCommand = new GetObjectCommand({
+      Bucket: uploadedFile.bucket,
+      Key: uploadedFile.key,
+    });
+
+    // URL berlaku selama 15 menit (900 detik)
+    const signedUrl = await getSignedUrl(s3, getCommand, { expiresIn: 900 });
+
+    res.status(200).json({
+      status: 'sukses',
+      message: 'File berhasil diunggah! Gunakan signedUrl untuk mengakses.',
+      data: {
+        signedUrl: signedUrl,
+        originalUrl: uploadedFile.location,
+        ...uploadedFile,
+      },
+    });
+  })
 );
 
 export default router;

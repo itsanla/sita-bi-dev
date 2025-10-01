@@ -13,7 +13,7 @@ const pengumumanService = new PengumumanService();
 // --- Admin Routes (Protected) ---
 router.post(
   '/',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.admin]),
   validate(createPengumumanSchema),
   asyncHandler(async (req, res): Promise<void> => {
@@ -24,7 +24,7 @@ router.post(
 
 router.get(
   '/all',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.admin]),
   asyncHandler(async (req, res): Promise<void> => {
     const page = req.query.page != null ? parseInt(req.query.page as string) : undefined;
@@ -36,7 +36,7 @@ router.get(
 
 router.patch(
   '/:id',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.admin]),
   validate(updatePengumumanSchema),
   asyncHandler(async (req, res): Promise<void> => {
@@ -52,7 +52,7 @@ router.patch(
 
 router.delete(
   '/:id',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.admin]),
   asyncHandler(async (req, res): Promise<void> => {
     const { id } = req.params;
@@ -78,7 +78,7 @@ router.get(
 
 router.get(
   '/mahasiswa',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.mahasiswa]),
   asyncHandler(async (req, res): Promise<void> => {
     const page = req.query.page != null ? parseInt(req.query.page as string) : undefined;
@@ -90,7 +90,7 @@ router.get(
 
 router.get(
   '/dosen',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.dosen]),
   asyncHandler(async (req, res): Promise<void> => {
     const page = req.query.page != null ? parseInt(req.query.page as string) : undefined;

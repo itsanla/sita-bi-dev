@@ -20,7 +20,14 @@ export default tseslint.config(
       // Add stricter rules here
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^' },
+        {
+          'vars': 'all',
+          'varsIgnorePattern': '^_',
+          'args': 'after-used',
+          'argsIgnorePattern': '^_',
+          'caughtErrors': 'all',
+          'caughtErrorsIgnorePattern': '^_',
+        },
       ],
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/no-explicit-any': 'error',

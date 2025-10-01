@@ -11,7 +11,7 @@ const router: Router = Router();
 const penilaianService = new PenilaianService();
 
 // Apply JWT Auth and Roles Guard globally for this router
-router.use(jwtAuthMiddleware);
+router.use(asyncHandler(jwtAuthMiddleware));
 
 router.post(
   '/',
