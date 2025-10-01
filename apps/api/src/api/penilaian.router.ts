@@ -17,7 +17,7 @@ router.post(
   '/',
   authorizeRoles([Role.dosen]),
   validate(createPenilaianSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const dosenId = req.user?.dosen?.id;
     if (dosenId === undefined) {
       res.status(401).json({ status: 'gagal', message: 'Akses ditolak: Pengguna tidak memiliki profil dosen.' });
@@ -32,9 +32,9 @@ router.get(
   '/sidang/:sidangId',
   // Accessible by all authenticated users (dosen, mahasiswa, admin)
   // No specific role check here, but still requires authentication
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const { sidangId } = req.params;
-    if (!sidangId) {
+    if (sidangId == null) {
       res.status(400).json({ status: 'gagal', message: 'ID Sidang diperlukan' });
       return;
     }
