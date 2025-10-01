@@ -1,0 +1,29 @@
+{
+  "name": "my-turborepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "",
+  "author": "",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start:backend": "pnpm --filter api start",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "dev:frontend": "pnpm --filter web dev",
+    "dev:backend": "pnpm --filter api dev"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "prettier": "^3.2.5",
+    "turbo": "^2.5.6"
+  },
+  "packageManager": "pnpm@8.15.5",
+  "engines": {
+    "node": ">=18"
+  }
+}

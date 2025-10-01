@@ -1,0 +1,24 @@
+# Direktori dan file yang diabaikan oleh Docker
+
+# Abaikan semua node_modules di root dan di setiap package/app
+**/node_modules
+
+# Abaikan log dan file sementara
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Abaikan cache dan output dari tools
+.turbo
+.next
+dist
+.DS_Store
+
+# Abaikan konfigurasi Git
+.git
+.gitignore
+
+# Abaikan file environment lokal
+.env
+.env.local
