@@ -36,7 +36,7 @@ export default function SitaBIHomepage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const scrollToSection = (id: string) => {
+  const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -72,796 +72,283 @@ export default function SitaBIHomepage() {
   ];
 
   return (
-    <>
-      <style jsx>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700;800&display=swap');
-
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-
-        body {
-          font-family: 'Inter', sans-serif;
-          line-height: 1.6;
-          color: #1a1a1a;
-          overflow-x: hidden;
-        }
-
-        .container {
-          max-width: 1280px;
-          margin: 0 auto;
-          padding: 0 24px;
-        }
-
-        .progress-bar {
-          position: fixed;
-          top: 0;
-          left: 0;
-          height: 4px;
-          background: linear-gradient(90deg, #8B1538, #D4AF37);
-          z-index: 9999;
-          transition: width 0.1s ease;
-        }
-
-        .header {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(12px);
-          box-shadow: 0 4px 24px rgba(139, 21, 56, 0.08);
-          z-index: 1000;
-        }
-
-        .header-content {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 1.25rem 0;
-        }
-
-        .logo {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          text-decoration: none;
-          transition: transform 0.3s ease;
-        }
-
-        .logo:hover {
-          transform: scale(1.05);
-        }
-
-        .logo img {
-          width: 48px;
-          height: 48px;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(139, 21, 56, 0.2);
-        }
-
-        .logo h1 {
-          font-size: 1.75rem;
-          font-weight: 800;
-          background: linear-gradient(135deg, #8B1538, #B71C4A);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          font-family: 'Playfair Display', serif;
-        }
-
-        .nav-desktop {
-          display: flex;
-          align-items: center;
-          gap: 2.5rem;
-        }
-
-        .nav-link {
-          color: #1a1a1a;
-          text-decoration: none;
-          font-weight: 500;
-          font-size: 0.95rem;
-          position: relative;
-          transition: color 0.3s;
-        }
-
-        .nav-link::after {
-          content: '';
-          position: absolute;
-          bottom: -6px;
-          left: 0;
-          width: 0;
-          height: 2px;
-          background: #8B1538;
-          transition: width 0.3s ease;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-          color: #8B1538;
-        }
-
-        .nav-link.active::after {
-          width: 100%;
-        }
-
-        .btn-login {
-          background: linear-gradient(135deg, #8B1538, #5D0E26);
-          color: white;
-          padding: 0.75rem 2rem;
-          border-radius: 50px;
-          text-decoration: none;
-          font-weight: 600;
-          box-shadow: 0 4px 16px rgba(139, 21, 56, 0.3);
-          transition: all 0.3s ease;
-        }
-
-        .btn-login:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(139, 21, 56, 0.4);
-        }
-
-        .mobile-menu-btn {
-          display: none;
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: #8B1538;
-        }
-
-        .nav-mobile {
-          display: none;
-          padding: 1.5rem 0;
-          border-top: 1px solid rgba(139, 21, 56, 0.1);
-        }
-
-        .nav-mobile.open {
-          display: block;
-        }
-
-        .nav-mobile .nav-link {
-          display: block;
-          padding: 0.75rem 0;
-        }
-
-        .nav-mobile .btn-login {
-          display: block;
-          text-align: center;
-          margin-top: 1rem;
-        }
-
-        .hero {
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          background: linear-gradient(135deg, #FFF8F0 0%, #fff 50%, #FFF8F0 100%);
-          position: relative;
-          overflow: hidden;
-          padding-top: 100px;
-        }
-
-        .hero-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 4rem;
-          align-items: center;
-        }
-
-        .hero-badge {
-          display: inline-block;
-          background: linear-gradient(135deg, #8B1538, #B71C4A);
-          color: white;
-          padding: 0.5rem 1.5rem;
-          border-radius: 50px;
-          font-size: 0.875rem;
-          font-weight: 600;
-          margin-bottom: 1.5rem;
-        }
-
-        .hero-content h1 {
-          font-size: 3.5rem;
-          font-weight: 800;
-          line-height: 1.2;
-          margin-bottom: 1.5rem;
-          color: #1a1a1a;
-          font-family: 'Playfair Display', serif;
-        }
-
-        .hero-gradient-text {
-          background: linear-gradient(135deg, #8B1538, #B71C4A);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-
-        .hero-highlight {
-          font-size: 1.25rem;
-          color: #6B7280;
-          margin-bottom: 2.5rem;
-          line-height: 1.8;
-        }
-
-        .hero-buttons {
-          display: flex;
-          gap: 1.25rem;
-          flex-wrap: wrap;
-        }
-
-        .btn-primary {
-          background: linear-gradient(135deg, #8B1538, #5D0E26);
-          color: white;
-          padding: 1rem 2.5rem;
-          border-radius: 50px;
-          text-decoration: none;
-          font-weight: 600;
-          box-shadow: 0 8px 24px rgba(139, 21, 56, 0.3);
-          transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 12px 32px rgba(139, 21, 56, 0.4);
-        }
-
-        .btn-outline {
-          border: 2px solid #8B1538;
-          color: #8B1538;
-          padding: 1rem 2.5rem;
-          border-radius: 50px;
-          text-decoration: none;
-          font-weight: 600;
-          background: white;
-          transition: all 0.3s ease;
-        }
-
-        .btn-outline:hover {
-          background: #8B1538;
-          color: white;
-          transform: translateY(-3px);
-        }
-
-        .hero-image-wrapper {
-          position: relative;
-          padding: 20px;
-        }
-
-        .hero-image-wrapper::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(135deg, #8B1538, #D4AF37);
-          border-radius: 30px;
-          transform: rotate(-6deg);
-          z-index: -1;
-        }
-
-        .hero-image img {
-          width: 100%;
-          max-width: 550px;
-          border-radius: 30px;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-        }
-
-        .section {
-          padding: 6rem 0;
-        }
-
-        .section-bg {
-          background: linear-gradient(180deg, #fff 0%, #FFF8F0 100%);
-        }
-
-        .section-title-wrapper {
-          text-align: center;
-          margin-bottom: 4rem;
-        }
-
-        .section-subtitle {
-          color: #8B1538;
-          font-weight: 600;
-          font-size: 0.875rem;
-          text-transform: uppercase;
-          letter-spacing: 2px;
-          margin-bottom: 1rem;
-        }
-
-        .section-title {
-          font-size: 3rem;
-          font-weight: 800;
-          color: #1a1a1a;
-          font-family: 'Playfair Display', serif;
-          margin-bottom: 1rem;
-        }
-
-        .section-description {
-          color: #6B7280;
-          font-size: 1.125rem;
-          max-width: 600px;
-          margin: 0 auto;
-        }
-
-        .empty-state {
-          text-align: center;
-          padding: 4rem;
-          background: white;
-          border-radius: 30px;
-          border: 2px dashed rgba(139, 21, 56, 0.2);
-          transition: all 0.3s ease;
-        }
-
-        .empty-state:hover {
-          border-color: #8B1538;
-          box-shadow: 0 8px 32px rgba(139, 21, 56, 0.1);
-        }
-
-        .empty-icon {
-          margin: 0 auto 1.5rem;
-          color: #8B1538;
-        }
-
-        .empty-state p {
-          color: #6B7280;
-          font-size: 1.125rem;
-        }
-
-        .team-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 2.5rem;
-        }
-
-        .team-card {
-          background: white;
-          border-radius: 30px;
-          overflow: hidden;
-          box-shadow: 0 8px 32px rgba(139, 21, 56, 0.08);
-          transition: all 0.4s ease;
-          position: relative;
-        }
-
-        .team-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, #8B1538, #D4AF37);
-          transform: scaleX(0);
-          transition: transform 0.3s ease;
-        }
-
-        .team-card:hover::before {
-          transform: scaleX(1);
-        }
-
-        .team-card:hover {
-          transform: translateY(-12px);
-          box-shadow: 0 20px 60px rgba(139, 21, 56, 0.2);
-        }
-
-        .team-image-wrapper {
-          position: relative;
-          overflow: hidden;
-          aspect-ratio: 1;
-        }
-
-        .team-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 0.5s ease;
-        }
-
-        .team-card:hover .team-image {
-          transform: scale(1.1);
-        }
-
-        .team-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(180deg, transparent 0%, rgba(139, 21, 56, 0.9) 100%);
-          opacity: 0;
-          transition: opacity 0.3s ease;
-        }
-
-        .team-card:hover .team-overlay {
-          opacity: 1;
-        }
-
-        .team-social {
-          position: absolute;
-          bottom: 1.5rem;
-          left: 0;
-          right: 0;
-          display: flex;
-          justify-content: center;
-          gap: 1rem;
-          opacity: 0;
-          transform: translateY(20px);
-          transition: all 0.3s ease;
-        }
-
-        .team-card:hover .team-social {
-          opacity: 1;
-          transform: translateY(0);
-        }
-
-        .social-link {
-          width: 40px;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: white;
-          border-radius: 50%;
-          color: #8B1538;
-          transition: all 0.3s ease;
-          text-decoration: none;
-        }
-
-        .social-link:hover {
-          background: #D4AF37;
-          color: white;
-          transform: scale(1.1);
-        }
-
-        .team-info {
-          padding: 2rem;
-          text-align: center;
-        }
-
-        .team-name {
-          font-size: 1.25rem;
-          font-weight: 700;
-          margin-bottom: 0.5rem;
-          color: #1a1a1a;
-          font-family: 'Playfair Display', serif;
-        }
-
-        .team-role {
-          color: #8B1538;
-          font-weight: 600;
-          margin-bottom: 0.75rem;
-        }
-
-        .team-id {
-          color: #6B7280;
-          font-size: 0.875rem;
-          padding: 0.5rem 1rem;
-          background: #F3F4F6;
-          border-radius: 20px;
-          display: inline-block;
-        }
-
-        .footer {
-          background: linear-gradient(135deg, #5D0E26 0%, #1a1a1a 100%);
-          color: rgba(255, 255, 255, 0.8);
-          padding: 4rem 0 2rem;
-          position: relative;
-        }
-
-        .footer::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, #8B1538, #D4AF37);
-        }
-
-        .footer-grid {
-          display: grid;
-          grid-template-columns: 2fr 1fr 1fr;
-          gap: 3rem;
-          margin-bottom: 3rem;
-        }
-
-        .footer h3 {
-          color: white;
-          font-size: 2rem;
-          margin-bottom: 1.5rem;
-          font-family: 'Playfair Display', serif;
-        }
-
-        .footer h4 {
-          color: white;
-          font-size: 1.25rem;
-          margin-bottom: 1.5rem;
-          font-weight: 600;
-        }
-
-        .footer p {
-          margin-bottom: 0.75rem;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        .footer-links {
-          list-style: none;
-        }
-
-        .footer-links li {
-          margin-bottom: 0.75rem;
-        }
-
-        .footer-links a {
-          color: rgba(255, 255, 255, 0.8);
-          text-decoration: none;
-          transition: all 0.3s ease;
-        }
-
-        .footer-links a:hover {
-          color: #D4AF37;
-        }
-
-        .social-links {
-          display: flex;
-          gap: 1rem;
-        }
-
-        .social-links a {
-          width: 48px;
-          height: 48px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 50%;
-          color: white;
-          transition: all 0.3s ease;
-          text-decoration: none;
-        }
-
-        .social-links a:hover {
-          background: #D4AF37;
-          transform: translateY(-4px);
-        }
-
-        .footer-copyright {
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-          padding-top: 2rem;
-          text-align: center;
-        }
-
-        .scroll-top {
-          position: fixed;
-          bottom: 2rem;
-          right: 2rem;
-          width: 56px;
-          height: 56px;
-          background: linear-gradient(135deg, #8B1538, #5D0E26);
-          color: white;
-          border: none;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          box-shadow: 0 8px 24px rgba(139, 21, 56, 0.4);
-          transition: all 0.3s ease;
-          z-index: 999;
-        }
-
-        .scroll-top:hover {
-          transform: translateY(-4px) scale(1.1);
-        }
-
-        @media (max-width: 1024px) {
-          .hero-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .hero-content h1 {
-            font-size: 2.5rem;
-          }
-
-          .footer-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .nav-desktop {
-            display: none;
-          }
-
-          .mobile-menu-btn {
-            display: block;
-          }
-
-          .section-title {
-            font-size: 2rem;
-          }
-
-          .hero-content h1 {
-            font-size: 2rem;
-          }
-
-          .team-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
-
-      <div>
-        <div className="progress-bar" style={{ width: `${scrollProgress}%` }}></div>
-
-        <header className="header">
-          <div className="container">
-            <div className="header-content">
-              <a href="#hero" className="logo" onClick={(e) => { e.preventDefault(); scrollToSection('hero'); }}>
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s" alt="Logo" />
-                <h1>SITA-BI</h1>
-              </a>
-
-              <nav className="nav-desktop">
-                <a href="#hero" onClick={(e) => { e.preventDefault(); scrollToSection('hero'); }} className={`nav-link ${activeSection === 'hero' ? 'active' : ''}`}>Home</a>
-                <a href="#tawarantopik" onClick={(e) => { e.preventDefault(); scrollToSection('tawarantopik'); }} className={`nav-link ${activeSection === 'tawarantopik' ? 'active' : ''}`}>Tawaran Topik</a>
-                <a href="#jadwal" onClick={(e) => { e.preventDefault(); scrollToSection('jadwal'); }} className={`nav-link ${activeSection === 'jadwal' ? 'active' : ''}`}>Jadwal</a>
-                <a href="#pengumuman" onClick={(e) => { e.preventDefault(); scrollToSection('pengumuman'); }} className={`nav-link ${activeSection === 'pengumuman' ? 'active' : ''}`}>Pengumuman</a>
-                <a href="#team" onClick={(e) => { e.preventDefault(); scrollToSection('team'); }} className={`nav-link ${activeSection === 'team' ? 'active' : ''}`}>Team</a>
-                <a href="/login" className="btn-login">Login</a>
-              </nav>
-
-              <button className="mobile-menu-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-              </button>
-            </div>
-
-            <nav className={`nav-mobile ${isMenuOpen ? 'open' : ''}`}>
-              <a href="#hero" onClick={(e) => { e.preventDefault(); scrollToSection('hero'); }} className="nav-link">Home</a>
-              <a href="#tawarantopik" onClick={(e) => { e.preventDefault(); scrollToSection('tawarantopik'); }} className="nav-link">Tawaran Topik</a>
-              <a href="#jadwal" onClick={(e) => { e.preventDefault(); scrollToSection('jadwal'); }} className="nav-link">Jadwal</a>
-              <a href="#pengumuman" onClick={(e) => { e.preventDefault(); scrollToSection('pengumuman'); }} className="nav-link">Pengumuman</a>
-              <a href="#team" onClick={(e) => { e.preventDefault(); scrollToSection('team'); }} className="nav-link">Team</a>
-              <a href="/login" className="btn-login">Login</a>
-            </nav>
-          </div>
-        </header>
-
-        <section id="hero" className="hero">
-          <div className="container">
-            <div className="hero-grid">
-              <div className="hero-content">
-                <span className="hero-badge">✨ Welcome to SITA-BI</span>
-                <h1>
-                  Your <span className="hero-gradient-text">Ultimate Solution</span> for Managing Thesis Projects
-                </h1>
-                <p className="hero-highlight">
-                  Stay organized, stay on track, and achieve your academic goals with ease. Transform your thesis journey into a seamless experience.
-                </p>
-                <div className="hero-buttons">
-                  <a href="#" className="btn-primary">Get Started</a>
-                  <a href="#" className="btn-outline">Learn More</a>
-                </div>
-              </div>
-              <div className="hero-image">
-                <div className="hero-image-wrapper">
-                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s" alt="Illustration" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="tawarantopik" className="section">
-          <div className="container">
-            <div className="section-title-wrapper">
-              <p className="section-subtitle">Explore Topics</p>
-              <h2 className="section-title">Tawaran Topik</h2>
-              <p className="section-description">Temukan topik penelitian yang sesuai dengan minat dan kebutuhan Anda</p>
-            </div>
-            <div className="empty-state">
-              <BookOpen size={80} className="empty-icon" />
-              <p>Belum ada tawaran topik yang tersedia saat ini.</p>
-            </div>
-          </div>
-        </section>
-
-        <section id="jadwal" className="section section-bg">
-          <div className="container">
-            <div className="section-title-wrapper">
-              <p className="section-subtitle">Schedule</p>
-              <h2 className="section-title">Jadwal Sidang</h2>
-              <p className="section-description">Pantau jadwal sidang Anda dengan mudah dan tetap terorganisir</p>
-            </div>
-            <div className="empty-state">
-              <GraduationCap size={80} className="empty-icon" />
-              <p>Belum ada jadwal untuk ditampilkan.</p>
-            </div>
-          </div>
-        </section>
-
-        <section id="pengumuman" className="section">
-          <div className="container">
-            <div className="section-title-wrapper">
-              <p className="section-subtitle">Announcements</p>
-              <h2 className="section-title">Pengumuman</h2>
-              <p className="section-description">Dapatkan informasi terbaru dan penting seputar kegiatan akademik</p>
-            </div>
-            <div className="empty-state">
-              <Megaphone size={80} className="empty-icon" />
-              <p>Belum ada pengumuman untuk ditampilkan.</p>
-            </div>
-          </div>
-        </section>
-
-        <section id="team" className="section section-bg">
-          <div className="container">
-            <div className="section-title-wrapper">
-              <p className="section-subtitle">Meet Our Team</p>
-              <h2 className="section-title">Team 7</h2>
-              <p className="section-description">Tim pengembang yang berdedikasi untuk menciptakan solusi terbaik</p>
-            </div>
-            <div className="team-grid">
-              {teamMembers.map((member, idx) => (
-                <div key={idx} className="team-card">
-                  <div className="team-image-wrapper">
-                    <img src={member.image} alt={member.name} className="team-image" />
-                    <div className="team-overlay"></div>
-                    <div className="team-social">
-                      <a href="#" className="social-link">
-                        <Twitter size={18} />
-                      </a>
-                      <a href="#" className="social-link">
-                        <Github size={18} />
-                      </a>
-                      <a href="#" className="social-link">
-                        <Instagram size={18} />
-                      </a>
-                      <a href="#" className="social-link">
-                        <Linkedin size={18} />
-                      </a>
-                    </div>
-                  </div>
-                  <div className="team-info">
-                    <h4 className="team-name">{member.name}</h4>
-                    <p className="team-role">{member.role}</p>
-                    <p className="team-id">{member.id}</p>
-                  </div>
-                </div>
+    <div className="min-h-screen bg-white">
+      {/* Progress Bar */}
+      <div 
+        className="fixed top-0 left-0 h-1 bg-gradient-to-r from-red-900 to-yellow-600 z-50 transition-all duration-100"
+        style={{ width: `${scrollProgress}%` }}
+      />
+
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md shadow-lg z-40">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between py-5">
+            <a 
+              href="#hero" 
+              onClick={(e) => { e.preventDefault(); scrollToSection('hero'); }}
+              className="flex items-center gap-3 transition-transform hover:scale-105"
+            >
+              <img 
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s" 
+                alt="Logo" 
+                className="w-12 h-12 rounded-xl shadow-md"
+              />
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-red-900 to-red-700 bg-clip-text text-transparent">
+                SITA-BI
+              </h1>
+            </a>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-10">
+              {['hero', 'tawarantopik', 'jadwal', 'pengumuman', 'team'].map((section) => (
+                <a
+                  key={section}
+                  href={`#${section}`}
+                  onClick={(e) => { e.preventDefault(); scrollToSection(section); }}
+                  className={`relative font-medium transition-colors ${
+                    activeSection === section ? 'text-red-900' : 'text-gray-800 hover:text-red-900'
+                  }`}
+                >
+                  {section === 'hero' ? 'Home' : section.charAt(0).toUpperCase() + section.slice(1).replace('topik', ' Topik')}
+                  {activeSection === section && (
+                    <span className="absolute -bottom-2 left-0 w-full h-0.5 bg-red-900" />
+                  )}
+                </a>
               ))}
-            </div>
-          </div>
-        </section>
+              <a 
+                href="/login" 
+                className="bg-gradient-to-r from-red-900 to-red-800 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+              >
+                Login
+              </a>
+            </nav>
 
-        <footer className="footer">
-          <div className="container">
-            <div className="footer-grid">
-              <div>
-                <h3>SITA-BI</h3>
-                <p><MapPin size={18} />Jalan Limau Manis</p>
-                <p>Limau Manis, Kecamatan Pauh, Kota Padang, 25164</p>
-                <p style={{ marginTop: '1rem' }}><Phone size={18} /><strong>Phone:</strong> 0751-72590</p>
-                <p><Mail size={18} /><strong>Email:</strong> info@pnp.ac.id</p>
-              </div>
-              <div>
-                <h4>Useful Links</h4>
-                <ul className="footer-links">
-                  <li><a href="#hero" onClick={(e) => { e.preventDefault(); scrollToSection('hero'); }}>Home</a></li>
-                  <li><a href="#pengumuman" onClick={(e) => { e.preventDefault(); scrollToSection('pengumuman'); }}>Pengumuman</a></li>
-                  <li><a href="#jadwal" onClick={(e) => { e.preventDefault(); scrollToSection('jadwal'); }}>Jadwal</a></li>
-                </ul>
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden text-red-900"
+            >
+              {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+          </div>
+
+          {/* Mobile Navigation */}
+          {isMenuOpen && (
+            <nav className="md:hidden py-6 border-t border-red-900/10">
+              {['hero', 'tawarantopik', 'jadwal', 'pengumuman', 'team'].map((section) => (
+                <a
+                  key={section}
+                  href={`#${section}`}
+                  onClick={(e) => { e.preventDefault(); scrollToSection(section); }}
+                  className="block py-3 text-gray-800 hover:text-red-900 font-medium"
+                >
+                  {section === 'hero' ? 'Home' : section.charAt(0).toUpperCase() + section.slice(1).replace('topik', ' Topik')}
+                </a>
+              ))}
+              <a 
+                href="/login" 
+                className="block text-center bg-gradient-to-r from-red-900 to-red-800 text-white px-8 py-3 rounded-full font-semibold mt-4"
+              >
+                Login
+              </a>
+            </nav>
+          )}
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section id="hero" className="min-h-screen flex items-center bg-gradient-to-br from-orange-50 via-white to-orange-50 pt-24">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div>
+              <span className="inline-block bg-gradient-to-r from-red-900 to-red-700 text-white px-6 py-2 rounded-full text-sm font-semibold mb-6">
+                ✨ Welcome to SITA-BI
+              </span>
+              <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6 text-gray-900">
+                Your <span className="bg-gradient-to-r from-red-900 to-red-700 bg-clip-text text-transparent">Ultimate Solution</span> for Managing Thesis Projects
+              </h1>
+              <p className="text-xl text-gray-600 mb-10 leading-relaxed">
+                Stay organized, stay on track, and achieve your academic goals with ease. Transform your thesis journey into a seamless experience.
+              </p>
+              <div className="flex flex-wrap gap-5">
+                <a 
+                  href="#" 
+                  className="bg-gradient-to-r from-red-900 to-red-800 text-white px-10 py-4 rounded-full font-semibold shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
+                >
+                  Get Started
+                </a>
+                <a 
+                  href="#" 
+                  className="border-2 border-red-900 text-red-900 px-10 py-4 rounded-full font-semibold bg-white hover:bg-red-900 hover:text-white hover:-translate-y-1 transition-all"
+                >
+                  Learn More
+                </a>
               </div>
             </div>
+            <div className="relative p-5">
+              <div className="absolute inset-0 bg-gradient-to-r from-red-900 to-yellow-600 rounded-3xl transform -rotate-6" />
+              <img 
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s" 
+                alt="Illustration" 
+                className="relative w-full max-w-lg rounded-3xl shadow-2xl"
+              />
+            </div>
           </div>
-        </footer>
-        
-        {/* Scroll to Top Button */}
-        {showScrollTop && (
-          <button onClick={scrollToTop} className="scroll-top">
-            ↑
-          </button>
-        )}
-      </div>
-    </>
+        </div>
+      </section>
+
+      {/* Tawaran Topik Section */}
+      <section id="tawarantopik" className="py-24">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <p className="text-red-900 font-semibold text-sm uppercase tracking-widest mb-4">Explore Topics</p>
+            <h2 className="text-5xl font-bold text-gray-900 mb-4">Tawaran Topik</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Temukan topik penelitian yang sesuai dengan minat dan kebutuhan Anda
+            </p>
+          </div>
+          <div className="text-center p-16 bg-white rounded-3xl border-2 border-dashed border-red-900/20 hover:border-red-900 hover:shadow-2xl transition-all">
+            <BookOpen size={80} className="mx-auto mb-6 text-red-900" />
+            <p className="text-xl text-gray-600">Belum ada tawaran topik yang tersedia saat ini.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Jadwal Section */}
+      <section id="jadwal" className="py-24 bg-gradient-to-b from-white to-orange-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <p className="text-red-900 font-semibold text-sm uppercase tracking-widest mb-4">Schedule</p>
+            <h2 className="text-5xl font-bold text-gray-900 mb-4">Jadwal Sidang</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Pantau jadwal sidang Anda dengan mudah dan tetap terorganisir
+            </p>
+          </div>
+          <div className="text-center p-16 bg-white rounded-3xl border-2 border-dashed border-red-900/20 hover:border-red-900 hover:shadow-2xl transition-all">
+            <GraduationCap size={80} className="mx-auto mb-6 text-red-900" />
+            <p className="text-xl text-gray-600">Belum ada jadwal untuk ditampilkan.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Pengumuman Section */}
+      <section id="pengumuman" className="py-24">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <p className="text-red-900 font-semibold text-sm uppercase tracking-widest mb-4">Announcements</p>
+            <h2 className="text-5xl font-bold text-gray-900 mb-4">Pengumuman</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Dapatkan informasi terbaru dan penting seputar kegiatan akademik
+            </p>
+          </div>
+          <div className="text-center p-16 bg-white rounded-3xl border-2 border-dashed border-red-900/20 hover:border-red-900 hover:shadow-2xl transition-all">
+            <Megaphone size={80} className="mx-auto mb-6 text-red-900" />
+            <p className="text-xl text-gray-600">Belum ada pengumuman untuk ditampilkan.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Team Section */}
+      <section id="team" className="py-24 bg-gradient-to-b from-white to-orange-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <p className="text-red-900 font-semibold text-sm uppercase tracking-widest mb-4">Meet Our Team</p>
+            <h2 className="text-5xl font-bold text-gray-900 mb-4">Team 7</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Tim pengembang yang berdedikasi untuk menciptakan solusi terbaik
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+            {teamMembers.map((member, idx) => (
+              <div key={idx} className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-3 transition-all duration-300">
+                <div className="relative aspect-square overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-900 to-yellow-600 scale-x-0 group-hover:scale-x-100 transition-transform" />
+                  <img 
+                    src={member.image} 
+                    alt={member.name} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-red-900/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-4 opacity-0 translate-y-5 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
+                    <a href="#" className="w-10 h-10 flex items-center justify-center bg-white rounded-full text-red-900 hover:bg-yellow-600 hover:text-white transition-colors">
+                      <Twitter size={18} />
+                    </a>
+                    <a href="#" className="w-10 h-10 flex items-center justify-center bg-white rounded-full text-red-900 hover:bg-yellow-600 hover:text-white transition-colors">
+                      <Github size={18} />
+                    </a>
+                    <a href="#" className="w-10 h-10 flex items-center justify-center bg-white rounded-full text-red-900 hover:bg-yellow-600 hover:text-white transition-colors">
+                      <Instagram size={18} />
+                    </a>
+                    <a href="#" className="w-10 h-10 flex items-center justify-center bg-white rounded-full text-red-900 hover:bg-yellow-600 hover:text-white transition-colors">
+                      <Linkedin size={18} />
+                    </a>
+                  </div>
+                </div>
+                <div className="p-8 text-center">
+                  <h4 className="text-xl font-bold text-gray-900 mb-2">{member.name}</h4>
+                  <p className="text-red-900 font-semibold mb-3">{member.role}</p>
+                  <p className="text-gray-600 text-sm bg-gray-100 px-4 py-2 rounded-full inline-block">{member.id}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gradient-to-br from-red-950 to-gray-900 text-white/80 py-16 relative">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-900 to-yellow-600" />
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid md:grid-cols-3 gap-12 mb-12">
+            <div>
+              <h3 className="text-3xl font-bold text-white mb-6">SITA-BI</h3>
+              <p className="flex items-center gap-2 mb-2">
+                <MapPin size={18} />Jalan Limau Manis
+              </p>
+              <p className="mb-4">Limau Manis, Kecamatan Pauh, Kota Padang, 25164</p>
+              <p className="flex items-center gap-2 mb-2">
+                <Phone size={18} /><strong>Phone:</strong> 0751-72590
+              </p>
+              <p className="flex items-center gap-2">
+                <Mail size={18} /><strong>Email:</strong> info@pnp.ac.id
+              </p>
+            </div>
+            <div>
+              <h4 className="text-xl font-semibold text-white mb-6">Useful Links</h4>
+              <ul className="space-y-3">
+                <li>
+                  <a href="#hero" onClick={(e) => { e.preventDefault(); scrollToSection('hero'); }} className="hover:text-yellow-600 transition-colors">
+                    Home
+                  </a>
+                </li>
+                <li>
+                  <a href="#pengumuman" onClick={(e) => { e.preventDefault(); scrollToSection('pengumuman'); }} className="hover:text-yellow-600 transition-colors">
+                    Pengumuman
+                  </a>
+                </li>
+                <li>
+                  <a href="#jadwal" onClick={(e) => { e.preventDefault(); scrollToSection('jadwal'); }} className="hover:text-yellow-600 transition-colors">
+                    Jadwal
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-white/10 pt-8 text-center">
+            <p>© 2024 SITA-BI. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button 
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-r from-red-900 to-red-800 text-white rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl hover:-translate-y-1 hover:scale-110 transition-all z-30"
+        >
+          <ArrowUp size={24} />
+        </button>
+      )}
+    </div>
   );
 }
