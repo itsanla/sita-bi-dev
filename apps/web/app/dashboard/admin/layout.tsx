@@ -20,6 +20,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <nav>
           <Link href="/dashboard/admin">Home</Link> | 
           <Link href="/dashboard/admin/users">Manage Users</Link> | 
+          <Link href="/dashboard/admin/prisma-examples">Prisma Examples</Link> |
+          <Link href="/dashboard/admin/logs">View Logs</Link> |
+          <Link href="/dashboard/admin/test-upload">Test Upload</Link> |
           {/* Add other admin links here */}
         </nav>
         <span>Welcome, {user?.name}</span>

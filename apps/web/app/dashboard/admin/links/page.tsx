@@ -96,6 +96,37 @@ const LinkModal = ({
   );
 };
 
+// --- Link Details Modal Component ---
+const LinkDetailsModal = ({
+  isOpen,
+  onClose,
+  link,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  link: Link | null;
+}) => {
+  if (!isOpen || !link) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+      <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg">
+        <h2 className="text-xl font-bold mb-4">Detail Link</h2>
+        <div className="space-y-2">
+          <div><strong>ID:</strong> {link.id}</div>
+          <div><strong>Judul:</strong> {link.title}</div>
+          <div><strong>URL:</strong> <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{link.url}</a></div>
+          <div><strong>Deskripsi:</strong> {link.description || 'Tidak ada'}</div>
+        </div>
+        <div className="flex justify-end mt-6">
+          <button onClick={onClose} className="bg-gray-200 py-2 px-4 rounded-lg">Tutup</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 // --- Main Page Component ---
 export default function LinksPage() {
   const [links, setLinks] = useState<Link[]>([]);
@@ -103,6 +134,8 @@ export default function LinksPage() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLink, setSelectedLink] = useState<Link | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewingLink, setViewingLink] = useState<Link | null>(null);
 
   const fetchLinks = async () => {
     try {
@@ -145,6 +178,16 @@ export default function LinksPage() {
     }
   };
 
+  const handleViewDetails = async (id: number) => {
+    try {
+      const response = await api<{ data: Link }>(`/links/${id}`);
+      setViewingLink(response.data);
+      setIsViewModalOpen(true);
+    } catch (err) {
+      setError("Gagal memuat detail link.");
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500 p-4">{error}</div>;
 
@@ -174,6 +217,7 @@ export default function LinksPage() {
                   </td>
                   <td className="py-4 px-6"><a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{link.url}</a></td>
                   <td className="py-4 px-6">
+                    <button onClick={() => handleViewDetails(link.id)} className="font-medium text-green-600 hover:underline mr-4">Lihat</button>
                     <button onClick={() => handleOpenModal(link)} className="font-medium text-blue-600 hover:underline mr-4">Edit</button>
                     <button onClick={() => handleDelete(link.id)} className="font-medium text-red-600 hover:underline">Hapus</button>
                   </td>
@@ -193,6 +237,11 @@ export default function LinksPage() {
         onClose={handleCloseModal}
         onSave={handleSave}
         link={selectedLink}
+      />
+      <LinkDetailsModal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        link={viewingLink}
       />
     </div>
   );

@@ -3,6 +3,7 @@
 import { useEffect, useState, FormEvent } from 'react';
 import request from '@/lib/api';
 import { useAuth } from '../../../../context/AuthContext';
+import Link from 'next/link';
 
 // --- Interfaces ---
 interface Nilai {
@@ -106,10 +107,30 @@ export default function PenilaianPage() {
               </ul>
             ) : <p>No scores submitted yet.</p>}
 
-            <PenilaianForm sidangId={sidang.id} onScoringSuccess={fetchData} />
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+              <PenilaianForm sidangId={sidang.id} onScoringSuccess={fetchData} />
+              <Link href={`/dashboard/dosen/penilaian/${sidang.id}`}>
+                <a style={{
+                  display: 'inline-block',
+                  padding: '10px 15px',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  textDecoration: 'none',
+                  borderRadius: '5px',
+                  alignSelf: 'center'
+                }}>
+                  View All Scores
+                </a>
+              </Link>
+            </div>
           </div>
         ))
       )}
+      <style jsx>{`
+        a {
+          text-decoration: none;
+        }
+      `}</style>
     </div>
   );
 }
