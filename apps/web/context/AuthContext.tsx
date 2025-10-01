@@ -1,61 +1,59 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import Cookies from 'js-cookie';
-import request from '@/lib/api';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface User {
-  id: number;
+  id: string;
   name: string;
-  email: string;
-  roles: { name: string }[];
-  mahasiswa?: {
-    nim: string;
-    angkatan: string;
-  } | null;
-  dosen?: {
-    nidn: string;
-  } | null;
+  role: string;
 }
 
 interface AuthContextType {
+  token: string | null;
   user: User | null;
-  loading: boolean;
+  login: (token: string, user: User) => void;
   logout: () => void;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const token = Cookies.get('token');
-      if (token) {
-        try {
-          const response = await request<{ data: User }>('/profile');
-          setUser(response.data); // Ekstrak dan set hanya data pengguna
-        } catch (error) {
-          console.error('Failed to fetch user', error);
-          Cookies.remove('token'); // Invalid token
-        }
+    try {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      if (storedToken && storedUser) {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
       }
+    } catch (error) {
+      console.error("Failed to parse auth data from localStorage", error)
+    } finally {
       setLoading(false);
-    };
-
-    fetchUser();
+    }
   }, []);
 
+  const login = (newToken: string, newUser: User) => {
+    setToken(newToken);
+    setUser(newUser);
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(newUser));
+  };
+
   const logout = () => {
-    Cookies.remove('token');
+    setToken(null);
     setUser(null);
-    window.location.href = '/login';
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, logout }}>
+    <AuthContext.Provider value={{ token, user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
