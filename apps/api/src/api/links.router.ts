@@ -12,7 +12,7 @@ const linksService = new LinksService();
 
 router.post(
   '/',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.admin]),
   validate(createLinkSchema),
   asyncHandler(async (req, res): Promise<void> => {
@@ -50,7 +50,7 @@ router.get(
 
 router.patch(
   '/:id',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.admin]),
   validate(updateLinkSchema),
   asyncHandler(async (req, res): Promise<void> => {
@@ -73,7 +73,7 @@ router.patch(
 
 router.delete(
   '/:id',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.admin]),
   asyncHandler(async (req, res): Promise<void> => {
     const { id } = req.params;

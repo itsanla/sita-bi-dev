@@ -67,7 +67,7 @@ export class AuthService {
       where: { OR: [{ email }, { mahasiswa: { nim } }] },
     });
 
-    if (existingUser) {
+    if (existingUser !== null) {
       throw new HttpError(409, 'User dengan email atau NIM tersebut sudah ada.');
     }
 
@@ -110,7 +110,7 @@ export class AuthService {
       where: { token },
     });
 
-    if (!verificationToken) {
+    if (verificationToken === null) {
       throw new HttpError(404, 'Token verifikasi tidak valid atau sudah digunakan.');
     }
 

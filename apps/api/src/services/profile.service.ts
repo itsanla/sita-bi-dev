@@ -14,7 +14,7 @@ export class ProfileService {
 
   async getProfile(userId: number): Promise<Partial<User>> {
     const user = await this.usersService.findUserById(userId);
-    if (!user) {
+    if (user === null) {
       throw new Error('User not found.');
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

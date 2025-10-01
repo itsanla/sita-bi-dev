@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export const tugasAkhirGuard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { id } = req.params;
-  if (!id) {
+  if (id === null || id === undefined) {
     res.status(400).json({ message: 'Tugas Akhir ID is required' });
     return;
   }
@@ -14,7 +14,7 @@ export const tugasAkhirGuard = async (req: Request, res: Response, next: NextFun
   const userId = req.user?.id;
   const userRoles = req.user?.role;
 
-  if (userId == null || userRoles == null) {
+  if (userId === undefined || userRoles === undefined) {
     res.status(401).json({ message: 'Unauthorized: User not authenticated.' });
     return;
   }
@@ -27,10 +27,10 @@ export const tugasAkhirGuard = async (req: Request, res: Response, next: NextFun
   try {
     const tugasAkhir = await prisma.tugasAkhir.findUnique({
       where: { id: tugasAkhirId },
-      include: { mahasiswa: { include: { user: true } } },
+      include: { mahasiswa: { include: { user: true } } }
     });
 
-    if (!tugasAkhir) {
+    if (tugasAkhir === null) {
       res.status(404).json({ message: 'Tugas Akhir not found.' });
       return;
     }
@@ -46,8 +46,8 @@ export const tugasAkhirGuard = async (req: Request, res: Response, next: NextFun
     // For now, it seems to primarily check roles and existence.
 
     next();
-  } catch (error) {
-    console.error('TugasAkhirGuard Error:', error);
+  } catch (_error) {
+    // console.error('TugasAkhirGuard Error:', _error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };

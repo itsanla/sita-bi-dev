@@ -12,7 +12,7 @@ const router: Router = Router();
 const pendaftaranSidangService = new PendaftaranSidangService();
 
 // Apply JWT Auth and Roles Guard globally for this router
-router.use(jwtAuthMiddleware);
+router.use(asyncHandler(jwtAuthMiddleware));
 
 router.post(
   '/',

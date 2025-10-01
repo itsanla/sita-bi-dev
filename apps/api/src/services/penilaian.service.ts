@@ -19,16 +19,16 @@ export class PenilaianService {
         },
       });
 
-      if (!sidang) {
+      if (sidang === null) {
         throw new Error('Sidang not found.');
       }
 
       const peranDosen = sidang.tugasAkhir.peranDosenTa;
       const isAllowed = peranDosen.some(
-        p => p.dosen_id === dosenId && (p.peran.startsWith('pembimbing') || p.peran.startsWith('penguji')),
+        p => p.dosen_id === dosenId && (String(p.peran).startsWith('pembimbing') || String(p.peran).startsWith('penguji'))
       );
 
-      if (!isAllowed) {
+      if (isAllowed === false) {
         throw new Error('You are not authorized to submit a score for this defense.');
       }
 
@@ -43,7 +43,7 @@ export class PenilaianService {
       });
 
       // --- Finalize Logic ---
-      const jumlahPenilai = peranDosen.filter(p => p.peran.startsWith('pembimbing') || p.peran.startsWith('penguji')).length;
+      const jumlahPenilai = peranDosen.filter(p => String(p.peran).startsWith('pembimbing') || String(p.peran).startsWith('penguji')).length;
       const jumlahNilaiMasuk = sidang._count.nilaiSidang + 1; // +1 for the one just created
 
       if (jumlahNilaiMasuk >= jumlahPenilai) {

@@ -10,7 +10,7 @@ const ruanganService = new RuanganService();
 
 router.get(
   '/',
-  jwtAuthMiddleware,
+  asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.admin]),
   asyncHandler(async (req, res) => {
     const ruangan = await ruanganService.findAll();

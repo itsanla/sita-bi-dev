@@ -9,7 +9,7 @@ const router: Router = Router();
 const profileService = new ProfileService();
 
 // Apply JWT Auth globally for this router
-router.use(jwtAuthMiddleware);
+router.use(asyncHandler(jwtAuthMiddleware));
 
 router.get(
   '/',

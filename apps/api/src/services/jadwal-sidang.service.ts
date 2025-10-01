@@ -1,6 +1,5 @@
 import { PrismaClient, PeranDosen, StatusPersetujuan, StatusVerifikasi } from '@repo/db';
 import { CreateJadwalDto } from '../dto/jadwal-sidang.dto';
-import { paginate } from '../utils/pagination.util';
 
 export class JadwalSidangService {
   private prisma: PrismaClient;
@@ -64,7 +63,7 @@ export class JadwalSidangService {
         },
       });
 
-      if (conflictingJadwal) {
+      if (conflictingJadwal !== null) {
         throw new Error(`Ruangan sudah terpakai pada waktu tersebut (konflik dengan jadwal ID: ${conflictingJadwal.id}).`);
       }
 
@@ -74,7 +73,7 @@ export class JadwalSidangService {
         include: { tugasAkhir: true },
       });
 
-      if (!sidang) {
+      if (sidang === null) {
         throw new Error(`Sidang for Pendaftaran Sidang with ID ${pendaftaranSidangId} not found. It should have been created automatically upon approval.`);
       }
 

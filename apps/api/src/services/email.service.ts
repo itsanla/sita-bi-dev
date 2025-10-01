@@ -5,8 +5,8 @@ export class EmailService {
 
   constructor() {
     // Pastikan variabel environment sudah di-set
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.error('ERROR: EMAIL_USER and EMAIL_PASS environment variables must be set.');
+    if (process.env.EMAIL_USER == null || process.env.EMAIL_PASS == null) {
+      // console.error('ERROR: EMAIL_USER and EMAIL_PASS environment variables must be set.');
       // In a real app, you might want to throw an error or have a fallback
       // For now, we create a non-functional transporter to avoid crashing.
       this.transporter = nodemailer.createTransport({});
@@ -26,7 +26,7 @@ export class EmailService {
     const frontendUrl = process.env.FRONTEND_URL;
     const verificationLink = `${frontendUrl}/verify-otp?token=${token}`;
 
-    const appName = process.env.APP_NAME || 'SITA-BI Politekni Negeri Padang';
+    const appName = process.env.APP_NAME ?? 'SITA-BI Politekni Negeri Padang';
 
     const mailOptions = {
       from: `"${appName}" <${process.env.EMAIL_USER}>`,
@@ -48,9 +48,9 @@ export class EmailService {
 
     try {
       await this.transporter.sendMail(mailOptions);
-      console.log(`Verification email sent to ${to}`);
-    } catch (error) {
-      console.error(`Error sending verification email to ${to}:`, error);
+      // console.log(`Verification email sent to ${to}`);
+    } catch (_error) {
+      // console.error(`Error sending verification email to ${to}:`, _error);
       // In a real app, you might want to handle this error more gracefully
       throw new Error('Could not send verification email.');
     }

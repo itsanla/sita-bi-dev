@@ -1,6 +1,11 @@
 import { PrismaClient, PendaftaranSidang, TipeDokumenSidang, Prisma } from '@repo/db';
 
 
+// Interface untuk S3 file
+interface S3File extends Express.Multer.File {
+  location: string;
+}
+
 // Interface untuk return type getPendingRegistrations
 interface PendingRegistration {
   id: number;
@@ -42,7 +47,7 @@ export class PendaftaranSidangService {
         where: { mahasiswa_id: mahasiswaId, status: 'DISETUJUI' },
       });
 
-      if (!tugasAkhir) {
+      if (tugasAkhir === null) {
         throw new Error('Active and approved final project not found for this student.');
       }
 
@@ -53,7 +58,7 @@ export class PendaftaranSidangService {
         },
       });
 
-      if (existingRegistration) {
+      if (existingRegistration !== null) {
         throw new Error('A registration for this final project already exists or is being processed.');
       }
 
@@ -68,15 +73,15 @@ export class PendaftaranSidangService {
         },
       });
 
-      if (files && typeof files === 'object' && !Array.isArray(files)) {
+      if (files !== undefined && typeof files === 'object' && !Array.isArray(files)) {
         for (const fieldname in files) {
           const fileArray = files[fieldname];
-          if (fileArray) {
+          if (fileArray !== undefined) {
             for (const file of fileArray) {
               // The file object from multer-s3 has a 'location' property which is the public URL.
-              const uploadedFilePath = (file as any).location;
+              const uploadedFilePath = (file as S3File).location;
 
-              if (!uploadedFilePath) {
+              if (uploadedFilePath === undefined || uploadedFilePath === null) {
                 throw new Error(`Failed to upload ${file.originalname} to S3.`);
               }
 
@@ -136,12 +141,12 @@ export class PendaftaranSidangService {
         include: { tugasAkhir: { include: { peranDosenTa: true } } },
       });
 
-      if (!pendaftaran) {
+      if (pendaftaran === null) {
         throw new Error('Registration not found.');
       }
 
       const peran = pendaftaran.tugasAkhir.peranDosenTa.find(p => p.dosen_id === dosenId);
-      if (!peran || (peran.peran !== 'pembimbing1' && peran.peran !== 'pembimbing2')) {
+      if (peran === undefined || (peran.peran !== 'pembimbing1' && peran.peran !== 'pembimbing2')) {
         throw new Error('You are not a supervisor for this registration.');
       }
 
@@ -187,12 +192,12 @@ export class PendaftaranSidangService {
         include: { tugasAkhir: { include: { peranDosenTa: true } } },
       });
 
-      if (!pendaftaran) {
+      if (pendaftaran === null) {
         throw new Error('Registration not found.');
       }
 
       const peran = pendaftaran.tugasAkhir.peranDosenTa.find(p => p.dosen_id === dosenId);
-      if (!peran || (peran.peran !== 'pembimbing1' && peran.peran !== 'pembimbing2')) {
+      if (peran === undefined || (peran.peran !== 'pembimbing1' && peran.peran !== 'pembimbing2')) {
         throw new Error('You are not a supervisor for this registration.');
       }
 

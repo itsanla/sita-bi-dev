@@ -1,7 +1,5 @@
 import { PrismaClient, Prisma, StatusTugasAkhir } from '@repo/db';
 
-import { paginate } from '../utils/pagination.util';
-
 // Interface untuk return types
 interface BimbinganForDosen {
   data: unknown[];
@@ -103,8 +101,8 @@ export class BimbinganService {
     }
 
     const isMahasiswa = bimbingan.tugasAkhir.mahasiswa.user.id === authorId;
-    const isPembimbing = bimbingan.dosen_id !== null && 
-      (bimbingan.tugasAkhir.peranDosenTa?.some(p => p.dosen_id === bimbingan.dosen_id) ?? false);
+    const peranDosenList = bimbingan.tugasAkhir.peranDosenTa as Array<{ dosen_id: number | null }>;
+    const isPembimbing = bimbingan.dosen_id !== null && (peranDosenList?.some(p => p.dosen_id === bimbingan.dosen_id) ?? false);
 
     if (!(isMahasiswa || isPembimbing)) {
       throw new Error('You are not authorized to add a catatan to this bimbingan session.');
@@ -126,7 +124,7 @@ export class BimbinganService {
         where: { tugas_akhir_id: tugasAkhirId, dosen_id: dosenId },
       });
 
-      if (peranDosen === null || !peranDosen.peran.startsWith('pembimbing')) {
+      if (peranDosen === null || String(peranDosen.peran).startsWith('pembimbing') === false) {
         throw new Error('You are not a supervisor for this final project.');
       }
 
