@@ -7,7 +7,7 @@ import Link from 'next/link';
 export default function MahasiswaLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
 
-  const isMahasiswa = user?.roles.some(role => role.name === 'mahasiswa');
+  const isMahasiswa = user?.role === 'mahasiswa';
   if (!isMahasiswa) {
     return <div>Unauthorized: Mahasiswa access required.</div>;
   }

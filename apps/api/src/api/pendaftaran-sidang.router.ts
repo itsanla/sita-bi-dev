@@ -18,7 +18,7 @@ router.post(
   '/',
   // authorizeRoles([Role.mahasiswa]), // Dikomenkan untuk sementara untuk testing
   uploadSidangFiles, // Multer middleware to handle file uploads
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     // ID Mahasiswa di-hardcode untuk testing karena otentikasi dinonaktifkan
     const mahasiswaId = 1; // Ganti dengan ID mahasiswa yang valid dari database Anda jika perlu
     /*
@@ -37,7 +37,7 @@ router.post(
 router.get(
   '/pending-approvals',
   authorizeRoles([Role.dosen]),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const dosenId = req.user?.dosen?.id;
     if (dosenId === undefined) {
       res.status(401).json({ status: 'gagal', message: 'Akses ditolak: Pengguna tidak memiliki profil dosen.' });
@@ -51,9 +51,9 @@ router.get(
 router.post(
   '/:id/approve',
   authorizeRoles([Role.dosen]),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const { id } = req.params;
-    if (!id) {
+    if (id == null) {
       res.status(400).json({ status: 'gagal', message: 'ID Pendaftaran diperlukan' });
       return;
     }
@@ -71,9 +71,9 @@ router.post(
   '/:id/reject',
   authorizeRoles([Role.dosen]),
   validate(rejectPendaftaranSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const { id } = req.params;
-    if (!id) {
+    if (id == null) {
       res.status(400).json({ status: 'gagal', message: 'ID Pendaftaran diperlukan' });
       return;
     }

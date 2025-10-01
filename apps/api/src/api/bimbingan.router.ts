@@ -1,4 +1,3 @@
-/// <reference path="../types/express.d.ts" />
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { BimbinganService } from '../services/bimbingan.service';
@@ -16,14 +15,14 @@ router.use(jwtAuthMiddleware);
 
 router.get(
   '/sebagai-dosen',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const dosenId = req.user?.dosen?.id;
     if (dosenId === undefined) {
       res.status(401).json({ status: 'gagal', message: 'Akses ditolak: Pengguna tidak memiliki profil dosen.' });
       return;
     }
-    const page = req.query.page ? parseInt(req.query.page as string) : undefined;
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+    const page = req.query.page != null ? parseInt(req.query.page as string) : undefined;
+    const limit = req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
     const bimbingan = await bimbinganService.getBimbinganForDosen(dosenId, page, limit);
     res.status(200).json({ status: 'sukses', data: bimbingan });
   })
@@ -31,7 +30,7 @@ router.get(
 
 router.get(
   '/sebagai-mahasiswa',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const mahasiswaId = req.user?.mahasiswa?.id;
     if (mahasiswaId === undefined) {
       res.status(401).json({ status: 'gagal', message: 'Akses ditolak: Pengguna tidak memiliki profil mahasiswa.' });
@@ -46,7 +45,7 @@ router.post(
   '/catatan',
   authorizeRoles([Role.dosen, Role.mahasiswa]),
   validate(createCatatanSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
     if (userId === undefined) {
       res.status(401).json({ status: 'gagal', message: 'Akses ditolak: ID pengguna tidak ditemukan.' });
@@ -62,9 +61,9 @@ router.post(
   '/:tugasAkhirId/jadwal',
   authorizeRoles([Role.dosen]),
   validate(setJadwalSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const { tugasAkhirId } = req.params;
-    if (!tugasAkhirId) {
+    if (tugasAkhirId == null) {
       res.status(400).json({ status: 'gagal', message: 'ID Tugas Akhir diperlukan' });
       return;
     }
@@ -82,9 +81,9 @@ router.post(
 router.post(
   '/sesi/:id/cancel',
   authorizeRoles([Role.dosen]),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const { id } = req.params;
-    if (!id) {
+    if (id == null) {
       res.status(400).json({ status: 'gagal', message: 'ID Sesi diperlukan' });
       return;
     }
@@ -105,9 +104,9 @@ router.post(
 router.post(
   '/sesi/:id/selesaikan',
   authorizeRoles([Role.dosen]),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req, res): Promise<void> => {
     const { id } = req.params;
-    if (!id) {
+    if (id == null) {
       res.status(400).json({ status: 'gagal', message: 'ID Sesi diperlukan' });
       return;
     }

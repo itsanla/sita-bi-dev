@@ -5,7 +5,15 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 interface User {
   id: string;
   name: string;
+  email: string;
   role: string;
+  mahasiswa?: {
+    nim: string;
+    angkatan: string;
+  };
+  dosen?: {
+    nidn: string;
+  };
 }
 
 interface AuthContextType {

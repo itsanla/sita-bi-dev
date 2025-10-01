@@ -71,8 +71,8 @@ export default function ProfilePage() {
   if (authLoading) return <div>Loading...</div>;
   if (!user) return <div>Gagal memuat profil pengguna.</div>;
 
-  const isMahasiswa = user.roles.some(r => r.name === 'mahasiswa');
-  const isDosen = user.roles.some(r => r.name === 'dosen');
+  const isMahasiswa = user.role === 'mahasiswa';
+  const isDosen = user.role === 'dosen';
 
   return (
     <div className="container mx-auto p-4">

@@ -7,7 +7,7 @@ import Link from 'next/link';
 export default function DosenLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
 
-  const isDosen = user?.roles.some(role => role.name === 'dosen');
+  const isDosen = user?.role === 'dosen';
   if (!isDosen) {
     return <div>Unauthorized: Dosen access required.</div>;
   }
