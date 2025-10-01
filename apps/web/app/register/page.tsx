@@ -36,7 +36,8 @@ export default function RegisterPage() {
     }
 
     // Hapus password_confirmation sebelum mengirim
-    const { password_confirmation, ...payload } = formData;
+    const { name, email, nim, prodi, angkatan, kelas, password } = formData;
+    const payload = { name, email, nim, prodi, angkatan, kelas, password };
 
     try {
       const response = await request<{ message: string }>('/auth/register', {
@@ -46,8 +47,9 @@ export default function RegisterPage() {
       alert(response.message);
       // Redirect to OTP verification page, passing email along
       router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`);
-    } catch (err: any) {
-      const errorMessage = err.data?.message || err.message || 'An unknown error occurred.';
+    } catch (err) {
+      const error = err as { data?: { message?: string }, message?: string };
+      const errorMessage = error.data?.message || error.message || 'An unknown error occurred.';
       setError(errorMessage);
     } finally {
       setIsLoading(false);

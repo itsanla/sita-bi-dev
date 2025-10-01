@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { Menu, X, ArrowUp, Megaphone, GraduationCap, BookOpen, Mail, Phone, MapPin, Github, Linkedin, Instagram, Twitter } from 'lucide-react';
+import Image from "next/image";
 
 export default function SitaBIHomepage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -88,10 +89,12 @@ export default function SitaBIHomepage() {
               onClick={(e) => { e.preventDefault(); scrollToSection('hero'); }}
               className="flex items-center gap-3 transition-transform hover:scale-105"
             >
-              <img 
+              <Image
                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s" 
-                alt="Logo" 
-                className="w-12 h-12 rounded-xl shadow-md"
+                alt="Logo"
+                width={48}
+                height={48}
+                className="rounded-xl shadow-md"
               />
               <h1 className="text-3xl font-bold bg-gradient-to-r from-red-900 to-red-700 bg-clip-text text-transparent">
                 SITA-BI
@@ -187,9 +190,11 @@ export default function SitaBIHomepage() {
             </div>
             <div className="relative p-5">
               <div className="absolute inset-0 bg-gradient-to-r from-red-900 to-yellow-600 rounded-3xl transform -rotate-6" />
-              <img 
+              <Image
                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s" 
-                alt="Illustration" 
+                alt="Illustration"
+                width={512}
+                height={512}
                 className="relative w-full max-w-lg rounded-3xl shadow-2xl"
               />
             </div>
@@ -263,10 +268,11 @@ export default function SitaBIHomepage() {
               <div key={idx} className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-3 transition-all duration-300">
                 <div className="relative aspect-square overflow-hidden">
                   <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-900 to-yellow-600 scale-x-0 group-hover:scale-x-100 transition-transform" />
-                  <img 
+                  <Image
                     src={member.image} 
-                    alt={member.name} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    alt={member.name}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-red-900/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-4 opacity-0 translate-y-5 group-hover:opacity-100 group-hover:translate-y-0 transition-all">

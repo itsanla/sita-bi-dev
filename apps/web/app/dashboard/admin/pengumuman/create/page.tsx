@@ -28,7 +28,7 @@ export default function CreatePengumumanPage() {
     try {
       await api("/pengumuman", { method: 'POST', body: { judul, isi, audiens } });
       router.push("/dashboard/admin/pengumuman");
-    } catch (err) {
+    } catch {
       setError("Gagal membuat pengumuman. Pastikan semua field terisi.");
     } finally {
       setSubmitting(false);

@@ -34,7 +34,7 @@ export default function EditPengumumanPage() {
         setJudul(data.judul);
         setIsi(data.isi);
         setAudiens(data.audiens);
-      } catch (err) {
+      } catch {
         setError("Gagal memuat data pengumuman.");
       } finally {
         setLoading(false);
@@ -52,7 +52,7 @@ export default function EditPengumumanPage() {
     try {
       await api(`/pengumuman/${id}`, { method: 'PATCH', body: { judul, isi, audiens } });
       router.push("/dashboard/admin/pengumuman");
-    } catch (err) {
+    } catch {
       setError("Gagal memperbarui pengumuman. Pastikan semua field terisi.");
     } finally {
       setSubmitting(false);

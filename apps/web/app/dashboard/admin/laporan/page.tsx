@@ -37,7 +37,7 @@ export default function LaporanPage() {
       try {
         const response = await api<{ data: { data: StatistikData } }>("/laporan/statistik");
         setStats(response.data.data);
-      } catch (err) {
+      } catch {
         setError("Gagal memuat data laporan statistik.");
       } finally {
         setLoading(false);

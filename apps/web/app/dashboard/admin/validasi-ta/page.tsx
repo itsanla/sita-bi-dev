@@ -78,7 +78,7 @@ export default function ValidasiTaPage() {
     try {
       const response = await api<{ data: { data: TugasAkhir[] } }>("/tugas-akhir/validasi");
       setTas(response.data.data || []);
-    } catch (err) { setError("Gagal memuat data."); } 
+    } catch { setError("Gagal memuat data."); }
     finally { setLoading(false); }
   };
 
@@ -89,7 +89,7 @@ export default function ValidasiTaPage() {
     try {
       await api(`/tugas-akhir/${id}/approve`, { method: 'PATCH' });
       fetchData();
-    } catch (err) { alert("Gagal menyetujui."); }
+    } catch { alert("Gagal menyetujui."); }
   };
 
   const handleReject = async (alasan: string) => {
@@ -98,7 +98,7 @@ export default function ValidasiTaPage() {
       await api(`/tugas-akhir/${selectedTA.id}/reject`, { method: 'PATCH', body: { alasan_penolakan: alasan } });
       setRejectModalOpen(false);
       fetchData();
-    } catch (err) { alert("Gagal menolak."); }
+    } catch { alert("Gagal menolak."); }
   };
 
   const handleCekKemiripan = async (id: number) => {
@@ -106,7 +106,7 @@ export default function ValidasiTaPage() {
       const response = await api<{ data: { data: KemiripanResult[] } }>(`/tugas-akhir/${id}/cek-kemiripan`, { method: 'POST' });
       setKemiripanResult(response.data.data);
       setKemiripanModalOpen(true);
-    } catch (err) { alert("Gagal mengecek kemiripan."); }
+    } catch { alert("Gagal mengecek kemiripan."); }
   };
 
   if (loading) return <div>Loading...</div>;

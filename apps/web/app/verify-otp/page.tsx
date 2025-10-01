@@ -21,15 +21,16 @@ function VerifyComponent() {
 
     const verifyToken = async () => {
       try {
-        const response = await request<{ message: string }>('/auth/verify-email', {
+        await request<{ message: string }>('/auth/verify-email', {
           method: 'POST',
           body: { token },
         });
         setStatus('Success!');
         setError(''); // Clear any previous errors
-      } catch (err: any) {
+      } catch (err) {
+        const error = err as { data?: { message?: string }, message?: string };
         setStatus('Failed');
-        const errorMessage = err.data?.message || err.message || 'An unknown error occurred.';
+        const errorMessage = error.data?.message || error.message || 'An unknown error occurred.';
         setError(errorMessage);
       }
     };

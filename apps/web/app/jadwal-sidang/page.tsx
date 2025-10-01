@@ -52,7 +52,8 @@ export default function JadwalSidangPage() {
         const scheduleData = Array.isArray(data.data) ? data.data : (data.data ? [data.data] : []);
         setSchedule(scheduleData);
 
-      } catch (error: any) {
+      } catch (e) {
+        const error = e as Error;
         setError(error.message);
       } finally {
         setLoading(false);

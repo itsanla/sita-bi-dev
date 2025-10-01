@@ -66,8 +66,9 @@ const AssignPembimbingModal = ({
       await api(`/penugasan/${tugasAkhir.id}/assign`, { method: 'POST', body: assignmentData });
       onSave();
       onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Gagal menugaskan pembimbing.");
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || "Gagal menugaskan pembimbing.");
     } finally {
       setSubmitting(false);
     }
@@ -124,7 +125,7 @@ export default function PenugasanPage() {
       ]);
       setUnassignedTAs(taResponse.data.data || []);
       setDosenList(dosenResponse.data.data || []);
-    } catch (err) {
+    } catch {
       setError("Gagal memuat data.");
     } finally {
       setLoading(false);

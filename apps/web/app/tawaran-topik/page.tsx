@@ -51,7 +51,8 @@ export default function TawaranTopikPage() {
         }
 
         setTopics(data.data.topics);
-      } catch (error: any) {
+      } catch (e) {
+        const error = e as Error;
         setError(error.message);
       } finally {
         setLoading(false);

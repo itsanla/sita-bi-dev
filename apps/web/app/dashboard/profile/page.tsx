@@ -4,6 +4,17 @@ import { useEffect, useState, FormEvent } from "react";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 
+interface ProfileUpdateData {
+  name: string;
+  mahasiswa?: {
+    nim: string;
+    angkatan: string;
+  };
+  dosen?: {
+    nidn: string;
+  };
+}
+
 export default function ProfilePage() {
   const { user, loading: authLoading, logout } = useAuth();
   
@@ -37,7 +48,7 @@ export default function ProfilePage() {
     setError(null);
     setSuccess(null);
 
-    const profileData: any = { name };
+    const profileData: ProfileUpdateData = { name };
     if (user?.mahasiswa) {
       profileData.mahasiswa = { nim, angkatan };
     }
@@ -49,8 +60,9 @@ export default function ProfilePage() {
       await api("/profile", { method: 'PATCH', body: profileData });
       setSuccess("Profil berhasil diperbarui. Data akan ter-refresh pada login berikutnya.");
       setIsEditing(false);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Gagal memperbarui profil.");
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || "Gagal memperbarui profil.");
     } finally {
       setSubmitting(false);
     }

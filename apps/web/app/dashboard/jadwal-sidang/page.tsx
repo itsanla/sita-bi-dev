@@ -72,7 +72,7 @@ export default function ViewJadwalSidangPage() {
       try {
         const response = await api<{ data: { data: Sidang[] } }>(endpoint);
         setJadwalList(response.data.data || []);
-      } catch (err) {
+      } catch {
         setError("Gagal memuat jadwal sidang.");
       } finally {
         setLoading(false);

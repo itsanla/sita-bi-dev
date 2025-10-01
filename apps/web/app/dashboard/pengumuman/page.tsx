@@ -41,7 +41,7 @@ export default function ViewPengumumanPage() {
       try {
         const response = await api<{ data: { data: Pengumuman[] } }>(endpoint);
         setPengumuman(response.data.data || []);
-      } catch (err) {
+      } catch {
         setError("Gagal memuat pengumuman.");
       } finally {
         setLoading(false);
