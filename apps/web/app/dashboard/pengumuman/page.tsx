@@ -25,14 +25,14 @@ export default function ViewPengumumanPage() {
     let endpoint = "/pengumuman/public"; // Fallback endpoint
 
     if (user) {
-      const roles = user.roles.map(role => role.name);
-      if (roles.includes("admin")) {
+      const role = user.role;
+      if (role === "admin") {
         // Admin should manage announcements, not just view them.
         router.replace("/dashboard/admin/pengumuman");
         return;
-      } else if (roles.includes("dosen")) {
+      } else if (role === "dosen") {
         endpoint = "/pengumuman/dosen";
-      } else if (roles.includes("mahasiswa")) {
+      } else if (role === "mahasiswa") {
         endpoint = "/pengumuman/mahasiswa";
       }
     }
