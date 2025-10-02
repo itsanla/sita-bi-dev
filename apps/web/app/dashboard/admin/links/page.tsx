@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, FormEvent } from "react";
+import Link from "next/link";
 import api from "@/lib/api";
 
 // --- Type Definitions ---
@@ -175,6 +176,9 @@ export default function LinksPage() {
                   </td>
                   <td className="py-4 px-6"><a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{link.url}</a></td>
                   <td className="py-4 px-6">
+                    <Link href={`/dashboard/admin/links/${link.id}`} className="font-medium text-green-600 hover:underline mr-4">
+                      View
+                    </Link>
                     <button onClick={() => handleOpenModal(link)} className="font-medium text-blue-600 hover:underline mr-4">Edit</button>
                     <button onClick={() => handleDelete(link.id)} className="font-medium text-red-600 hover:underline">Hapus</button>
                   </td>

@@ -7,6 +7,6 @@
 | GET         | /api/laporan/statistik                      | IMPLEMENTED           | `apps/web/app/dashboard/admin/laporan/page.tsx`                                                                            |
 | POST        | /api/links                                  | IMPLEMENTED           | `apps/web/app/dashboard/admin/links/page.tsx`                                                                              |
 | GET         | /api/links                                  | IMPLEMENTED           | `apps/web/app/dashboard/admin/links/page.tsx`                                                                              |
-| GET         | /api/links/:id                              | NOT IMPLEMENTED       |                                                                                                                            |
+| GET         | /api/links/:id                              | IMPLEMENTED           | `apps/web/app/dashboard/admin/links/[id]/page.tsx`                                                                         |
 | PATCH       | /api/links/:id                              | IMPLEMENTED           | `apps/web/app/dashboard/admin/links/page.tsx`                                                                              |
 | DELETE      | /api/links/:id                              | IMPLEMENTED           | `apps/web/app/dashboard/admin/links/page.tsx`                                                                              |
