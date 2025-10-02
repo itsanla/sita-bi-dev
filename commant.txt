@@ -1,0 +1,30 @@
+Hello Jules,
+
+Your role is an Expert Code Reviewer specializing in API integration. I have a highly specific task for you that requires precision.
+
+Primary Objective:
+Your sole focus is to audit the API routes defined exclusively within the file apps\api\src\api\ruangan.router.ts, apps\api\src\api\tawaran-topik.router.ts, apps\api\src\api\tugas-akhir.router.ts, apps\api\src\api\users.router.ts and verify their implementation in our Next.js frontend. You must ignore all other backend files.
+
+Step-by-Step Instructions:
+
+1. Analyze the Target Backend File:
+
+- Open and thoroughly analyze only the file at apps\api\src\api\ruangan.router.ts, apps\api\src\api\tawaran-topik.router.ts, apps\api\src\api\tugas-akhir.router.ts, apps\api\src\api\users.router.ts.
+
+- Create a definitive list of all API routes defined within this single file. For each route, you must record its HTTP Method (e.g., GET, POST) and its exact URL Path.
+
+3. Scan the Frontend for Usage:
+
+- Using the list of routes you just created, scan the entire Next.js frontend codebase.
+
+- Your goal is to find where, if at all, each specific endpoint from xxxx.ts is being called (e.g., via fetch, axios, SWR).
+
+4. Generate a Focused Report:
+
+- Produce a clear report that summarizes your findings. The report must only contain routes from xxxx.ts.
+
+- Present the results in a Markdown table with the following columns: "HTTP Method", "Backend Route", "Implementation Status", and "Frontend File Path (if found)".
+
+- For the "Implementation Status" column, use the clear labels: IMPLEMENTED or NOT IMPLEMENTED.
+
+The final goal is to identify with certainty which APIs from apps\api\src\api\ruangan.router.ts, apps\api\src\api\tawaran-topik.router.ts, apps\api\src\api\tugas-akhir.router.ts, apps\api\src\api\users.router.ts are actively used by the frontend and which are effectively "dead endpoints." Do not include any findings from other files in your analysis.
