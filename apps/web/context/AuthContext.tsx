@@ -1,10 +1,11 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import request from '../lib/api'; // Import the request function
 
 interface User {
   id: string;
-  name: string;
+  name:string;
   email: string;
   role: string;
   mahasiswa?: {
@@ -32,18 +33,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
+    const verifyUser = async () => {
       const storedToken = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
+      if (storedToken) {
+        try {
+          // Set token for API requests
+          setToken(storedToken);
+          // Fetch fresh user profile
+          const profileResponse = await request<{ data: User }>('/profile');
+          const freshUser = profileResponse.data;
+
+          // Update user state and localStorage
+          setUser(freshUser);
+          localStorage.setItem('user', JSON.stringify(freshUser));
+        } catch (error) {
+          console.error("Failed to verify token or fetch profile, logging out.", error);
+          // Token is invalid or expired, clear auth state
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setToken(null);
+          setUser(null);
+        }
       }
-    } catch (error) {
-      console.error("Failed to parse auth data from localStorage", error)
-    } finally {
       setLoading(false);
-    }
+    };
+
+    verifyUser();
   }, []);
 
   const login = (newToken: string, newUser: User) => {
@@ -58,6 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    // Optionally, redirect to login page
+    window.location.href = '/login';
   };
 
   return (

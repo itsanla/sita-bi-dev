@@ -17,7 +17,19 @@ interface TugasAkhir {
   id: number;
   judul: string;
   status: string;
-  pendaftaranSidang: PendaftaranSidang[];
+  // pendaftaranSidang is fetched separately
+}
+
+interface Nilai {
+  id: number;
+  aspek: string;
+  skor: number;
+  komentar: string;
+  dosen: {
+    user: {
+      name: string;
+    };
+  };
 }
 
 function RegistrationForm({ onRegistrationSuccess, tugasAkhirId }: { onRegistrationSuccess: () => void; tugasAkhirId: number; }) {
@@ -87,15 +99,40 @@ function RegistrationForm({ onRegistrationSuccess, tugasAkhirId }: { onRegistrat
 export default function PendaftaranSidangPage() {
   const { user } = useAuth();
   const [tugasAkhir, setTugasAkhir] = useState<TugasAkhir | null>(null);
+  const [pendaftaran, setPendaftaran] = useState<PendaftaranSidang | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [nilaiSidang, setNilaiSidang] = useState<Nilai[] | null>(null);
+  const [viewingNilaiFor, setViewingNilaiFor] = useState<number | null>(null);
+
+  const fetchNilai = async (sidangId: number) => {
+    try {
+      setViewingNilaiFor(sidangId); // Show loading state for this specific one
+      const response = await request<{ data: Nilai[] }>(`/penilaian/sidang/${sidangId}`);
+      setNilaiSidang(response.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch assessment scores');
+      setNilaiSidang(null); // Clear previous scores on error
+    }
+  };
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError('');
-      const response = await request<{ status: string, data: TugasAkhir | null }>('/bimbingan/sebagai-mahasiswa');
-      setTugasAkhir(response.data);
+      const taResponse = await request<{ status: string, data: TugasAkhir | null }>('/bimbingan/sebagai-mahasiswa');
+      setTugasAkhir(taResponse.data);
+
+      // If TA exists, try to fetch their registration
+      if (taResponse.data) {
+        try {
+          const regResponse = await request<{ data: PendaftaranSidang | null }>('/pendaftaran-sidang/my-registration');
+          setPendaftaran(regResponse.data);
+        } catch (regError) {
+          // This is okay, it just means they haven't registered yet.
+          setPendaftaran(null);
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch data');
     } finally {
@@ -110,22 +147,44 @@ export default function PendaftaranSidangPage() {
   }, [user]);
 
   const renderStatus = () => {
-    if (!tugasAkhir || tugasAkhir.pendaftaranSidang.length === 0) {
-      return <p>You have not registered for a defense yet.</p>;
-    }
-    const latestRegistration = tugasAkhir.pendaftaranSidang[tugasAkhir.pendaftaranSidang.length - 1];
+    const reg = pendaftaran;
 
-    if (!latestRegistration) {
-        return <p>You have not registered for a defense yet.</p>;
+    if (!reg) {
+      return <p>You have not registered for a defense yet.</p>;
     }
 
     return (
       <div>
-        <h4>Latest Registration Status (ID: {latestRegistration.id})</h4>
-        <p><strong>Admin Verification:</strong> {latestRegistration.status_verifikasi}</p>
-        <p><strong>Supervisor 1 Approval:</strong> {latestRegistration.status_pembimbing_1}</p>
-        <p><strong>Supervisor 2 Approval:</strong> {latestRegistration.status_pembimbing_2}</p>
-        {latestRegistration.catatan_admin && <p><strong>Admin Notes:</strong> {latestRegistration.catatan_admin}</p>}
+          <div key={reg.id} style={{ border: '1px solid #ddd', padding: '1rem', marginBottom: '1rem' }}>
+            <h4>Registration Status (ID: {reg.id})</h4>
+            <p><strong>Admin Verification:</strong> {reg.status_verifikasi}</p>
+            <p><strong>Supervisor 1 Approval:</strong> {reg.status_pembimbing_1}</p>
+            <p><strong>Supervisor 2 Approval:</strong> {reg.status_pembimbing_2}</p>
+            {reg.catatan_admin && <p><strong>Admin Notes:</strong> {reg.catatan_admin}</p>}
+
+            {/* Show button only if verified */}
+            {reg.status_verifikasi === 'terverifikasi' && (
+              <button onClick={() => fetchNilai(reg.id)} disabled={viewingNilaiFor === reg.id}>
+                {viewingNilaiFor === reg.id ? 'Loading Scores...' : 'View Assessment Scores'}
+              </button>
+            )}
+
+            {/* Display scores if they are being viewed for this registration */}
+            {viewingNilaiFor === reg.id && nilaiSidang && (
+              <div style={{ marginTop: '1rem' }}>
+                <h5>Assessment Scores:</h5>
+                {nilaiSidang.length > 0 ? (
+                  <ul>
+                    {nilaiSidang.map(n => (
+                      <li key={n.id}>
+                        <strong>{n.aspek}</strong> by {n.dosen.user.name}: {n.skor} - <em>{n.komentar}</em>
+                      </li>
+                    ))}
+                  </ul>
+                ) : <p>No scores have been submitted yet.</p>}
+              </div>
+            )}
+          </div>
       </div>
     );
   };
@@ -139,11 +198,14 @@ export default function PendaftaranSidangPage() {
       <h2>Defense Registration</h2>
       {renderStatus()}
       
-      <hr style={{ margin: '2rem 0' }} />
-
-      {/* Registration form will be added here in the next step */}
-      <h3>Register for a New Defense</h3>
-      <RegistrationForm tugasAkhirId={tugasAkhir.id} onRegistrationSuccess={fetchData} />
+      {/* Show registration form only if there is no existing registration and TA exists */}
+      {!pendaftaran && tugasAkhir && (
+        <>
+          <hr style={{ margin: '2rem 0' }} />
+          <h3>Register for a New Defense</h3>
+          <RegistrationForm tugasAkhirId={tugasAkhir.id} onRegistrationSuccess={fetchData} />
+        </>
+      )}
     </div>
   );
 }
