@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Role } from '../types/roles';
+import { Role } from '@repo/types';
 
 export const authorizeRoles = (allowedRoles: Role[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
