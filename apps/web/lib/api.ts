@@ -3,7 +3,9 @@ import Cookies from 'js-cookie';
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 if (!API_URL) {
-  throw new Error('NEXT_PUBLIC_API_URL is not defined. Please set it in your .env.local file');
+  throw new Error(
+    'NEXT_PUBLIC_API_URL is not defined. Please set it in your .env.local file',
+  );
 }
 
 // Definisikan tipe kustom untuk error agar bisa menyertakan detail
@@ -12,7 +14,9 @@ export class FetchError extends Error {
   data: unknown;
 
   constructor(response: Response, data: unknown) {
-    const message = (data as { message: string })?.message || `Request failed with status ${response.status}`;
+    const message =
+      (data as { message: string })?.message ||
+      `Request failed with status ${response.status}`;
     super(message);
     this.response = response;
     this.data = data;
@@ -25,9 +29,10 @@ interface CustomRequestInit extends Omit<RequestInit, 'body'> {
 
 async function request<T>(
   endpoint: string,
-  options: CustomRequestInit = {}
+  options: CustomRequestInit = {},
 ): Promise<T> {
-  const token = Cookies.get('token');
+  const token =
+    typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
   // Bangun konfigurasi secara manual untuk menghindari masalah dengan spread operator
   const config: RequestInit = {
@@ -62,7 +67,9 @@ async function request<T>(
   const response = await fetch(`${API_URL}/api${endpoint}`, config);
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'An unexpected error occurred' }));
+    const errorData = await response
+      .json()
+      .catch(() => ({ message: 'An unexpected error occurred' }));
     throw new FetchError(response, errorData);
   }
 

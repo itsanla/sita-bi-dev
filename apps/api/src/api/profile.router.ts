@@ -16,12 +16,15 @@ router.get(
   asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (userId === undefined) {
-      res.status(401).json({ status: 'gagal', message: 'Akses ditolak: ID pengguna tidak ditemukan.' });
+      res.status(401).json({
+        status: 'gagal',
+        message: 'Akses ditolak: ID pengguna tidak ditemukan.',
+      });
       return;
     }
     const profile = await profileService.getProfile(userId);
     res.status(200).json({ status: 'sukses', data: profile });
-  })
+  }),
 );
 
 router.patch(
@@ -30,12 +33,15 @@ router.patch(
   asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (userId === undefined) {
-      res.status(401).json({ status: 'gagal', message: 'Akses ditolak: ID pengguna tidak ditemukan.' });
+      res.status(401).json({
+        status: 'gagal',
+        message: 'Akses ditolak: ID pengguna tidak ditemukan.',
+      });
       return;
     }
     const updatedProfile = await profileService.updateProfile(userId, req.body);
     res.status(200).json({ status: 'sukses', data: updatedProfile });
-  })
+  }),
 );
 
 export default router;

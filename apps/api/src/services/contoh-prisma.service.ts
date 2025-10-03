@@ -7,7 +7,10 @@ export class ContohPrismaService {
     this.prisma = new PrismaClient();
   }
 
-  async findAll(page = 1, limit = 50): Promise<{
+  async findAll(
+    page = 1,
+    limit = 50,
+  ): Promise<{
     data: unknown[];
     total: number;
     page: number;

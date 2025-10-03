@@ -22,43 +22,57 @@ export class LaporanService {
     });
 
     const sidangStatistik = await this.prisma.sidang.groupBy({
-        by: ['jenis_sidang', 'status_hasil'],
-        _count: { _all: true },
+      by: ['jenis_sidang', 'status_hasil'],
+      _count: { _all: true },
     });
 
     const bimbinganPerDosen = await this.prisma.bimbinganTA.groupBy({
-        by: ['dosen_id'],
-        _count: { _all: true },
+      by: ['dosen_id'],
+      _count: { _all: true },
     });
 
     const dokumenStatistik = await this.prisma.dokumenTa.groupBy({
-        by: ['tipe_dokumen', 'status_validasi'],
-        _count: { _all: true },
+      by: ['tipe_dokumen', 'status_validasi'],
+      _count: { _all: true },
     });
 
     // Manual aggregation for pengujiStat to avoid circular reference error
     const pengujiData = await this.prisma.peranDosenTa.findMany({
-        where: { peran: { in: [PeranDosen.penguji1, PeranDosen.penguji2, PeranDosen.penguji3, PeranDosen.penguji4] } },
-        select: { dosen_id: true }
+      where: {
+        peran: {
+          in: [
+            PeranDosen.penguji1,
+            PeranDosen.penguji2,
+            PeranDosen.penguji3,
+            PeranDosen.penguji4,
+          ],
+        },
+      },
+      select: { dosen_id: true },
     });
 
-    const pengujiStatCounts = pengujiData.reduce((acc, curr) => {
+    const pengujiStatCounts = pengujiData.reduce(
+      (acc, curr) => {
         acc[curr.dosen_id] = (acc[curr.dosen_id] ?? 0) + 1;
         return acc;
-    }, {} as Record<number, number>);
+      },
+      {} as Record<number, number>,
+    );
 
-    const pengujiStat = Object.entries(pengujiStatCounts).map(([dosen_id, count]) => ({
+    const pengujiStat = Object.entries(pengujiStatCounts).map(
+      ([dosen_id, count]) => ({
         dosen_id: parseInt(dosen_id),
-        _count: { _all: count }
-    }));
+        _count: { _all: count },
+      }),
+    );
 
     return {
-        mahasiswaPerProdi,
-        mahasiswaPerAngkatan,
-        sidangStatistik,
-        bimbinganPerDosen,
-        dokumenStatistik,
-        pengujiStat
+      mahasiswaPerProdi,
+      mahasiswaPerAngkatan,
+      sidangStatistik,
+      bimbinganPerDosen,
+      dokumenStatistik,
+      pengujiStat,
     };
   }
 }

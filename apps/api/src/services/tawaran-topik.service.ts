@@ -17,7 +17,11 @@ export class TawaranTopikService {
     });
   }
 
-  async findByDosen(userId: number, page = 1, limit = 50): Promise<{
+  async findByDosen(
+    userId: number,
+    page = 1,
+    limit = 50,
+  ): Promise<{
     data: unknown[];
     total: number;
     page: number;
@@ -41,7 +45,10 @@ export class TawaranTopikService {
     };
   }
 
-  async findAvailable(page = 1, limit = 50): Promise<{
+  async findAvailable(
+    page = 1,
+    limit = 50,
+  ): Promise<{
     data: unknown[];
     total: number;
     page: number;
@@ -83,26 +90,33 @@ export class TawaranTopikService {
     }
 
     const activeTugasAkhir = await this.prisma.tugasAkhir.findFirst({
-        where: {
-            mahasiswa_id: mahasiswaId,
-            NOT: {
-                status: {
-                    in: ['DIBATALKAN', 'LULUS_DENGAN_REVISI', 'LULUS_TANPA_REVISI', 'SELESAI', 'DITOLAK']
-                }
-            }
-        }
+      where: {
+        mahasiswa_id: mahasiswaId,
+        NOT: {
+          status: {
+            in: [
+              'DIBATALKAN',
+              'LULUS_DENGAN_REVISI',
+              'LULUS_TANPA_REVISI',
+              'SELESAI',
+              'DITOLAK',
+            ],
+          },
+        },
+      },
     });
 
     if (activeTugasAkhir !== null) {
-        throw new Error('You already have an active final project.');
+      throw new Error('You already have an active final project.');
     }
 
-    const existingApplication = await this.prisma.historyTopikMahasiswa.findFirst({
-        where: { mahasiswa_id: mahasiswaId, status: 'diajukan' }
-    });
+    const existingApplication =
+      await this.prisma.historyTopikMahasiswa.findFirst({
+        where: { mahasiswa_id: mahasiswaId, status: 'diajukan' },
+      });
 
     if (existingApplication !== null) {
-        throw new Error('You already have a pending topic application.');
+      throw new Error('You already have a pending topic application.');
     }
 
     return this.prisma.historyTopikMahasiswa.create({
@@ -114,7 +128,11 @@ export class TawaranTopikService {
     });
   }
 
-  async getApplicationsForDosen(userId: number, page = 1, limit = 50): Promise<{
+  async getApplicationsForDosen(
+    userId: number,
+    page = 1,
+    limit = 50,
+  ): Promise<{
     data: unknown[];
     total: number;
     page: number;
@@ -136,13 +154,15 @@ export class TawaranTopikService {
       };
     }
 
-    const topicIds = lecturerTopics.map(t => t.id);
+    const topicIds = lecturerTopics.map((t) => t.id);
 
     const whereClause = {
       tawaran_topik_id: { in: topicIds },
       status: 'diajukan',
     };
-    const total = await this.prisma.historyTopikMahasiswa.count({ where: whereClause });
+    const total = await this.prisma.historyTopikMahasiswa.count({
+      where: whereClause,
+    });
     const data = await this.prisma.historyTopikMahasiswa.findMany({
       where: whereClause,
       include: {
@@ -169,14 +189,20 @@ export class TawaranTopikService {
     };
   }
 
-  async approveApplication(applicationId: number, dosenId: number): Promise<unknown> {
+  async approveApplication(
+    applicationId: number,
+    dosenId: number,
+  ): Promise<unknown> {
     return this.prisma.$transaction(async (prisma) => {
       const application = await prisma.historyTopikMahasiswa.findUnique({
         where: { id: applicationId },
         include: { tawaranTopik: true, mahasiswa: true },
       });
 
-      if (application === null || application.tawaranTopik.user_id !== dosenId) {
+      if (
+        application === null ||
+        application.tawaranTopik.user_id !== dosenId
+      ) {
         throw new Error('Application not found or you do not own this topic.');
       }
 
@@ -220,7 +246,10 @@ export class TawaranTopikService {
     });
   }
 
-  async rejectApplication(applicationId: number, dosenId: number): Promise<unknown> {
+  async rejectApplication(
+    applicationId: number,
+    dosenId: number,
+  ): Promise<unknown> {
     const application = await this.prisma.historyTopikMahasiswa.findUnique({
       where: { id: applicationId },
       include: { tawaranTopik: true },

@@ -1,5 +1,9 @@
-import { PrismaClient, PendaftaranSidang, TipeDokumenSidang, Prisma } from '@repo/db';
-
+import {
+  PrismaClient,
+  PendaftaranSidang,
+  TipeDokumenSidang,
+  Prisma,
+} from '@repo/db';
 
 // Interface untuk S3 file
 interface S3File extends Express.Multer.File {
@@ -41,14 +45,22 @@ export class PendaftaranSidangService {
     this.prisma = new PrismaClient();
   }
 
-  async registerForSidang(mahasiswaId: number, files: { [fieldname: string]: Express.Multer.File[] } | Express.Multer.File[] | undefined): Promise<PendaftaranSidang> {
+  async registerForSidang(
+    mahasiswaId: number,
+    files:
+      | { [fieldname: string]: Express.Multer.File[] }
+      | Express.Multer.File[]
+      | undefined,
+  ): Promise<PendaftaranSidang> {
     return this.prisma.$transaction(async (tx) => {
       const tugasAkhir = await tx.tugasAkhir.findFirst({
         where: { mahasiswa_id: mahasiswaId, status: 'DISETUJUI' },
       });
 
       if (tugasAkhir === null) {
-        throw new Error('Active and approved final project not found for this student.');
+        throw new Error(
+          'Active and approved final project not found for this student.',
+        );
       }
 
       const existingRegistration = await tx.pendaftaranSidang.findFirst({
@@ -59,7 +71,9 @@ export class PendaftaranSidangService {
       });
 
       if (existingRegistration !== null) {
-        throw new Error('A registration for this final project already exists or is being processed.');
+        throw new Error(
+          'A registration for this final project already exists or is being processed.',
+        );
       }
 
       // TODO: Add more business logic checks (e.g., minimum supervisions)
@@ -73,7 +87,11 @@ export class PendaftaranSidangService {
         },
       });
 
-      if (files !== undefined && typeof files === 'object' && !Array.isArray(files)) {
+      if (
+        files !== undefined &&
+        typeof files === 'object' &&
+        !Array.isArray(files)
+      ) {
         for (const fieldname in files) {
           const fileArray = files[fieldname];
           if (fileArray !== undefined) {
@@ -102,7 +120,9 @@ export class PendaftaranSidangService {
     });
   }
 
-  async getPendingRegistrations(dosenId: number): Promise<PendingRegistration[]> {
+  async getPendingRegistrations(
+    dosenId: number,
+  ): Promise<PendingRegistration[]> {
     return this.prisma.pendaftaranSidang.findMany({
       where: {
         OR: [
@@ -134,7 +154,10 @@ export class PendaftaranSidangService {
     }) as Promise<PendingRegistration[]>;
   }
 
-  async approveRegistration(pendaftaranId: number, dosenId: number): Promise<PendaftaranSidang> {
+  async approveRegistration(
+    pendaftaranId: number,
+    dosenId: number,
+  ): Promise<PendaftaranSidang> {
     return this.prisma.$transaction(async (tx) => {
       const pendaftaran = await tx.pendaftaranSidang.findUnique({
         where: { id: pendaftaranId },
@@ -145,8 +168,13 @@ export class PendaftaranSidangService {
         throw new Error('Registration not found.');
       }
 
-      const peran = pendaftaran.tugasAkhir.peranDosenTa.find(p => p.dosen_id === dosenId);
-      if (peran === undefined || (peran.peran !== 'pembimbing1' && peran.peran !== 'pembimbing2')) {
+      const peran = pendaftaran.tugasAkhir.peranDosenTa.find(
+        (p) => p.dosen_id === dosenId,
+      );
+      if (
+        peran === undefined ||
+        (peran.peran !== 'pembimbing1' && peran.peran !== 'pembimbing2')
+      ) {
         throw new Error('You are not a supervisor for this registration.');
       }
 
@@ -163,14 +191,17 @@ export class PendaftaranSidangService {
       });
 
       // Check if both supervisors have approved
-      if (updatedPendaftaran.status_pembimbing_1 === 'disetujui' && updatedPendaftaran.status_pembimbing_2 === 'disetujui') {
+      if (
+        updatedPendaftaran.status_pembimbing_1 === 'disetujui' &&
+        updatedPendaftaran.status_pembimbing_2 === 'disetujui'
+      ) {
         // Create a new Sidang record
         await tx.sidang.create({
           data: {
             pendaftaran_sidang_id: updatedPendaftaran.id,
             tugas_akhir_id: updatedPendaftaran.tugas_akhir_id,
             jenis_sidang: 'AKHIR',
-            status_hasil: 'dijadwalkan', // Initial status for a newly created sidang
+            status_hasil: 'menunggu_penjadwalan', // Initial status for a newly created sidang
           },
         });
 
@@ -185,7 +216,11 @@ export class PendaftaranSidangService {
     });
   }
 
-  async rejectRegistration(pendaftaranId: number, dosenId: number, catatan: string): Promise<PendaftaranSidang> {
+  async rejectRegistration(
+    pendaftaranId: number,
+    dosenId: number,
+    catatan: string,
+  ): Promise<PendaftaranSidang> {
     return this.prisma.$transaction(async (tx) => {
       const pendaftaran = await tx.pendaftaranSidang.findUnique({
         where: { id: pendaftaranId },
@@ -196,8 +231,13 @@ export class PendaftaranSidangService {
         throw new Error('Registration not found.');
       }
 
-      const peran = pendaftaran.tugasAkhir.peranDosenTa.find(p => p.dosen_id === dosenId);
-      if (peran === undefined || (peran.peran !== 'pembimbing1' && peran.peran !== 'pembimbing2')) {
+      const peran = pendaftaran.tugasAkhir.peranDosenTa.find(
+        (p) => p.dosen_id === dosenId,
+      );
+      if (
+        peran === undefined ||
+        (peran.peran !== 'pembimbing1' && peran.peran !== 'pembimbing2')
+      ) {
         throw new Error('You are not a supervisor for this registration.');
       }
 
@@ -220,14 +260,38 @@ export class PendaftaranSidangService {
     });
   }
 
+  async findMyRegistration(
+    mahasiswaId: number,
+  ): Promise<PendaftaranSidang | null> {
+    const tugasAkhir = await this.prisma.tugasAkhir.findFirst({
+      where: { mahasiswa_id: mahasiswaId },
+      orderBy: { created_at: 'desc' },
+    });
+
+    if (tugasAkhir === null) {
+      return null;
+    }
+
+    return this.prisma.pendaftaranSidang.findFirst({
+      where: { tugas_akhir_id: tugasAkhir.id },
+      orderBy: { created_at: 'desc' },
+    });
+  }
+
   private mapFilenameToTipe(fieldname: string): TipeDokumenSidang {
     switch (fieldname) {
-      case 'file_ta': return TipeDokumenSidang.NASKAH_TA;
-      case 'file_toeic': return TipeDokumenSidang.TOEIC;
-      case 'file_rapor': return TipeDokumenSidang.RAPOR;
-      case 'file_ijazah': return TipeDokumenSidang.IJAZAH_SLTA;
-      case 'file_bebas_jurusan': return TipeDokumenSidang.BEBAS_JURUSAN;
-      default: throw new Error(`Unknown file field name: ${fieldname}`);
+      case 'file_ta':
+        return TipeDokumenSidang.NASKAH_TA;
+      case 'file_toeic':
+        return TipeDokumenSidang.TOEIC;
+      case 'file_rapor':
+        return TipeDokumenSidang.RAPOR;
+      case 'file_ijazah':
+        return TipeDokumenSidang.IJAZAH_SLTA;
+      case 'file_bebas_jurusan':
+        return TipeDokumenSidang.BEBAS_JURUSAN;
+      default:
+        throw new Error(`Unknown file field name: ${fieldname}`);
     }
   }
 }

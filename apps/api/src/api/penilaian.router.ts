@@ -4,7 +4,7 @@ import { PenilaianService } from '../services/penilaian.service';
 import { jwtAuthMiddleware } from '../middlewares/auth.middleware';
 import { authorizeRoles } from '../middlewares/roles.middleware';
 import { validate } from '../middlewares/validation.middleware';
-import { Role } from '../types/roles';
+import { Role } from '@repo/types';
 import { createPenilaianSchema } from '../dto/penilaian.dto';
 
 const router: Router = Router();
@@ -20,12 +20,15 @@ router.post(
   asyncHandler(async (req, res): Promise<void> => {
     const dosenId = req.user?.dosen?.id;
     if (dosenId === undefined) {
-      res.status(401).json({ status: 'gagal', message: 'Akses ditolak: Pengguna tidak memiliki profil dosen.' });
+      res.status(401).json({
+        status: 'gagal',
+        message: 'Akses ditolak: Pengguna tidak memiliki profil dosen.',
+      });
       return;
     }
     const newNilai = await penilaianService.createNilai(req.body, dosenId);
     res.status(201).json({ status: 'sukses', data: newNilai });
-  })
+  }),
 );
 
 router.get(
@@ -35,12 +38,16 @@ router.get(
   asyncHandler(async (req, res): Promise<void> => {
     const { sidangId } = req.params;
     if (sidangId == null) {
-      res.status(400).json({ status: 'gagal', message: 'ID Sidang diperlukan' });
+      res
+        .status(400)
+        .json({ status: 'gagal', message: 'ID Sidang diperlukan' });
       return;
     }
-    const nilai = await penilaianService.getNilaiForSidang(parseInt(sidangId, 10));
+    const nilai = await penilaianService.getNilaiForSidang(
+      parseInt(sidangId, 10),
+    );
     res.status(200).json({ status: 'sukses', data: nilai });
-  })
+  }),
 );
 
 export default router;

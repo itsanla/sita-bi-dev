@@ -12,7 +12,7 @@ router.get(
     const limit = parseInt(req.query.limit as string) || undefined;
     const users = await contohPrismaService.findAll(page, limit);
     res.status(200).json({ status: 'sukses', data: users });
-  })
+  }),
 );
 
 export default router;

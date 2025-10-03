@@ -14,8 +14,8 @@ export default function DashboardRedirector() {
 
     if (!loading && user) {
       // Defensive check to prevent crash if role property is missing
-      if (user.role) {
-        const role = user.role;
+      if (user.roles && user.roles.length > 0) {
+        const role = user.roles[0].name;
         if (role === 'admin') {
           router.replace('/dashboard/admin');
         } else if (role === 'dosen') {
@@ -29,7 +29,10 @@ export default function DashboardRedirector() {
         }
       } else {
         // Handle case where user object exists but has no role
-        console.error('User object is missing role property, logging out.', user);
+        console.error(
+          'User object is missing role property, logging out.',
+          user,
+        );
         router.replace('/login');
       }
     }

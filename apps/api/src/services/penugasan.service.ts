@@ -12,10 +12,11 @@ export class PenugasanService {
     const whereClause = {
       status: StatusTugasAkhir.DISETUJUI,
       peranDosenTa: {
-        none: { // The TA has no related PeranDosenTa records
+        none: {
+          // The TA has no related PeranDosenTa records
           peran: {
-            in: [PeranDosen.pembimbing1, PeranDosen.pembimbing2]
-          }
+            in: [PeranDosen.pembimbing1, PeranDosen.pembimbing2],
+          },
         },
       },
     };
@@ -42,7 +43,10 @@ export class PenugasanService {
     };
   }
 
-  async assignPembimbing(tugasAkhirId: number, dto: AssignPembimbingDto): Promise<unknown> {
+  async assignPembimbing(
+    tugasAkhirId: number,
+    dto: AssignPembimbingDto,
+  ): Promise<unknown> {
     const { pembimbing1Id, pembimbing2Id } = dto;
 
     const queries = [];
@@ -50,9 +54,18 @@ export class PenugasanService {
     // Prepare query for Pembimbing 1
     queries.push(
       this.prisma.peranDosenTa.upsert({
-        where: { tugas_akhir_id_peran: { tugas_akhir_id: tugasAkhirId, peran: PeranDosen.pembimbing1 } },
+        where: {
+          tugas_akhir_id_peran: {
+            tugas_akhir_id: tugasAkhirId,
+            peran: PeranDosen.pembimbing1,
+          },
+        },
         update: { dosen_id: pembimbing1Id },
-        create: { tugas_akhir_id: tugasAkhirId, dosen_id: pembimbing1Id, peran: PeranDosen.pembimbing1 },
+        create: {
+          tugas_akhir_id: tugasAkhirId,
+          dosen_id: pembimbing1Id,
+          peran: PeranDosen.pembimbing1,
+        },
       }),
     );
 
@@ -60,9 +73,18 @@ export class PenugasanService {
     if (pembimbing2Id != null) {
       queries.push(
         this.prisma.peranDosenTa.upsert({
-          where: { tugas_akhir_id_peran: { tugas_akhir_id: tugasAkhirId, peran: PeranDosen.pembimbing2 } },
+          where: {
+            tugas_akhir_id_peran: {
+              tugas_akhir_id: tugasAkhirId,
+              peran: PeranDosen.pembimbing2,
+            },
+          },
           update: { dosen_id: pembimbing2Id },
-          create: { tugas_akhir_id: tugasAkhirId, dosen_id: pembimbing2Id, peran: PeranDosen.pembimbing2 },
+          create: {
+            tugas_akhir_id: tugasAkhirId,
+            dosen_id: pembimbing2Id,
+            peran: PeranDosen.pembimbing2,
+          },
         }),
       );
     }
@@ -72,7 +94,7 @@ export class PenugasanService {
       this.prisma.tugasAkhir.update({
         where: { id: tugasAkhirId },
         data: { status: StatusTugasAkhir.BIMBINGAN },
-      })
+      }),
     );
 
     // Execute all queries in a single transaction

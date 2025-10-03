@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -37,8 +37,15 @@ export default function LoginPage() {
       const { token, user } = data.data;
       login(token, user);
 
-      router.push('/tawaran-topik');
+      const userRole = user.roles[0]?.name;
 
+      if (userRole === 'dosen') {
+        router.push('/dashboard/dosen');
+      } else if (userRole === 'mahasiswa') {
+        router.push('/dashboard/mahasiswa');
+      } else {
+        router.push('/dashboard'); // Fallback for other roles like admin
+      }
     } catch (err) {
       const error = err as Error;
       setError(error.message);
@@ -52,7 +59,7 @@ export default function LoginPage() {
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-rose-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
-      
+
       <div className="max-w-md w-full relative z-10">
         {/* Main card */}
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
@@ -63,8 +70,12 @@ export default function LoginPage() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mb-4 shadow-lg">
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-              <p className="text-white/90 text-sm">Sign in to continue to SITA-BI</p>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Welcome Back
+              </h1>
+              <p className="text-white/90 text-sm">
+                Sign in to continue to SITA-BI
+              </p>
             </div>
           </div>
 
@@ -73,7 +84,10 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Email/Username input */}
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700" htmlFor="identifier">
+                <label
+                  className="block text-sm font-semibold text-gray-700"
+                  htmlFor="identifier"
+                >
                   Email or Username
                 </label>
                 <div className="relative group">
@@ -94,7 +108,10 @@ export default function LoginPage() {
 
               {/* Password input */}
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700" htmlFor="password">
+                <label
+                  className="block text-sm font-semibold text-gray-700"
+                  htmlFor="password"
+                >
                   Password
                 </label>
                 <div className="relative group">
@@ -103,7 +120,7 @@ export default function LoginPage() {
                   </div>
                   <input
                     id="password"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-12 pr-12 py-3 rounded-xl border-2 border-gray-200 focus:border-rose-600 focus:ring-4 focus:ring-rose-100 outline-none transition-all duration-200 bg-gray-50 focus:bg-white"
@@ -115,14 +132,21 @@ export default function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
               </div>
 
               {/* Forgot password link */}
               <div className="flex justify-end">
-                <Link href="/forgot-password" className="text-sm font-medium text-rose-600 hover:text-rose-700 transition-colors">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm font-medium text-rose-600 hover:text-rose-700 transition-colors"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -160,14 +184,16 @@ export default function LoginPage() {
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">Don&apos;t have an account?</span>
+                <span className="px-4 bg-white text-gray-500">
+                  Don&apos;t have an account?
+                </span>
               </div>
             </div>
 
             {/* Sign up link */}
             <div className="text-center">
-              <Link 
-                href="/register" 
+              <Link
+                href="/register"
                 className="inline-flex items-center justify-center w-full px-6 py-3 rounded-xl border-2 border-rose-600 text-rose-600 font-semibold hover:bg-rose-50 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 Create New Account

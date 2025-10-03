@@ -1,5 +1,8 @@
 import { PrismaClient, AudiensPengumuman, Pengumuman } from '@repo/db';
-import { CreatePengumumanDto, UpdatePengumumanDto } from '../dto/pengumuman.dto';
+import {
+  CreatePengumumanDto,
+  UpdatePengumumanDto,
+} from '../dto/pengumuman.dto';
 
 export class PengumumanService {
   private prisma: PrismaClient;
@@ -8,7 +11,10 @@ export class PengumumanService {
     this.prisma = new PrismaClient();
   }
 
-  async create(dto: CreatePengumumanDto, authorId: number): Promise<Pengumuman> {
+  async create(
+    dto: CreatePengumumanDto,
+    authorId: number,
+  ): Promise<Pengumuman> {
     return this.prisma.pengumuman.create({
       data: {
         ...dto,
@@ -18,7 +24,10 @@ export class PengumumanService {
     });
   }
 
-  async findAll(page = 1, limit = 50): Promise<{
+  async findAll(
+    page = 1,
+    limit = 50,
+  ): Promise<{
     data: Pengumuman[];
     total: number;
     page: number;
@@ -40,7 +49,10 @@ export class PengumumanService {
     };
   }
 
-  async findPublic(page = 1, limit = 50): Promise<{
+  async findPublic(
+    page = 1,
+    limit = 50,
+  ): Promise<{
     data: Pengumuman[];
     total: number;
     page: number;
@@ -66,7 +78,10 @@ export class PengumumanService {
     };
   }
 
-  async findForMahasiswa(page = 1, limit = 50): Promise<{
+  async findForMahasiswa(
+    page = 1,
+    limit = 50,
+  ): Promise<{
     data: Pengumuman[];
     total: number;
     page: number;
@@ -74,7 +89,9 @@ export class PengumumanService {
     totalPages: number;
   }> {
     const whereClause = {
-      audiens: { in: [AudiensPengumuman.all_users, AudiensPengumuman.mahasiswa] },
+      audiens: {
+        in: [AudiensPengumuman.all_users, AudiensPengumuman.mahasiswa],
+      },
     };
     const total = await this.prisma.pengumuman.count({ where: whereClause });
     const data = await this.prisma.pengumuman.findMany({
@@ -92,7 +109,10 @@ export class PengumumanService {
     };
   }
 
-  async findForDosen(page = 1, limit = 50): Promise<{
+  async findForDosen(
+    page = 1,
+    limit = 50,
+  ): Promise<{
     data: Pengumuman[];
     total: number;
     page: number;
@@ -100,7 +120,13 @@ export class PengumumanService {
     totalPages: number;
   }> {
     const whereClause = {
-      audiens: { in: [AudiensPengumuman.all_users, AudiensPengumuman.registered_users, AudiensPengumuman.dosen] },
+      audiens: {
+        in: [
+          AudiensPengumuman.all_users,
+          AudiensPengumuman.registered_users,
+          AudiensPengumuman.dosen,
+        ],
+      },
     };
     const total = await this.prisma.pengumuman.count({ where: whereClause });
     const data = await this.prisma.pengumuman.findMany({

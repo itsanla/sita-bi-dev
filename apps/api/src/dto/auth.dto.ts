@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { Prodi } from '@prisma/client';
 
 export const loginSchema = z.object({
-  email: z.string().email('Email tidak valid'),
+  identifier: z.string().min(1, 'Identifier tidak boleh kosong'),
   password: z.string().min(1, 'Password tidak boleh kosong'),
 });
 

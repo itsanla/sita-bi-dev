@@ -1,13 +1,19 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
 import request from '../lib/api'; // Import the request function
 
 interface User {
   id: string;
-  name:string;
+  name: string;
   email: string;
-  role: string;
+  roles: Array<{ name: string }>;
   mahasiswa?: {
     nim: string;
     angkatan: string;
@@ -47,7 +53,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(freshUser);
           localStorage.setItem('user', JSON.stringify(freshUser));
         } catch (error) {
-          console.error("Failed to verify token or fetch profile, logging out.", error);
+          console.error(
+            'Failed to verify token or fetch profile, logging out.',
+            error,
+          );
           // Token is invalid or expired, clear auth state
           localStorage.removeItem('token');
           localStorage.removeItem('user');

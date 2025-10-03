@@ -1,10 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@repo/db';
-import { Role } from '../types/roles';
+import { Role } from '@repo/types';
 
 const prisma = new PrismaClient();
 
-export const tugasAkhirGuard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const tugasAkhirGuard = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   const { id } = req.params;
   if (id === null || id === undefined) {
     res.status(400).json({ message: 'Tugas Akhir ID is required' });
@@ -27,7 +31,7 @@ export const tugasAkhirGuard = async (req: Request, res: Response, next: NextFun
   try {
     const tugasAkhir = await prisma.tugasAkhir.findUnique({
       where: { id: tugasAkhirId },
-      include: { mahasiswa: { include: { user: true } } }
+      include: { mahasiswa: { include: { user: true } } },
     });
 
     if (tugasAkhir === null) {
@@ -36,9 +40,16 @@ export const tugasAkhirGuard = async (req: Request, res: Response, next: NextFun
     }
 
     // Check if the user has the necessary role to approve/reject
-    const allowedRoles = [Role.admin, Role.kajur, Role.kaprodi_d3, Role.kaprodi_d4];
+    const allowedRoles = [
+      Role.admin,
+      Role.kajur,
+      Role.kaprodi_d3,
+      Role.kaprodi_d4,
+    ];
     if (!allowedRoles.includes(userRoles)) {
-      res.status(403).json({ message: 'Forbidden: Insufficient role permissions.' });
+      res
+        .status(403)
+        .json({ message: 'Forbidden: Insufficient role permissions.' });
       return;
     }
 

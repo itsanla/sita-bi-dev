@@ -46,7 +46,9 @@ router.post(
   testUpload.single('file'),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     if (req.file == null) {
-      res.status(400).json({ status: 'gagal', message: 'Tidak ada file yang diunggah.' });
+      res
+        .status(400)
+        .json({ status: 'gagal', message: 'Tidak ada file yang diunggah.' });
       return;
     }
 
@@ -69,7 +71,7 @@ router.post(
         ...uploadedFile,
       },
     });
-  })
+  }),
 );
 
 export default router;

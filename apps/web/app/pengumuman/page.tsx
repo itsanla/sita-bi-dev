@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useState, useEffect } from 'react';
 import { Megaphone, AlertCircle } from 'lucide-react';
 
@@ -50,7 +50,9 @@ export default function PengumumanPage() {
       <header className="bg-white shadow-md">
         <div className="container mx-auto px-6 py-8">
           <h1 className="text-4xl font-extrabold text-gray-900">Pengumuman</h1>
-          <p className="text-lg text-gray-600 mt-2">Informasi terbaru seputar kegiatan akademik.</p>
+          <p className="text-lg text-gray-600 mt-2">
+            Informasi terbaru seputar kegiatan akademik.
+          </p>
         </div>
       </header>
 
@@ -60,19 +62,25 @@ export default function PengumumanPage() {
             <p className="text-lg text-gray-500">Loading announcements...</p>
           </div>
         ) : error ? (
-            <div className="text-center py-16 px-6 bg-red-50 rounded-xl shadow-md border border-red-200">
-                <AlertCircle size={64} className="mx-auto text-red-500 mb-6" />
-                <h2 className="text-2xl font-bold text-red-800 mb-2">An Error Occurred</h2>
-                <p className="text-red-600">{error}</p>
-            </div>
+          <div className="text-center py-16 px-6 bg-red-50 rounded-xl shadow-md border border-red-200">
+            <AlertCircle size={64} className="mx-auto text-red-500 mb-6" />
+            <h2 className="text-2xl font-bold text-red-800 mb-2">
+              An Error Occurred
+            </h2>
+            <p className="text-red-600">{error}</p>
+          </div>
         ) : announcements.length > 0 ? (
           <div className="space-y-6">
             {announcements.map((item) => (
               <div key={item.id} className="bg-white rounded-xl shadow-lg p-6">
-                <h3 className="text-2xl font-bold text-maroon mb-2">{item.judul}</h3>
-                <p className="text-sm text-gray-500 mb-4">Dipublikasikan pada {formatDate(item.createdAt)}</p>
+                <h3 className="text-2xl font-bold text-maroon mb-2">
+                  {item.judul}
+                </h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  Dipublikasikan pada {formatDate(item.createdAt)}
+                </p>
                 <div className="prose max-w-none text-gray-700">
-                    <p>{item.isi}</p>
+                  <p>{item.isi}</p>
                 </div>
               </div>
             ))}
@@ -80,8 +88,12 @@ export default function PengumumanPage() {
         ) : (
           <div className="text-center py-16 px-6 bg-white rounded-xl shadow-md">
             <Megaphone size={64} className="mx-auto text-gray-400 mb-6" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Belum Ada Pengumuman</h2>
-            <p className="text-gray-500">Saat ini belum ada pengumuman yang dipublikasikan.</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+              Belum Ada Pengumuman
+            </h2>
+            <p className="text-gray-500">
+              Saat ini belum ada pengumuman yang dipublikasikan.
+            </p>
           </div>
         )}
       </main>

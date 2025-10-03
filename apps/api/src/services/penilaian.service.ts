@@ -1,4 +1,3 @@
-
 import { PrismaClient, StatusTugasAkhir, HasilSidang, Prisma } from '@repo/db';
 import { CreatePenilaianDto } from '../dto/penilaian.dto';
 
@@ -9,13 +8,16 @@ export class PenilaianService {
     this.prisma = new PrismaClient();
   }
 
-  async createNilai(dto: CreatePenilaianDto, dosenId: number): Promise<unknown> {
+  async createNilai(
+    dto: CreatePenilaianDto,
+    dosenId: number,
+  ): Promise<unknown> {
     return this.prisma.$transaction(async (tx) => {
       const sidang = await tx.sidang.findUnique({
         where: { id: dto.sidang_id },
-        include: { 
+        include: {
           tugasAkhir: { include: { peranDosenTa: true } },
-          _count: { select: { nilaiSidang: true } }
+          _count: { select: { nilaiSidang: true } },
         },
       });
 
@@ -25,11 +27,16 @@ export class PenilaianService {
 
       const peranDosen = sidang.tugasAkhir.peranDosenTa;
       const isAllowed = peranDosen.some(
-        p => p.dosen_id === dosenId && (String(p.peran).startsWith('pembimbing') || String(p.peran).startsWith('penguji'))
+        (p) =>
+          p.dosen_id === dosenId &&
+          (String(p.peran).startsWith('pembimbing') ||
+            String(p.peran).startsWith('penguji')),
       );
 
       if (isAllowed === false) {
-        throw new Error('You are not authorized to submit a score for this defense.');
+        throw new Error(
+          'You are not authorized to submit a score for this defense.',
+        );
       }
 
       const newNilai = await tx.nilaiSidang.create({
@@ -43,7 +50,11 @@ export class PenilaianService {
       });
 
       // --- Finalize Logic ---
-      const jumlahPenilai = peranDosen.filter(p => String(p.peran).startsWith('pembimbing') || String(p.peran).startsWith('penguji')).length;
+      const jumlahPenilai = peranDosen.filter(
+        (p) =>
+          String(p.peran).startsWith('pembimbing') ||
+          String(p.peran).startsWith('penguji'),
+      ).length;
       const jumlahNilaiMasuk = sidang._count.nilaiSidang + 1; // +1 for the one just created
 
       if (jumlahNilaiMasuk >= jumlahPenilai) {
@@ -54,7 +65,10 @@ export class PenilaianService {
     });
   }
 
-  private async _calculateAndFinalizeHasilSidang(sidangId: number, tx: Prisma.TransactionClient): Promise<void> {
+  private async _calculateAndFinalizeHasilSidang(
+    sidangId: number,
+    tx: Prisma.TransactionClient,
+  ): Promise<void> {
     const semuaNilai = await tx.nilaiSidang.findMany({
       where: { sidang_id: sidangId },
     });
@@ -82,7 +96,7 @@ export class PenilaianService {
     const sidang = await tx.sidang.update({
       where: { id: sidangId },
       data: { status_hasil: hasilSidang },
-      select: { tugas_akhir_id: true }
+      select: { tugas_akhir_id: true },
     });
 
     await tx.tugasAkhir.update({

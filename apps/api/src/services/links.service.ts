@@ -48,7 +48,11 @@ export class LinksService {
 
   async create(createLinkDto: CreateLinkDto): Promise<unknown> {
     // In a real scenario, this would interact with Prisma
-    const newLink = { id: this._links.length, description: '', ...createLinkDto };
+    const newLink = {
+      id: this._links.length,
+      description: '',
+      ...createLinkDto,
+    };
     this._links.push(newLink);
     return newLink;
   }
@@ -61,14 +65,21 @@ export class LinksService {
 
   async findOne(id: number): Promise<unknown> {
     // In a real scenario, this would interact with Prisma
-    return this._links.find(link => link.id === id);
+    return this._links.find((link) => link.id === id);
   }
 
   async update(id: number, updateLinkDto: UpdateLinkDto): Promise<unknown> {
     // In a real scenario, this would interact with Prisma
-    const index = this._links.findIndex(link => link.id === id);
+    const index = this._links.findIndex((link) => link.id === id);
     if (index > -1) {
-      this._links[index] = { id: id, title: '', url: '', description: '', ...this._links[index], ...updateLinkDto };
+      this._links[index] = {
+        id: id,
+        title: '',
+        url: '',
+        description: '',
+        ...this._links[index],
+        ...updateLinkDto,
+      };
       return this._links[index];
     }
     return null;
@@ -76,7 +87,7 @@ export class LinksService {
 
   async remove(id: number): Promise<unknown> {
     // In a real scenario, this would interact with Prisma
-    const index = this._links.findIndex(link => link.id === id);
+    const index = this._links.findIndex((link) => link.id === id);
     if (index > -1) {
       const [removed] = this._links.splice(index, 1);
       return removed;

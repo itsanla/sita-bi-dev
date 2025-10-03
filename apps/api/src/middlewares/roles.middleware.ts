@@ -9,7 +9,9 @@ export const authorizeRoles = (allowedRoles: Role[]) => {
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      res.status(403).json({ message: 'Forbidden: Insufficient role permissions' });
+      res
+        .status(403)
+        .json({ message: 'Forbidden: Insufficient role permissions' });
       return;
     }
 

@@ -13,7 +13,12 @@ interface CustomJwtPayload extends JwtPayload {
 }
 
 function isJsonWebTokenError(error: unknown): error is jwt.JsonWebTokenError {
-  return typeof error === 'object' && error !== null && 'name' in error && (error as Error).name === 'JsonWebTokenError';
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'name' in error &&
+    (error as Error).name === 'JsonWebTokenError'
+  );
 }
 
 // Type guard untuk memastikan decoded token memiliki struktur yang benar
@@ -26,7 +31,11 @@ function isValidJwtPayload(decoded: unknown): decoded is CustomJwtPayload {
   );
 }
 
-export const jwtAuthMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const jwtAuthMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
     if (authHeader?.startsWith('Bearer ') !== true) {
@@ -55,8 +64,8 @@ export const jwtAuthMiddleware = async (req: Request, res: Response, next: NextF
       include: {
         dosen: true,
         mahasiswa: true,
-        roles: true
-      }
+        roles: true,
+      },
     });
 
     // Pastikan user dan roles ada sebelum mengakses
@@ -74,8 +83,14 @@ export const jwtAuthMiddleware = async (req: Request, res: Response, next: NextF
       id: user.id,
       email: user.email,
       role: user.roles[0]!.name as Role, // Non-null assertion karena sudah dicek di atas
-      dosen: user.dosen !== null ? { id: user.dosen.id, nidn: user.dosen.nidn } : undefined,
-      mahasiswa: user.mahasiswa !== null ? { id: user.mahasiswa.id, nim: user.mahasiswa.nim } : undefined
+      dosen:
+        user.dosen !== null
+          ? { id: user.dosen.id, nidn: user.dosen.nidn }
+          : undefined,
+      mahasiswa:
+        user.mahasiswa !== null
+          ? { id: user.mahasiswa.id, nim: user.mahasiswa.nim }
+          : undefined,
     };
 
     next();

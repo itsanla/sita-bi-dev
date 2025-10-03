@@ -1,4 +1,9 @@
-import { PrismaClient, PeranDosen, StatusPersetujuan, StatusVerifikasi } from '@repo/db';
+import {
+  PrismaClient,
+  PeranDosen,
+  StatusPersetujuan,
+  StatusVerifikasi,
+} from '@repo/db';
 import { CreateJadwalDto } from '../dto/jadwal-sidang.dto';
 
 export class JadwalSidangService {
@@ -8,7 +13,10 @@ export class JadwalSidangService {
     this.prisma = new PrismaClient();
   }
 
-  async getApprovedRegistrations(page = 1, limit = 50): Promise<{
+  async getApprovedRegistrations(
+    page = 1,
+    limit = 50,
+  ): Promise<{
     data: unknown[];
     total: number;
     page: number;
@@ -22,7 +30,9 @@ export class JadwalSidangService {
       sidang: null,
     };
 
-    const total = await this.prisma.pendaftaranSidang.count({ where: whereClause });
+    const total = await this.prisma.pendaftaranSidang.count({
+      where: whereClause,
+    });
     const data = await this.prisma.pendaftaranSidang.findMany({
       where: whereClause,
       include: {
@@ -46,7 +56,14 @@ export class JadwalSidangService {
   }
 
   async createJadwal(dto: CreateJadwalDto): Promise<unknown> {
-    const { pendaftaranSidangId, tanggal, waktu_mulai, waktu_selesai, ruangan_id, pengujiIds } = dto;
+    const {
+      pendaftaranSidangId,
+      tanggal,
+      waktu_mulai,
+      waktu_selesai,
+      ruangan_id,
+      pengujiIds,
+    } = dto;
 
     return this.prisma.$transaction(async (prisma) => {
       // 1. Check for scheduling conflicts
@@ -55,7 +72,8 @@ export class JadwalSidangService {
           ruangan_id: ruangan_id,
           tanggal: new Date(tanggal),
           OR: [
-            { // New schedule starts during an existing schedule
+            {
+              // New schedule starts during an existing schedule
               waktu_mulai: { lt: waktu_selesai },
               waktu_selesai: { gt: waktu_mulai },
             },
@@ -64,7 +82,9 @@ export class JadwalSidangService {
       });
 
       if (conflictingJadwal !== null) {
-        throw new Error(`Ruangan sudah terpakai pada waktu tersebut (konflik dengan jadwal ID: ${conflictingJadwal.id}).`);
+        throw new Error(
+          `Ruangan sudah terpakai pada waktu tersebut (konflik dengan jadwal ID: ${conflictingJadwal.id}).`,
+        );
       }
 
       // 2. Find the existing Sidang record linked to the PendaftaranSidang
@@ -74,7 +94,9 @@ export class JadwalSidangService {
       });
 
       if (sidang === null) {
-        throw new Error(`Sidang for Pendaftaran Sidang with ID ${pendaftaranSidangId} not found. It should have been created automatically upon approval.`);
+        throw new Error(
+          `Sidang for Pendaftaran Sidang with ID ${pendaftaranSidangId} not found. It should have been created automatically upon approval.`,
+        );
       }
 
       // 3. Create the JadwalSidang record
@@ -92,7 +114,14 @@ export class JadwalSidangService {
       await prisma.peranDosenTa.deleteMany({
         where: {
           tugas_akhir_id: sidang.tugas_akhir_id,
-          peran: { in: [PeranDosen.penguji1, PeranDosen.penguji2, PeranDosen.penguji3, PeranDosen.penguji4] },
+          peran: {
+            in: [
+              PeranDosen.penguji1,
+              PeranDosen.penguji2,
+              PeranDosen.penguji3,
+              PeranDosen.penguji4,
+            ],
+          },
         },
       });
 
@@ -110,7 +139,11 @@ export class JadwalSidangService {
     });
   }
 
-  async getSidangForPenguji(dosenId: number, page = 1, limit = 50): Promise<{
+  async getSidangForPenguji(
+    dosenId: number,
+    page = 1,
+    limit = 50,
+  ): Promise<{
     data: unknown[];
     total: number;
     page: number;
@@ -122,7 +155,14 @@ export class JadwalSidangService {
         peranDosenTa: {
           some: {
             dosen_id: dosenId,
-            peran: { in: [PeranDosen.penguji1, PeranDosen.penguji2, PeranDosen.penguji3, PeranDosen.penguji4] },
+            peran: {
+              in: [
+                PeranDosen.penguji1,
+                PeranDosen.penguji2,
+                PeranDosen.penguji3,
+                PeranDosen.penguji4,
+              ],
+            },
           },
         },
       },
@@ -161,13 +201,22 @@ export class JadwalSidangService {
           include: {
             peranDosenTa: {
               where: {
-                peran: { in: [PeranDosen.pembimbing1, PeranDosen.pembimbing2, PeranDosen.penguji1, PeranDosen.penguji2, PeranDosen.penguji3, PeranDosen.penguji4] }
+                peran: {
+                  in: [
+                    PeranDosen.pembimbing1,
+                    PeranDosen.pembimbing2,
+                    PeranDosen.penguji1,
+                    PeranDosen.penguji2,
+                    PeranDosen.penguji3,
+                    PeranDosen.penguji4,
+                  ],
+                },
               },
               include: {
-                dosen: { include: { user: true } }
-              }
-            }
-          }
+                dosen: { include: { user: true } },
+              },
+            },
+          },
         },
         jadwalSidang: { include: { ruangan: true } },
         nilaiSidang: true,
@@ -176,11 +225,11 @@ export class JadwalSidangService {
     });
 
     return {
-        data: data,
-        total: data.length,
-        page: 1,
-        limit: data.length,
-        totalPages: 1,
+      data: data,
+      total: data.length,
+      page: 1,
+      limit: data.length,
+      totalPages: 1,
     };
   }
 }
