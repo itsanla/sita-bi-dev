@@ -1,11 +1,11 @@
-import { PrismaClient, StatusTugasAkhir, TugasAkhir, Prisma } from '@repo/db';
-import { CreateTugasAkhirDto } from '../dto/tugas-akhir.dto';
+import type { TugasAkhir } from '@repo/db';
+import { PrismaClient, StatusTugasAkhir } from '@repo/db';
+import type { CreateTugasAkhirDto } from '../dto/tugas-akhir.dto';
 import { calculateSimilarities } from '../utils/similarity';
-import { Role } from '@repo/types';
 
 // Custom Error for similarity check
 export class SimilarityError extends Error {
-  constructor(public similarities: any[]) {
+  constructor(public similarities: unknown[]) {
     super('High similarity found with existing titles.');
     this.name = 'SimilarityError';
   }
@@ -19,7 +19,7 @@ export class TugasAkhirService {
     this.prisma = new PrismaClient();
   }
 
-  async checkSimilarity(judul: string): Promise<any[]> {
+  async checkSimilarity(judul: string): Promise<unknown[]> {
     const allTitles = await this.prisma.tugasAkhir.findMany({
       select: { id: true, judul: true },
     });

@@ -5,19 +5,22 @@ import tseslint from "typescript-eslint";
 export default tseslint.config(
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
+  ...tseslint.configs.strictTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
   {
     languageOptions: {
       globals: globals.node,
       parser: tseslint.parser,
       parserOptions: {
         project: './tsconfig.json',
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     plugins: {
       '@typescript-eslint': tseslint.plugin,
     },
     rules: {
-      // Add stricter rules here
+      // Override or add stricter rules here
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -42,11 +45,26 @@ export default tseslint.config(
       '@typescript-eslint/no-unnecessary-type-assertion': 'error',
       '@typescript-eslint/prefer-as-const': 'error',
       '@typescript-eslint/prefer-nullish-coalescing': 'error',
-      '@typescript-eslint/prefer-optional-chain': 'error',
       '@typescript-eslint/strict-boolean-expressions': 'error',
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
-      'no-console': 'warn', // Warn for console logs
+      'no-console': ['warn', { allow: ['warn', 'error'] }], // Warn for console logs
       'no-debugger': 'error', // Error for debugger statements
-    },
-  },
-);
+      '@typescript-eslint/no-unsafe-assignment': 'off', // Often too strict for Express req/res
+      '@typescript-eslint/no-unsafe-member-access': 'off', // Often too strict for Express req/res
+      '@typescript-eslint/no-unsafe-argument': 'off', // Often too strict for Express req/res
+      '@typescript-eslint/no-unsafe-call': 'off', // Often too strict for Express req/res
+      '@typescript-eslint/no-unsafe-return': 'off', // Often too strict for Express req/res
+      '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true, allowBoolean: true }],
+      '@typescript-eslint/consistent-type-imports': 'error',
+      '@typescript-eslint/no-duplicate-enum-values': 'error',
+      '@typescript-eslint/no-redundant-type-constituents': 'error',
+      '@typescript-eslint/no-require-imports': 'error',
+      '@typescript-eslint/no-shadow': 'error',
+      '@typescript-eslint/no-useless-empty-export': 'error',
+      '@typescript-eslint/prefer-literal-enum-member': 'error',
+      '@typescript-eslint/prefer-ts-expect-error': 'error',
+      '@typescript-eslint/sort-type-constituents': 'error',
+      '@typescript-eslint/unified-signatures': 'error',
+    }
+  }
+)

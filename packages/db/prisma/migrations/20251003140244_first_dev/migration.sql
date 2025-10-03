@@ -3,6 +3,7 @@ CREATE TABLE "users" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
+    "phone_number" TEXT NOT NULL,
     "email_verified_at" DATETIME,
     "password" TEXT NOT NULL,
     "photo" TEXT,
@@ -35,7 +36,6 @@ CREATE TABLE "mahasiswa" (
     "user_id" INTEGER NOT NULL,
     "nim" TEXT NOT NULL,
     "prodi" TEXT NOT NULL,
-    "angkatan" TEXT NOT NULL,
     "kelas" TEXT NOT NULL,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" DATETIME NOT NULL,
@@ -152,6 +152,19 @@ CREATE TABLE "history_perubahan_jadwal" (
     "updated_at" DATETIME NOT NULL,
     CONSTRAINT "history_perubahan_jadwal_bimbingan_ta_id_fkey" FOREIGN KEY ("bimbingan_ta_id") REFERENCES "bimbingan_ta" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "history_perubahan_jadwal_mahasiswa_id_fkey" FOREIGN KEY ("mahasiswa_id") REFERENCES "mahasiswa" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "pengajuan_bimbingan" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "mahasiswa_id" INTEGER NOT NULL,
+    "dosen_id" INTEGER NOT NULL,
+    "diinisiasi_oleh" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'MENUNGGU_PERSETUJUAN_DOSEN',
+    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" DATETIME NOT NULL,
+    CONSTRAINT "pengajuan_bimbingan_mahasiswa_id_fkey" FOREIGN KEY ("mahasiswa_id") REFERENCES "mahasiswa" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "pengajuan_bimbingan_dosen_id_fkey" FOREIGN KEY ("dosen_id") REFERENCES "dosen" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -319,6 +332,9 @@ CREATE TABLE "_PermissionToRole" (
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "users_phone_number_key" ON "users"("phone_number");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "roles_name_key" ON "roles"("name");
 
 -- CreateIndex
@@ -341,6 +357,9 @@ CREATE UNIQUE INDEX "tugas_akhir_mahasiswa_id_key" ON "tugas_akhir"("mahasiswa_i
 
 -- CreateIndex
 CREATE UNIQUE INDEX "peran_dosen_ta_tugas_akhir_id_peran_key" ON "peran_dosen_ta"("tugas_akhir_id", "peran");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "pengajuan_bimbingan_mahasiswa_id_dosen_id_key" ON "pengajuan_bimbingan"("mahasiswa_id", "dosen_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "sidang_pendaftaran_sidang_id_key" ON "sidang"("pendaftaran_sidang_id");

@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import type { Request, Response, NextFunction } from 'express';
+import type { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@repo/db';
-import { Role } from '@repo/types';
+import type { Role } from '@repo/types';
 
 const prisma = new PrismaClient();
 
@@ -38,7 +39,7 @@ export const jwtAuthMiddleware = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
-    if (authHeader?.startsWith('Bearer ') !== true) {
+    if (!authHeader?.startsWith('Bearer ')) {
       res.status(401).json({ message: 'Unauthorized: No token provided' });
       return;
     }
@@ -74,15 +75,22 @@ export const jwtAuthMiddleware = async (
       return;
     }
 
-    if (user.roles === null || user.roles.length === 0) {
+    if (user.roles.length === 0) {
       res.status(401).json({ message: 'Unauthorized: User has no roles' });
+      return;
+    }
+
+    // Pastikan user.roles[0] ada sebelum mengakses .name
+    const userRole = user.roles[0];
+    if (userRole == null) {
+      res.status(401).json({ message: 'Unauthorized: User role not found' });
       return;
     }
 
     req.user = {
       id: user.id,
       email: user.email,
-      role: user.roles[0]!.name as Role, // Non-null assertion karena sudah dicek di atas
+      role: userRole.name as Role, // Non-null assertion karena sudah dicek di atas
       dosen:
         user.dosen !== null
           ? { id: user.dosen.id, nidn: user.dosen.nidn }

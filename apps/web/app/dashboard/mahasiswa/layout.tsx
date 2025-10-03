@@ -25,16 +25,20 @@ export default function MahasiswaLayout({ children }: { children: ReactNode }) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
         <div className="text-center p-8 bg-white rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-red-800 mb-4">Unauthorized Access</h2>
+          <h2 className="text-2xl font-bold text-red-800 mb-4">
+            Unauthorized Access
+          </h2>
           <p className="text-gray-600">This dashboard is for students only.</p>
         </div>
       </div>
     );
   }
-  
+
   const scrollToSection = (id: string) => {
     // Dummy function for footer prop
-    console.log(`Scroll to ${id} requested, but not implemented in this layout.`);
+    console.log(
+      `Scroll to ${id} requested, but not implemented in this layout.`,
+    );
   };
 
   return (
@@ -42,9 +46,7 @@ export default function MahasiswaLayout({ children }: { children: ReactNode }) {
       <Header />
       <div className="flex">
         <Sidebar />
-        <main className="flex-1 p-6 lg:p-10">
-          {children}
-        </main>
+        <main className="flex-1 p-6 lg:p-10">{children}</main>
       </div>
       <Footer scrollToSection={scrollToSection} />
     </div>

@@ -1,6 +1,7 @@
-import { PrismaClient, Prisma, User, Prodi } from '@repo/db';
+import type { User } from '@repo/db';
+import { PrismaClient, Prisma } from '@repo/db';
 import * as bcrypt from 'bcrypt';
-import {
+import type {
   CreateDosenDto,
   UpdateDosenDto,
   UpdateMahasiswaDto,
@@ -188,6 +189,79 @@ export class UsersService {
       page,
       limit,
       totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async findAllMahasiswaTanpaPembimbing(
+    page = 1,
+    limit = 50,
+  ): Promise<{
+    data: {
+      id: number;
+      user: { id: number; name: string; email: string };
+      nim: string;
+      prodi: string;
+      angkatan: string;
+      kelas: string;
+    }[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  }> {
+    const offset = (page - 1) * limit;
+
+    // Cari mahasiswa yang belum punya tugas akhir dengan pembimbing
+    const mahasiswaQuery = this.prisma.mahasiswa.findMany({
+      where: {
+        tugasAkhir: {
+          none: {
+            peranDosenTa: {
+              some: {
+                peran: { in: ['pembimbing1', 'pembimbing2'] }
+              }
+            }
+          }
+        }
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+      skip: offset,
+      take: limit,
+      orderBy: { created_at: 'desc' },
+    });
+
+    const countQuery = this.prisma.mahasiswa.count({
+      where: {
+        tugasAkhir: {
+          none: {
+            peranDosenTa: {
+              some: {
+                peran: { in: ['pembimbing1', 'pembimbing2'] }
+              }
+            }
+          }
+        }
+      },
+    });
+
+    const [mahasiswa, total] = await Promise.all([mahasiswaQuery, countQuery]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: mahasiswa,
+      page,
+      limit,
+      total,
+      totalPages,
     };
   }
 

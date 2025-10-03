@@ -1,5 +1,5 @@
 import { PrismaClient } from '@repo/db';
-import { StatistikDto } from '../dto/laporan.dto';
+import type { StatistikDto } from '../dto/laporan.dto';
 import { PeranDosen } from '@prisma/client';
 
 export class LaporanService {
@@ -51,12 +51,12 @@ export class LaporanService {
       select: { dosen_id: true },
     });
 
-    const pengujiStatCounts = pengujiData.reduce(
+    const pengujiStatCounts = pengujiData.reduce<Record<number, number>>(
       (acc, curr) => {
         acc[curr.dosen_id] = (acc[curr.dosen_id] ?? 0) + 1;
         return acc;
       },
-      {} as Record<number, number>,
+      {},
     );
 
     const pengujiStat = Object.entries(pengujiStatCounts).map(

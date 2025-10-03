@@ -164,7 +164,9 @@ function AddNoteForm({
 // --- Main Page Component ---
 export default function DosenBimbinganPage() {
   const { user } = useAuth();
-  const [supervisedStudents, setSupervisedStudents] = useState<TugasAkhir[]>([]);
+  const [supervisedStudents, setSupervisedStudents] = useState<TugasAkhir[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -210,7 +212,9 @@ export default function DosenBimbinganPage() {
     return (
       <div className="flex items-center justify-center p-10">
         <Loader className="animate-spin text-maroon-700" size={32} />
-        <span className="ml-4 text-lg text-gray-600">Memuat data bimbingan...</span>
+        <span className="ml-4 text-lg text-gray-600">
+          Memuat data bimbingan...
+        </span>
       </div>
     );
   }
@@ -231,61 +235,107 @@ export default function DosenBimbinganPage() {
       {supervisedStudents.length === 0 ? (
         <div className="flex flex-col items-center justify-center text-center text-gray-500 bg-white p-12 rounded-2xl shadow-lg">
           <Info size={48} className="mb-4 text-gray-400" />
-          <h2 className="text-xl font-semibold">Tidak Ada Mahasiswa Bimbingan</h2>
-          <p className="mt-1">Saat ini Anda tidak sedang membimbing mahasiswa manapun.</p>
+          <h2 className="text-xl font-semibold">
+            Tidak Ada Mahasiswa Bimbingan
+          </h2>
+          <p className="mt-1">
+            Saat ini Anda tidak sedang membimbing mahasiswa manapun.
+          </p>
         </div>
       ) : (
         <div className="space-y-6">
           {supervisedStudents.map((ta) => (
             <div key={ta.id} className="bg-white p-6 rounded-2xl shadow-lg">
               <div className="mb-4">
-                <h2 className="text-2xl font-bold text-gray-900">{ta.mahasiswa.user.name}</h2>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {ta.mahasiswa.user.name}
+                </h2>
                 <p className="text-md text-gray-600">{ta.judul}</p>
-                <p className="text-sm font-medium text-gray-500 mt-1">Status TA: <span className="font-bold text-maroon-800">{ta.status}</span></p>
+                <p className="text-sm font-medium text-gray-500 mt-1">
+                  Status TA:{' '}
+                  <span className="font-bold text-maroon-800">{ta.status}</span>
+                </p>
               </div>
 
               <ScheduleForm tugasAkhirId={ta.id} onActionSuccess={fetchData} />
 
               <div className="mt-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-2 flex items-center"><BookOpen size={20} className="mr-2"/> Sesi Bimbingan</h4>
+                <h4 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                  <BookOpen size={20} className="mr-2" /> Sesi Bimbingan
+                </h4>
                 {ta.bimbinganTa.length > 0 ? (
                   <div className="space-y-4">
                     {ta.bimbinganTa.map((session) => (
-                      <div key={session.id} className="bg-gray-50 p-4 rounded-lg border">
+                      <div
+                        key={session.id}
+                        className="bg-gray-50 p-4 rounded-lg border"
+                      >
                         <div className="flex justify-between items-center mb-2">
-                          <p className="font-semibold text-gray-800">Sesi ID: {session.id}</p>
-                          <span className={`px-3 py-1 text-xs font-bold rounded-full ${session.status_bimbingan === 'DIJADWALKAN' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
+                          <p className="font-semibold text-gray-800">
+                            Sesi ID: {session.id}
+                          </p>
+                          <span
+                            className={`px-3 py-1 text-xs font-bold rounded-full ${session.status_bimbingan === 'DIJADWALKAN' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}
+                          >
                             {session.status_bimbingan}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600">Jadwal: {new Date(session.tanggal_bimbingan).toLocaleString()}</p>
-                        
+                        <p className="text-sm text-gray-600">
+                          Jadwal:{' '}
+                          {new Date(session.tanggal_bimbingan).toLocaleString()}
+                        </p>
+
                         <div className="flex items-center gap-2 mt-3">
-                          <button onClick={() => handleSessionAction(session.id, 'selesaikan')} className="btn-sm-success">
-                            <CheckCircle size={14} className="mr-1"/> Selesaikan
+                          <button
+                            onClick={() =>
+                              handleSessionAction(session.id, 'selesaikan')
+                            }
+                            className="btn-sm-success"
+                          >
+                            <CheckCircle size={14} className="mr-1" />{' '}
+                            Selesaikan
                           </button>
-                          <button onClick={() => handleSessionAction(session.id, 'cancel')} className="btn-sm-danger">
-                            <XCircle size={14} className="mr-1"/> Batalkan
+                          <button
+                            onClick={() =>
+                              handleSessionAction(session.id, 'cancel')
+                            }
+                            className="btn-sm-danger"
+                          >
+                            <XCircle size={14} className="mr-1" /> Batalkan
                           </button>
                         </div>
 
                         <div className="mt-4 pt-3 border-t">
-                          <h5 className="text-sm font-semibold text-gray-700 mb-2 flex items-center"><MessageSquare size={16} className="mr-2"/> Catatan</h5>
+                          <h5 className="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <MessageSquare size={16} className="mr-2" /> Catatan
+                          </h5>
                           <div className="space-y-2">
                             {session.catatan.map((c) => (
-                              <div key={c.id} className="text-sm text-gray-800 bg-white p-2 rounded-md shadow-sm">
+                              <div
+                                key={c.id}
+                                className="text-sm text-gray-800 bg-white p-2 rounded-md shadow-sm"
+                              >
                                 <strong>{c.author.name}:</strong> {c.catatan}
                               </div>
                             ))}
-                             {session.catatan.length === 0 && <p className="text-xs text-gray-500">Belum ada catatan.</p>}
+                            {session.catatan.length === 0 && (
+                              <p className="text-xs text-gray-500">
+                                Belum ada catatan.
+                              </p>
+                            )}
                           </div>
-                          <AddNoteForm sessionId={session.id} onActionSuccess={fetchData} />
+                          <AddNoteForm
+                            sessionId={session.id}
+                            onActionSuccess={fetchData}
+                          />
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">Belum ada sesi bimbingan yang dijadwalkan.</p>
+                  <p className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">
+                    Belum ada sesi bimbingan yang dijadwalkan.
+                  </p>
                 )}
               </div>
             </div>

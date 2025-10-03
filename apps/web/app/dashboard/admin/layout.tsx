@@ -20,15 +20,23 @@ import {
 const navItems = [
   { href: '/dashboard/admin', icon: Home, label: 'Dashboard' },
   { href: '/dashboard/admin/users', icon: Users, label: 'Kelola Pengguna' },
-  { href: '/dashboard/admin/validasi-ta', icon: ClipboardList, label: 'Validasi TA' },
+  {
+    href: '/dashboard/admin/validasi-ta',
+    icon: ClipboardList,
+    label: 'Validasi TA',
+  },
   { href: '/dashboard/admin/penugasan', icon: BookUser, label: 'Penugasan' },
-  { href: '/dashboard/admin/jadwal-sidang', icon: Calendar, label: 'Jadwal Sidang' },
+  {
+    href: '/dashboard/admin/jadwal-sidang',
+    icon: Calendar,
+    label: 'Jadwal Sidang',
+  },
   { href: '/dashboard/admin/pengumuman', icon: Megaphone, label: 'Pengumuman' },
   { href: '/dashboard/admin/links', icon: Link2, label: 'Kelola Tautan' },
   { href: '/dashboard/admin/laporan', icon: FileText, label: 'Laporan' },
 ];
 
-const NavLink = ({ item }: { item: typeof navItems[0] }) => {
+const NavLink = ({ item }: { item: (typeof navItems)[0] }) => {
   const pathname = usePathname();
   const isActive = pathname === item.href;
 
@@ -49,16 +57,26 @@ const NavLink = ({ item }: { item: typeof navItems[0] }) => {
   );
 };
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { user } = useAuth();
 
-  if (!user?.roles?.some(role => role.name === 'admin')) {
-    return <div className="flex h-screen items-center justify-center">Unauthorized Access</div>;
+  if (!user?.roles?.some((role) => role.name === 'admin')) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Unauthorized Access
+      </div>
+    );
   }
 
   // Dummy function for footer, as it expects a function prop
   const scrollToSection = (id: string) => {
-    console.log(`Scroll to ${id} requested, but not implemented in this layout.`);
+    console.log(
+      `Scroll to ${id} requested, but not implemented in this layout.`,
+    );
   };
 
   return (
@@ -77,9 +95,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-6 lg:p-10">
-          {children}
-        </main>
+        <main className="flex-1 p-6 lg:p-10">{children}</main>
       </div>
       <Footer scrollToSection={scrollToSection} />
     </div>

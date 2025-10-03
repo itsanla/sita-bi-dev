@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const createLinkSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  url: z.string().url('Invalid URL format'),
+  url: z.url(),
   description: z.string().optional(),
 });
 

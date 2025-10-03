@@ -1,5 +1,6 @@
-import { PrismaClient, AudiensPengumuman, Pengumuman } from '@repo/db';
-import {
+import type { Pengumuman } from '@repo/db';
+import { PrismaClient, AudiensPengumuman } from '@repo/db';
+import type {
   CreatePengumumanDto,
   UpdatePengumumanDto,
 } from '../dto/pengumuman.dto';

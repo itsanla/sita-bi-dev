@@ -7,7 +7,7 @@ export class SidangService {
     this.prisma = new PrismaClient();
   }
 
-  async findUnscheduled() {
+  async findUnscheduled(): Promise<unknown> {
     return this.prisma.sidang.findMany({
       where: { status_hasil: 'menunggu_penjadwalan' },
       include: {

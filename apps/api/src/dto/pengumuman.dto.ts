@@ -4,7 +4,7 @@ import { AudiensPengumuman } from '@prisma/client';
 export const createPengumumanSchema = z.object({
   judul: z.string().min(1, 'Judul cannot be empty'),
   isi: z.string().min(1, 'Isi cannot be empty'),
-  audiens: z.nativeEnum(AudiensPengumuman),
+  audiens: z.enum(Object.values(AudiensPengumuman)),
 });
 
 export type CreatePengumumanDto = z.infer<typeof createPengumumanSchema>;

@@ -63,6 +63,7 @@ async function main() {
     const password = 'password123';
     const hashedPassword = await bcrypt.hash(password, 10);
     const nidn = `${faker.string.numeric(9)}${i}`;
+    const phoneNumber = `+628${faker.string.numeric(10)}`;
 
     dosenToSeed.push({
       user: {
@@ -70,6 +71,7 @@ async function main() {
           name: name,
           email: email,
           password: hashedPassword,
+          phone_number: phoneNumber,
           roles: {
             connect: { id: dosenRole.id },
           },
@@ -122,6 +124,7 @@ async function main() {
     const password = 'password123';
     const hashedPassword = await bcrypt.hash(password, 10);
     const nim = `M${faker.string.numeric(8)}${i}`;
+    const phoneNumber = `+628${faker.string.numeric(10)}`;
 
     mahasiswaToSeed.push({
       user: {
@@ -129,12 +132,12 @@ async function main() {
           name: name,
           email: email,
           password: hashedPassword,
+          phone_number: phoneNumber,
           roles: { connect: { id: mahasiswaRole.id } },
         },
       },
       nim: nim,
       prodi: faker.helpers.arrayElement(prodiValues),
-      angkatan: faker.helpers.arrayElement(['2019', '2020', '2021']),
       kelas: faker.helpers.arrayElement(['A', 'B', 'C']),
     });
   }

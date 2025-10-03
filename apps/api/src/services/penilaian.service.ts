@@ -1,5 +1,6 @@
-import { PrismaClient, StatusTugasAkhir, HasilSidang, Prisma } from '@repo/db';
-import { CreatePenilaianDto } from '../dto/penilaian.dto';
+import type { Prisma } from '@repo/db';
+import { PrismaClient, StatusTugasAkhir, HasilSidang } from '@repo/db';
+import type { CreatePenilaianDto } from '../dto/penilaian.dto';
 
 export class PenilaianService {
   private prisma: PrismaClient;
@@ -29,11 +30,11 @@ export class PenilaianService {
       const isAllowed = peranDosen.some(
         (p) =>
           p.dosen_id === dosenId &&
-          (String(p.peran).startsWith('pembimbing') ||
-            String(p.peran).startsWith('penguji')),
+          (p.peran.startsWith('pembimbing') ||
+            p.peran.startsWith('penguji')),
       );
 
-      if (isAllowed === false) {
+      if (!isAllowed) {
         throw new Error(
           'You are not authorized to submit a score for this defense.',
         );
@@ -52,8 +53,8 @@ export class PenilaianService {
       // --- Finalize Logic ---
       const jumlahPenilai = peranDosen.filter(
         (p) =>
-          String(p.peran).startsWith('pembimbing') ||
-          String(p.peran).startsWith('penguji'),
+          p.peran.startsWith('pembimbing') ||
+          p.peran.startsWith('penguji'),
       ).length;
       const jumlahNilaiMasuk = sidang._count.nilaiSidang + 1; // +1 for the one just created
 

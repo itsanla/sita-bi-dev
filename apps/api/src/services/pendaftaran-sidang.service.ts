@@ -1,13 +1,15 @@
+import type {
+  PendaftaranSidang,
+  Prisma} from '@repo/db';
 import {
   PrismaClient,
-  PendaftaranSidang,
-  TipeDokumenSidang,
-  Prisma,
+  TipeDokumenSidang
 } from '@repo/db';
+import { getRelativePath } from '../utils/upload.config';
 
-// Interface untuk S3 file
-interface S3File extends Express.Multer.File {
-  location: string;
+// Interface untuk Local file
+interface LocalFile extends Express.Multer.File {
+  path: string;
 }
 
 // Interface untuk return type getPendingRegistrations
@@ -48,75 +50,78 @@ export class PendaftaranSidangService {
   async registerForSidang(
     mahasiswaId: number,
     files:
-      | { [fieldname: string]: Express.Multer.File[] }
-      | Express.Multer.File[]
-      | undefined,
+      Express.Multer.File[] | Record<string, Express.Multer.File[]> | undefined,
   ): Promise<PendaftaranSidang> {
+    
     return this.prisma.$transaction(async (tx) => {
-      const tugasAkhir = await tx.tugasAkhir.findFirst({
-        where: { mahasiswa_id: mahasiswaId, status: 'DISETUJUI' },
-      });
+      try {
+        const tugasAkhir = await tx.tugasAkhir.findFirst({
+          where: { mahasiswa_id: mahasiswaId, status: 'DISETUJUI' },
+        });
 
-      if (tugasAkhir === null) {
-        throw new Error(
-          'Active and approved final project not found for this student.',
-        );
-      }
+        if (tugasAkhir === null) {
+          throw new Error(
+            'Active and approved final project not found for this student.',
+          );
+        }
 
-      const existingRegistration = await tx.pendaftaranSidang.findFirst({
-        where: {
-          tugas_akhir_id: tugasAkhir.id,
-          status_verifikasi: { in: ['menunggu_verifikasi', 'disetujui'] },
-        },
-      });
+        const existingRegistration = await tx.pendaftaranSidang.findFirst({
+          where: {
+            tugas_akhir_id: tugasAkhir.id,
+            status_verifikasi: { in: ['menunggu_verifikasi', 'disetujui'] },
+          },
+        });
 
-      if (existingRegistration !== null) {
-        throw new Error(
-          'A registration for this final project already exists or is being processed.',
-        );
-      }
+        if (existingRegistration !== null) {
+          throw new Error(
+            'A registration for this final project already exists or is being processed.',
+          );
+        }
 
-      // TODO: Add more business logic checks (e.g., minimum supervisions)
+        const pendaftaran = await tx.pendaftaranSidang.create({
+          data: {
+            tugas_akhir_id: tugasAkhir.id,
+            status_verifikasi: 'menunggu_verifikasi',
+            status_pembimbing_1: 'menunggu',
+            status_pembimbing_2: 'menunggu',
+          },
+        });
 
-      const pendaftaran = await tx.pendaftaranSidang.create({
-        data: {
-          tugas_akhir_id: tugasAkhir.id,
-          status_verifikasi: 'menunggu_verifikasi',
-          status_pembimbing_1: 'menunggu',
-          status_pembimbing_2: 'menunggu',
-        },
-      });
+        // Process uploaded files
+        if (files && typeof files === 'object' && !Array.isArray(files)) {
+          for (const fieldname in files) {
+            const fileArray = files[fieldname];
+            if (fileArray !== undefined) {
+              for (const file of fileArray) {
+                
+                // The file object from multer has a 'path' property which is the local file path.
+                const uploadedFilePath = (file as LocalFile).path;
 
-      if (
-        files !== undefined &&
-        typeof files === 'object' &&
-        !Array.isArray(files)
-      ) {
-        for (const fieldname in files) {
-          const fileArray = files[fieldname];
-          if (fileArray !== undefined) {
-            for (const file of fileArray) {
-              // The file object from multer-s3 has a 'location' property which is the public URL.
-              const uploadedFilePath = (file as S3File).location;
+                if (!uploadedFilePath) {
+                  throw new Error(`Failed to upload ${file.originalname} to local storage.`);
+                }
 
-              if (uploadedFilePath === undefined || uploadedFilePath === null) {
-                throw new Error(`Failed to upload ${file.originalname} to S3.`);
+                // Generate relative path untuk database
+                const relativePath = getRelativePath(uploadedFilePath);
+
+                const _fileRecord = await tx.pendaftaranSidangFile.create({
+                  data: {
+                    pendaftaran_sidang_id: pendaftaran.id,
+                    file_path: relativePath, // Save the relative path
+                    original_name: file.originalname,
+                    tipe_dokumen: this.mapFilenameToTipe(file.fieldname),
+                  },
+                });
               }
-
-              await tx.pendaftaranSidangFile.create({
-                data: {
-                  pendaftaran_sidang_id: pendaftaran.id,
-                  file_path: uploadedFilePath, // Save the S3 URL
-                  original_name: file.originalname,
-                  tipe_dokumen: this.mapFilenameToTipe(file.fieldname),
-                },
-              });
             }
           }
         }
-      }
 
-      return pendaftaran;
+        return pendaftaran;
+      } catch (error) {
+        console.error('Error in registerForSidang transaction:', error);
+        throw error;
+      }
     });
   }
 
@@ -129,12 +134,10 @@ export class PendaftaranSidangService {
           {
             status_pembimbing_1: 'menunggu',
             tugasAkhir: {
-              peranDosenTa: {
-                some: { dosen_id: dosenId, peran: 'pembimbing1' },
-              },
+            peranDosenTa: {
+              some: { dosen_id: dosenId, peran: 'pembimbing1' },
             },
           },
-          {
             status_pembimbing_2: 'menunggu',
             tugasAkhir: {
               peranDosenTa: {
@@ -180,9 +183,10 @@ export class PendaftaranSidangService {
 
       const updateData: Prisma.PendaftaranSidangUpdateInput = {};
       if (peran.peran === 'pembimbing1') {
-        updateData['status_pembimbing_1'] = 'disetujui';
-      } else if (peran.peran === 'pembimbing2') {
-        updateData['status_pembimbing_2'] = 'disetujui';
+        updateData.status_pembimbing_1 = 'disetujui';
+      } 
+      if (peran.peran === 'pembimbing2') {
+        updateData.status_pembimbing_2 = 'disetujui';
       }
 
       const updatedPendaftaran = await tx.pendaftaranSidang.update({
@@ -246,11 +250,12 @@ export class PendaftaranSidangService {
       };
 
       if (peran.peran === 'pembimbing1') {
-        updateData['status_pembimbing_1'] = 'ditolak';
-        updateData['catatan_pembimbing_1'] = catatan;
-      } else if (peran.peran === 'pembimbing2') {
-        updateData['status_pembimbing_2'] = 'ditolak';
-        updateData['catatan_pembimbing_2'] = catatan;
+        updateData.status_pembimbing_1 = 'ditolak';
+        updateData.catatan_pembimbing_1 = catatan;
+      } 
+      if (peran.peran === 'pembimbing2') {
+        updateData.status_pembimbing_2 = 'ditolak';
+        updateData.catatan_pembimbing_2 = catatan;
       }
 
       return tx.pendaftaranSidang.update({

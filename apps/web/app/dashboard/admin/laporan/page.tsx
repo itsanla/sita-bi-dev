@@ -4,15 +4,18 @@ import { FileText, FileSpreadsheet } from 'lucide-react';
 const reportTypes = [
   {
     title: 'Laporan Kemajuan Mahasiswa',
-    description: 'Unduh rekapitulasi kemajuan tugas akhir semua mahasiswa aktif.',
+    description:
+      'Unduh rekapitulasi kemajuan tugas akhir semua mahasiswa aktif.',
   },
   {
     title: 'Laporan Penilaian Sidang',
-    description: 'Unduh rekapitulasi hasil penilaian sidang dalam periode tertentu.',
+    description:
+      'Unduh rekapitulasi hasil penilaian sidang dalam periode tertentu.',
   },
   {
     title: 'Laporan Kinerja Dosen Pembimbing',
-    description: 'Unduh statistik jumlah bimbingan dan tingkat kelulusan per dosen.',
+    description:
+      'Unduh statistik jumlah bimbingan dan tingkat kelulusan per dosen.',
   },
   {
     title: 'Laporan Pendaftaran Sidang',
@@ -34,7 +37,9 @@ export default function LaporanPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {reportTypes.map((report, index) => (
           <div key={index} className="bg-white shadow-md rounded-lg p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-3">{report.title}</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-3">
+              {report.title}
+            </h2>
             <p className="text-gray-600 mb-6 h-12">{report.description}</p>
             <div className="flex items-center space-x-4">
               <button className="flex items-center bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200">

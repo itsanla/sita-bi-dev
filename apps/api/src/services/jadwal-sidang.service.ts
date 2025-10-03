@@ -4,7 +4,7 @@ import {
   StatusPersetujuan,
   StatusVerifikasi,
 } from '@repo/db';
-import { CreateJadwalDto } from '../dto/jadwal-sidang.dto';
+import type { CreateJadwalDto } from '../dto/jadwal-sidang.dto';
 
 export class JadwalSidangService {
   private prisma: PrismaClient;
@@ -126,7 +126,7 @@ export class JadwalSidangService {
       });
 
       // 5. Assign new examiners (penguji)
-      if ((pengujiIds?.length ?? 0) > 0) {
+      if (pengujiIds.length > 0) {
         const newPengujiData = pengujiIds.map((dosenId, i) => ({
           tugas_akhir_id: sidang.tugas_akhir_id,
           dosen_id: dosenId,

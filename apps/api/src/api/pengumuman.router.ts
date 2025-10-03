@@ -20,9 +20,13 @@ router.post(
   authorizeRoles([Role.admin]),
   validate(createPengumumanSchema),
   asyncHandler(async (req, res): Promise<void> => {
+    if (req.user == null) {
+      res.status(401).json({ status: 'gagal', message: 'Unauthorized' });
+      return;
+    }
     const newPengumuman = await pengumumanService.create(
       req.body,
-      req.user!.id,
+      req.user.id,
     );
     res.status(201).json({ status: 'sukses', data: newPengumuman });
   }),

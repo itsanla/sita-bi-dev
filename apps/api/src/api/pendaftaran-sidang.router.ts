@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
+import { PrismaClient } from '@repo/db';
 import { PendaftaranSidangService } from '../services/pendaftaran-sidang.service';
 import { jwtAuthMiddleware } from '../middlewares/auth.middleware';
 import { authorizeRoles } from '../middlewares/roles.middleware';
@@ -19,21 +20,54 @@ router.post(
   // authorizeRoles([Role.mahasiswa]), // Dikomenkan untuk sementara untuk testing
   uploadSidangFiles, // Multer middleware to handle file uploads
   asyncHandler(async (req, res): Promise<void> => {
-    // ID Mahasiswa di-hardcode untuk testing karena otentikasi dinonaktifkan
-    const mahasiswaId = 1; // Ganti dengan ID mahasiswa yang valid dari database Anda jika perlu
-    /*
-    const mahasiswaId = req.user?.mahasiswa?.id;
-    if (mahasiswaId === undefined) {
-      res.status(401).json({ status: 'gagal', message: 'Akses ditolak: Pengguna tidak memiliki profil mahasiswa.' });
-      return;
+    
+    try {
+      // ID Mahasiswa di-hardcode untuk testing karena otentikasi dinonaktifkan
+      const mahasiswaId = 1; // Ganti dengan ID mahasiswa yang valid dari database Anda jika perlu
+      
+      // Check if mahasiswa exists, if not create test data
+      const prisma = new PrismaClient();
+      
+      let mahasiswa = await prisma.mahasiswa.findUnique({
+        where: { id: mahasiswaId },
+        include: { tugasAkhir: true }
+      });
+      
+      mahasiswa ??= await prisma.mahasiswa.create({
+        data: {
+          user_id: testUser.id,
+          nim: '12345678',
+          prodi: 'D4',
+          kelas: 'A',
+        },
+        include: { tugasAkhir: true }
+      });
+      
+      // Check if approved tugas akhir exists, create if not
+      let tugasAkhir = await prisma.tugasAkhir.findFirst({
+        where: { mahasiswa_id: mahasiswa.id, status: 'DISETUJUI' }
+      });
+      
+      tugasAkhir ??= await prisma.tugasAkhir.create({
+        data: {
+          mahasiswa_id: mahasiswa.id,
+          judul: 'Test Thesis Title',
+          status: 'DISETUJUI',
+          tanggal_pengajuan: new Date(),
+        }
+      });
+      
+      // req.files will contain the uploaded files after multer processes them
+      const pendaftaran = await pendaftaranSidangService.registerForSidang(
+        mahasiswa.id,
+        req.files,
+      );
+      
+      res.status(201).json({ status: 'sukses', data: pendaftaran });
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error; // Re-throw to be handled by error middleware
     }
-    */
-    // req.files will contain the uploaded files after multer processes them
-    const pendaftaran = await pendaftaranSidangService.registerForSidang(
-      mahasiswaId,
-      req.files,
-    );
-    res.status(201).json({ status: 'sukses', data: pendaftaran });
   }),
 );
 

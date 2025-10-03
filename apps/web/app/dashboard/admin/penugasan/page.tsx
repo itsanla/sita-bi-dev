@@ -91,7 +91,6 @@ export default function PenugasanPage() {
     }
   };
 
-
   if (loading) {
     return (
       <div className="flex items-center justify-center p-10">
@@ -131,8 +130,12 @@ export default function PenugasanPage() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mahasiswa</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Mahasiswa
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Aksi
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -140,11 +143,15 @@ export default function PenugasanPage() {
               unassignedTAs.map((ta) => (
                 <tr key={ta.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{ta.mahasiswa.user.name}</div>
-                    <div className="text-sm text-gray-500 truncate max-w-md">{ta.judul}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {ta.mahasiswa.user.name}
+                    </div>
+                    <div className="text-sm text-gray-500 truncate max-w-md">
+                      {ta.judul}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button 
+                    <button
                       onClick={() => handleOpenModal(ta)}
                       className="inline-flex items-center text-red-800 hover:text-red-900 font-semibold"
                     >
@@ -171,43 +178,85 @@ export default function PenugasanPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-gray-800">Tugaskan Pembimbing</h2>
-              <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-800">
+              <h2 className="text-2xl font-bold text-gray-800">
+                Tugaskan Pembimbing
+              </h2>
+              <button
+                onClick={handleCloseModal}
+                className="text-gray-500 hover:text-gray-800"
+              >
                 <X size={24} />
               </button>
             </div>
-            <p className="text-sm text-gray-600 mb-1">Mahasiswa: <span className="font-semibold">{selectedTA.mahasiswa.user.name}</span></p>
-            <p className="text-sm text-gray-600 mb-6">Judul: <span className="font-semibold">{selectedTA.judul}</span></p>
-            
+            <p className="text-sm text-gray-600 mb-1">
+              Mahasiswa:{' '}
+              <span className="font-semibold">
+                {selectedTA.mahasiswa.user.name}
+              </span>
+            </p>
+            <p className="text-sm text-gray-600 mb-6">
+              Judul: <span className="font-semibold">{selectedTA.judul}</span>
+            </p>
+
             <form onSubmit={handleAssignSubmit} className="space-y-4">
               <div>
-                <label htmlFor="pembimbing1" className="block text-sm font-medium text-gray-700">Pembimbing 1</label>
-                <select 
-                  id="pembimbing1" 
+                <label
+                  htmlFor="pembimbing1"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Pembimbing 1
+                </label>
+                <select
+                  id="pembimbing1"
                   value={pembimbing1Id}
                   onChange={(e) => setPembimbing1Id(e.target.value)}
                   required
                   className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-800 focus:border-red-800 sm:text-sm rounded-md"
                 >
-                  <option value="" disabled>-- Pilih Dosen --</option>
-                  {allDosen.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                  <option value="" disabled>
+                    -- Pilih Dosen --
+                  </option>
+                  {allDosen.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
-                <label htmlFor="pembimbing2" className="block text-sm font-medium text-gray-700">Pembimbing 2 (Opsional)</label>
-                <select 
-                  id="pembimbing2" 
+                <label
+                  htmlFor="pembimbing2"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Pembimbing 2 (Opsional)
+                </label>
+                <select
+                  id="pembimbing2"
                   value={pembimbing2Id}
                   onChange={(e) => setPembimbing2Id(e.target.value)}
                   className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-800 focus:border-red-800 sm:text-sm rounded-md"
                 >
                   <option value="">-- Tidak Ada --</option>
-                  {allDosen.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                  {allDosen.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="flex justify-end pt-4 space-x-3">
-                <button type="button" onClick={handleCloseModal} className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">Batal</button>
-                <button type="submit" disabled={isSubmitting} className="bg-red-800 text-white px-4 py-2 rounded-md hover:bg-red-900 disabled:bg-gray-400">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-red-800 text-white px-4 py-2 rounded-md hover:bg-red-900 disabled:bg-gray-400"
+                >
                   {isSubmitting ? 'Menyimpan...' : 'Simpan Penugasan'}
                 </button>
               </div>

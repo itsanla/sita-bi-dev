@@ -61,3 +61,7 @@ pnpm-debug.log*
 # Misc
 .DS_Store
 *.pem
+
+# Upload files (monorepo level)
+uploads/*
+!uploads/.gitkeep

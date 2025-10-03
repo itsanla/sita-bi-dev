@@ -21,7 +21,7 @@ export default function EditPengumumanPage() {
   const [loading, setLoading] = useState(true); // Start with loading true
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  
+
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
@@ -32,9 +32,7 @@ export default function EditPengumumanPage() {
     const fetchAnnouncement = async () => {
       try {
         setLoading(true);
-        const response = await request<{ data: any }>(
-          `/pengumuman/${id}`
-        );
+        const response = await request<{ data: any }>(`/pengumuman/${id}`);
         const data = response.data;
         setJudul(data.judul);
         setIsi(data.isi);
@@ -68,7 +66,10 @@ export default function EditPengumumanPage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this announcement permanently?')) return;
+    if (
+      !confirm('Are you sure you want to delete this announcement permanently?')
+    )
+      return;
     try {
       await request(`/pengumuman/${id}`, { method: 'DELETE' });
       alert('Pengumuman berhasil dihapus.');
@@ -82,7 +83,9 @@ export default function EditPengumumanPage() {
     return (
       <div className="flex items-center justify-center p-10">
         <Loader className="animate-spin text-maroon-700" size={32} />
-        <span className="ml-4 text-lg text-gray-600">Loading announcement...</span>
+        <span className="ml-4 text-lg text-gray-600">
+          Loading announcement...
+        </span>
       </div>
     );
   }
@@ -92,7 +95,9 @@ export default function EditPengumumanPage() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Edit Pengumuman</h1>
-          <p className="text-gray-500 mt-1">Mengubah pengumuman dengan ID: {id}</p>
+          <p className="text-gray-500 mt-1">
+            Mengubah pengumuman dengan ID: {id}
+          </p>
         </div>
         <Link
           href="/dashboard/admin/pengumuman"
@@ -110,10 +115,16 @@ export default function EditPengumumanPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-8">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-md rounded-lg p-8"
+      >
         <div className="space-y-6">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Judul Pengumuman
             </label>
             <input
@@ -127,7 +138,10 @@ export default function EditPengumumanPage() {
           </div>
 
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="content"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Isi Pengumuman
             </label>
             <textarea
@@ -141,16 +155,19 @@ export default function EditPengumumanPage() {
           </div>
 
           <div>
-            <label htmlFor="audience" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="audience"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Audiens
             </label>
-            <select 
-              id="audience" 
+            <select
+              id="audience"
               value={audiens}
               onChange={(e) => setAudiens(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-800"
             >
-              {audienceOptions.map(opt => (
+              {audienceOptions.map((opt) => (
                 <option key={opt} value={opt} className="capitalize">
                   {opt.replace(/_/g, ' ')}
                 </option>
@@ -173,7 +190,11 @@ export default function EditPengumumanPage() {
             disabled={isSubmitting}
             className="flex items-center bg-red-800 text-white px-6 py-3 rounded-lg hover:bg-red-900 transition-colors duration-200 disabled:bg-gray-400 shadow-sm"
           >
-            {isSubmitting ? <Loader className="w-5 h-5 mr-2 animate-spin" /> : <Save className="w-5 h-5 mr-2" />}
+            {isSubmitting ? (
+              <Loader className="w-5 h-5 mr-2 animate-spin" />
+            ) : (
+              <Save className="w-5 h-5 mr-2" />
+            )}
             {isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan'}
           </button>
         </div>

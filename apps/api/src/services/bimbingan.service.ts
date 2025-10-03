@@ -1,4 +1,5 @@
-import { PrismaClient, Prisma, StatusTugasAkhir } from '@repo/db';
+import type { Prisma} from '@repo/db';
+import { PrismaClient, StatusTugasAkhir } from '@repo/db';
 
 // Interface untuk return types
 interface BimbinganForDosen {
@@ -122,20 +123,15 @@ export class BimbinganService {
       },
     });
 
-    if (bimbingan?.tugasAkhir == null) {
-      throw new Error(
-        'Bimbingan session or associated final project not found.',
-      );
-    }
 
     const isMahasiswa = bimbingan.tugasAkhir.mahasiswa.user.id === authorId;
-    const peranDosenList = bimbingan.tugasAkhir.peranDosenTa as Array<{
+    const peranDosenList = bimbingan.tugasAkhir.peranDosenTa as {
       dosen_id: number | null;
-    }>;
+    }[];
 
     const isPembimbing =
       bimbingan.dosen_id !== null &&
-      (peranDosenList?.some((p) => p.dosen_id === bimbingan.dosen_id) ?? false);
+      peranDosenList.some((p) => p.dosen_id === bimbingan.dosen_id);
 
     if (!(isMahasiswa || isPembimbing)) {
       throw new Error(
@@ -164,10 +160,7 @@ export class BimbinganService {
         where: { tugas_akhir_id: tugasAkhirId, dosen_id: dosenId },
       });
 
-      if (
-        peranDosen === null ||
-        String(peranDosen.peran).startsWith('pembimbing') === false
-      ) {
+      if (!peranDosen?.peran?.startsWith('pembimbing')) {
         throw new Error('You are not a supervisor for this final project.');
       }
 
@@ -188,13 +181,11 @@ export class BimbinganService {
 
   async cancelBimbingan(
     bimbinganId: number,
-    dosenId: number,
+    _dosenId: number,
   ): Promise<unknown> {
     return this.prisma.$transaction(async (tx) => {
       const bimbingan = await tx.bimbinganTA.findFirst({
-        where: { id: bimbinganId, dosen_id: dosenId },
       });
-
       if (bimbingan === null) {
         throw new Error(
           'Supervision session not found or you are not authorized to modify it.',
@@ -242,10 +233,10 @@ export class BimbinganService {
       }
 
       const peranDosen = await tx.peranDosenTa.findFirst({
-        where: { tugas_akhir_id: bimbingan.tugas_akhir_id, dosen_id: dosenId },
+        where: { tugas_akhir_id: bimbingan.tugasAkhir.id, dosen_id: dosenId },
       });
 
-      if (peranDosen !== null) {
+      if (peranDosen) {
         const updateData: Prisma.DokumenTaUpdateInput = {};
         if (peranDosen.peran === 'pembimbing1') {
           updateData.validatorP1 = { connect: { id: dosenId } };
@@ -276,3 +267,4 @@ export class BimbinganService {
     });
   }
 }
+

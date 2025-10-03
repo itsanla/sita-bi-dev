@@ -2,7 +2,15 @@
 
 import React, { useState, useEffect, FormEvent } from 'react';
 import request from '@/lib/api';
-import { Plus, Edit, Trash2, Link as LinkIcon, Loader, Info, X } from 'lucide-react';
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Link as LinkIcon,
+  Loader,
+  Info,
+  X,
+} from 'lucide-react';
 
 // --- Interfaces ---
 interface Link {
@@ -55,37 +63,64 @@ const LinkModal = ({
           <h2 className="text-2xl font-bold text-gray-800">
             {link?.id ? 'Edit Tautan' : 'Tambah Tautan Baru'}
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-800"
+          >
             <X size={24} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Title
+            </label>
             <input
               id="title"
               type="text"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
               required
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
             />
           </div>
           <div>
-            <label htmlFor="url" className="block text-sm font-medium text-gray-700">URL</label>
+            <label
+              htmlFor="url"
+              className="block text-sm font-medium text-gray-700"
+            >
+              URL
+            </label>
             <input
               id="url"
               type="url"
               value={formData.url}
-              onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, url: e.target.value })
+              }
               required
               placeholder="https://example.com"
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
             />
           </div>
           <div className="flex justify-end pt-4 space-x-3">
-            <button type="button" onClick={onClose} className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">Batal</button>
-            <button type="submit" disabled={isSubmitting} className="bg-red-800 text-white px-4 py-2 rounded-md hover:bg-red-900 disabled:bg-gray-400">
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-red-800 text-white px-4 py-2 rounded-md hover:bg-red-900 disabled:bg-gray-400"
+            >
               {isSubmitting ? 'Menyimpan...' : 'Simpan'}
             </button>
           </div>
@@ -151,34 +186,55 @@ export default function KelolaTautanPage() {
     <div className="container mx-auto">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Kelola Tautan</h1>
-        <button onClick={() => handleOpenModal(null)} className="flex items-center bg-red-800 text-white px-4 py-2 rounded-lg hover:bg-red-900 transition-colors duration-200 shadow-sm">
+        <button
+          onClick={() => handleOpenModal(null)}
+          className="flex items-center bg-red-800 text-white px-4 py-2 rounded-lg hover:bg-red-900 transition-colors duration-200 shadow-sm"
+        >
           <Plus className="w-5 h-5 mr-2" />
           Tambah Tautan
         </button>
       </div>
 
       {loading ? (
-        <div className="text-center p-8"><Loader className="animate-spin mx-auto text-red-800" /></div>
+        <div className="text-center p-8">
+          <Loader className="animate-spin mx-auto text-red-800" />
+        </div>
       ) : (
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
           <ul className="divide-y divide-gray-200">
             {links.length > 0 ? (
               links.map((link) => (
-                <li key={link.id} className="p-4 flex justify-between items-center hover:bg-gray-50">
+                <li
+                  key={link.id}
+                  className="p-4 flex justify-between items-center hover:bg-gray-50"
+                >
                   <div className="flex items-center">
                     <LinkIcon className="w-5 h-5 mr-4 text-gray-400" />
                     <div>
-                      <p className="text-md font-semibold text-gray-800">{link.title}</p>
-                      <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                      <p className="text-md font-semibold text-gray-800">
+                        {link.title}
+                      </p>
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-blue-600 hover:underline"
+                      >
                         {link.url}
                       </a>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
-                    <button onClick={() => handleOpenModal(link)} className="text-indigo-600 hover:text-indigo-900">
+                    <button
+                      onClick={() => handleOpenModal(link)}
+                      className="text-indigo-600 hover:text-indigo-900"
+                    >
                       <Edit className="w-5 h-5" />
                     </button>
-                    <button onClick={() => handleDelete(link.id)} className="text-red-600 hover:text-red-900">
+                    <button
+                      onClick={() => handleDelete(link.id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
                       <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
@@ -195,7 +251,7 @@ export default function KelolaTautanPage() {
       )}
 
       {isModalOpen && (
-        <LinkModal 
+        <LinkModal
           link={editingLink}
           onClose={handleCloseModal}
           onSave={handleSave}

@@ -18,9 +18,13 @@ router.post(
   authorizeRoles([Role.dosen]),
   validate(createTawaranTopikSchema),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    if (req.user == null) {
+      res.status(401).json({ status: 'gagal', message: 'Unauthorized' });
+      return;
+    }
     const newTawaranTopik = await tawaranTopikService.create(
       req.body,
-      req.user!.id,
+      req.user.id,
     );
     res.status(201).json({ status: 'sukses', data: newTawaranTopik });
   }),
@@ -30,12 +34,16 @@ router.get(
   '/',
   authorizeRoles([Role.dosen]),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    if (req.user == null) {
+      res.status(401).json({ status: 'gagal', message: 'Unauthorized' });
+      return;
+    }
     const page =
       req.query.page != null ? parseInt(req.query.page as string) : undefined;
     const limit =
       req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
     const tawaranTopik = await tawaranTopikService.findByDosen(
-      req.user!.id,
+      req.user.id,
       page,
       limit,
     );
@@ -63,12 +71,16 @@ router.get(
   '/applications',
   authorizeRoles([Role.dosen]),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    if (req.user == null) {
+      res.status(401).json({ status: 'gagal', message: 'Unauthorized' });
+      return;
+    }
     const page =
       req.query.page != null ? parseInt(req.query.page as string) : undefined;
     const limit =
       req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
     const applications = await tawaranTopikService.getApplicationsForDosen(
-      req.user!.id,
+      req.user.id,
       page,
       limit,
     );
@@ -87,9 +99,13 @@ router.post(
         .json({ status: 'gagal', message: 'ID Aplikasi diperlukan' });
       return;
     }
+    if (req.user == null) {
+      res.status(401).json({ status: 'gagal', message: 'Unauthorized' });
+      return;
+    }
     const approvedApplication = await tawaranTopikService.approveApplication(
       parseInt(id, 10),
-      req.user!.id,
+      req.user.id,
     );
     res.status(200).json({ status: 'sukses', data: approvedApplication });
   }),
@@ -106,9 +122,13 @@ router.post(
         .json({ status: 'gagal', message: 'ID Aplikasi diperlukan' });
       return;
     }
+    if (req.user == null) {
+      res.status(401).json({ status: 'gagal', message: 'Unauthorized' });
+      return;
+    }
     const rejectedApplication = await tawaranTopikService.rejectApplication(
       parseInt(id, 10),
-      req.user!.id,
+      req.user.id,
     );
     res.status(200).json({ status: 'sukses', data: rejectedApplication });
   }),

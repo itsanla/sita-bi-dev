@@ -10,11 +10,11 @@ export type LoginDto = z.infer<typeof loginSchema>;
 
 export const registerSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email'),
+  email: z.email(),
   password: z.string().min(8, 'Password must be at least 8 characters'),
+  phone_number: z.string().min(1, 'Phone number is required'),
   nim: z.string().min(1, 'NIM is required'),
-  prodi: z.nativeEnum(Prodi),
-  angkatan: z.string().min(4, 'Angkatan is required'),
+  prodi: z.enum([Prodi.D3, Prodi.D4]),
   kelas: z.string().min(1, 'Kelas is required'),
 });
 

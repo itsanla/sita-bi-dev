@@ -34,12 +34,14 @@ export default function AdminHeader() {
                 <UserCircle className="h-5 w-5 text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-semibold text-gray-900">{user?.name || 'Admin'}</span>
+                <span className="text-sm font-semibold text-gray-900">
+                  {user?.name || 'Admin'}
+                </span>
                 <span className="text-xs text-red-800/70">Administrator</span>
               </div>
             </div>
-            
-            <button 
+
+            <button
               onClick={logout}
               className="group flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-red-900 border border-red-900/20 rounded-full transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-red-900/20"
               title="Sign Out"

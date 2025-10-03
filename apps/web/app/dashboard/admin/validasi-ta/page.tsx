@@ -28,7 +28,7 @@ export default function ValidasiTAPage() {
       setLoading(true);
       setError('');
       const response = await request<{ data: { data: Submission[] } }>(
-        '/tugas-akhir/validasi'
+        '/tugas-akhir/validasi',
       );
       setSubmissions(response.data.data || []);
     } catch (err: any) {
@@ -68,12 +68,13 @@ export default function ValidasiTAPage() {
     }
   };
 
-
   if (loading) {
     return (
       <div className="flex items-center justify-center p-10">
         <Loader className="animate-spin text-maroon-700" size={32} />
-        <span className="ml-4 text-lg text-gray-600">Loading submissions...</span>
+        <span className="ml-4 text-lg text-gray-600">
+          Loading submissions...
+        </span>
       </div>
     );
   }
@@ -90,7 +91,9 @@ export default function ValidasiTAPage() {
   return (
     <div className="container mx-auto">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Validasi Tugas Akhir</h1>
+        <h1 className="text-3xl font-bold text-gray-800">
+          Validasi Tugas Akhir
+        </h1>
       </div>
 
       <div className="mb-6 flex items-center">
@@ -107,26 +110,38 @@ export default function ValidasiTAPage() {
       <div className="space-y-6">
         {submissions.length > 0 ? (
           submissions.map((submission) => (
-            <div key={submission.id} className="bg-white shadow-md rounded-lg p-6 border-l-4 border-red-800">
+            <div
+              key={submission.id}
+              className="bg-white shadow-md rounded-lg p-6 border-l-4 border-red-800"
+            >
               <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-2">{submission.judul}</h2>
+                  <h2 className="text-xl font-bold text-gray-800 mb-2">
+                    {submission.judul}
+                  </h2>
                   <p className="text-sm text-gray-600">
-                    Oleh: <span className="font-semibold">{submission.mahasiswa.user.name}</span> ({submission.mahasiswa.nim})
+                    Oleh:{' '}
+                    <span className="font-semibold">
+                      {submission.mahasiswa.user.name}
+                    </span>{' '}
+                    ({submission.mahasiswa.nim})
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
-                    Tanggal Pengajuan: {new Date(submission.tanggal_pengajuan).toLocaleDateString()}
+                    Tanggal Pengajuan:{' '}
+                    {new Date(
+                      submission.tanggal_pengajuan,
+                    ).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center space-x-3 ml-4 flex-shrink-0">
-                  <button 
+                  <button
                     onClick={() => handleApprove(submission.id)}
                     className="flex items-center justify-center w-10 h-10 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors duration-200 shadow-sm"
                     title="Approve"
                   >
                     <CheckCircle className="w-6 h-6" />
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleReject(submission.id)}
                     className="flex items-center justify-center w-10 h-10 bg-red-700 text-white rounded-full hover:bg-red-800 transition-colors duration-200 shadow-sm"
                     title="Reject"
@@ -141,7 +156,9 @@ export default function ValidasiTAPage() {
           <div className="text-center text-gray-500 bg-white p-12 rounded-lg shadow-md">
             <Info size={48} className="mx-auto mb-4 text-gray-400" />
             <h2 className="text-xl font-semibold">Tidak Ada Pengajuan</h2>
-            <p className="mt-1">Saat ini tidak ada pengajuan tugas akhir yang memerlukan validasi.</p>
+            <p className="mt-1">
+              Saat ini tidak ada pengajuan tugas akhir yang memerlukan validasi.
+            </p>
           </div>
         )}
       </div>

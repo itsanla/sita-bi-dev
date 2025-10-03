@@ -1,5 +1,5 @@
 import { PrismaClient } from '@repo/db';
-import { CreateLinkDto, UpdateLinkDto } from '../dto/links.dto';
+import type { CreateLinkDto, UpdateLinkDto } from '../dto/links.dto';
 import { paginate } from '../utils/pagination.util';
 
 // Mock data from NestJS service
@@ -46,7 +46,7 @@ export class LinksService {
     this.prisma = new PrismaClient();
   }
 
-  async create(createLinkDto: CreateLinkDto): Promise<unknown> {
+  create(createLinkDto: CreateLinkDto): unknown {
     // In a real scenario, this would interact with Prisma
     const newLink = {
       id: this._links.length,
@@ -57,18 +57,18 @@ export class LinksService {
     return newLink;
   }
 
-  async findAll(page = 1, limit = 50): Promise<unknown> {
+  findAll(page = 1, limit = 50): unknown {
     // In a real scenario, this would interact with Prisma
     const paginatedResult = paginate(this._links, { page, limit });
     return { ...paginatedResult, total: this._links.length };
   }
 
-  async findOne(id: number): Promise<unknown> {
+  findOne(id: number): unknown {
     // In a real scenario, this would interact with Prisma
     return this._links.find((link) => link.id === id);
   }
 
-  async update(id: number, updateLinkDto: UpdateLinkDto): Promise<unknown> {
+  update(id: number, updateLinkDto: UpdateLinkDto): unknown {
     // In a real scenario, this would interact with Prisma
     const index = this._links.findIndex((link) => link.id === id);
     if (index > -1) {
@@ -85,7 +85,7 @@ export class LinksService {
     return null;
   }
 
-  async remove(id: number): Promise<unknown> {
+  remove(id: number): unknown {
     // In a real scenario, this would interact with Prisma
     const index = this._links.findIndex((link) => link.id === id);
     if (index > -1) {

@@ -52,6 +52,19 @@ router.get(
 );
 
 router.get(
+  '/mahasiswa-tanpa-pembimbing',
+  // authorizeRoles([Role.dosen]),
+  asyncHandler(async (req, res) => {
+    const page =
+      req.query.page != null ? parseInt(req.query.page as string) : undefined;
+    const limit =
+      req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
+    const mahasiswaList = await usersService.findAllMahasiswaTanpaPembimbing(page, limit);
+    res.status(200).json({ status: 'sukses', data: mahasiswaList });
+  }),
+);
+
+router.get(
   '/mahasiswa',
   authorizeRoles([Role.admin]),
   asyncHandler(async (req, res) => {

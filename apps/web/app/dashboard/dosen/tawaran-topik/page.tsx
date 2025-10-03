@@ -146,9 +146,7 @@ export default function TawaranTopikPage() {
       setLoading(true);
       const [topicsRes, appsRes] = await Promise.all([
         request<{ data: TawaranTopik[] }>('/tawaran-topik'),
-        request<{ data: Application[] }>(
-          '/tawaran-topik/applications',
-        ),
+        request<{ data: Application[] }>('/tawaran-topik/applications'),
       ]);
       setTopics(topicsRes.data);
       setApplications(appsRes.data);
@@ -211,7 +209,9 @@ export default function TawaranTopikPage() {
       {/* Create Form Section */}
       {showCreateForm && (
         <div className="bg-white p-6 rounded-2xl shadow-lg">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Formulir Topik Baru</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Formulir Topik Baru
+          </h2>
           <CreateTopikForm
             onTopicCreated={() => {
               fetchData();
@@ -224,8 +224,8 @@ export default function TawaranTopikPage() {
       {/* My Topics Section */}
       <div className="bg-white p-6 rounded-2xl shadow-lg">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-          <BookOpen size={24} className="mr-3 text-maroon-700" /> Topik yang Saya
-          Tawarkan
+          <BookOpen size={24} className="mr-3 text-maroon-700" /> Topik yang
+          Saya Tawarkan
         </h2>
         {loading ? (
           <div className="flex items-center justify-center p-6">
@@ -241,19 +241,35 @@ export default function TawaranTopikPage() {
             <table className="min-w-full bg-white">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul Topik</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Kuota</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Judul Topik
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Deskripsi
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Kuota
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {topics.map((topic) => (
                   <tr key={topic.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{topic.id}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{topic.judul_topik}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600 max-w-md truncate">{topic.deskripsi}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-800 font-medium">{topic.kuota}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {topic.id}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {topic.judul_topik}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600 max-w-md truncate">
+                      {topic.deskripsi}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-800 font-medium">
+                      {topic.kuota}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -265,7 +281,8 @@ export default function TawaranTopikPage() {
       {/* Pending Applications Section */}
       <div className="bg-white p-6 rounded-2xl shadow-lg">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-          <Users size={24} className="mr-3 text-maroon-700" /> Aplikasi Mahasiswa
+          <Users size={24} className="mr-3 text-maroon-700" /> Aplikasi
+          Mahasiswa
         </h2>
         {loading ? (
           <div className="flex items-center justify-center p-6">
@@ -281,20 +298,38 @@ export default function TawaranTopikPage() {
             <table className="min-w-full bg-white">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">App ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mahasiswa</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topik yang Dilamar</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    App ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Mahasiswa
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Topik yang Dilamar
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Aksi
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {applications.map((app) => (
                   <tr key={app.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{app.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{app.mahasiswa.user.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.mahasiswa.user.email}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{app.tawaranTopik.judul_topik}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {app.id}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {app.mahasiswa.user.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {app.mahasiswa.user.email}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {app.tawaranTopik.judul_topik}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
                       <button
                         onClick={() => handleApplication(app.id, 'approve')}

@@ -1,5 +1,6 @@
-import { Dosen, Mahasiswa, PrismaClient, Role, User } from '@repo/db';
-import { LoginDto, RegisterDto } from '../dto/auth.dto';
+import type { Dosen, Mahasiswa, Role, User } from '@repo/db';
+import { PrismaClient } from '@repo/db';
+import type { LoginDto, RegisterDto } from '../dto/auth.dto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
@@ -83,16 +84,27 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto): Promise<void> {
-    const { name, email, password, nim, prodi, angkatan, kelas } = dto;
+    const { name, email, password, phone_number, nim, prodi, kelas } = dto;
+
+    // Helper function to format phone number
+    const formatPhoneNumber = (phone: string): string => {
+      if (phone.startsWith('08')) {
+        return `+628${phone.substring(2)}`;
+      }
+      // Return as is if it doesn't start with 08 (e.g., already formatted)
+      return phone;
+    };
+
+    const formattedPhoneNumber = formatPhoneNumber(phone_number);
 
     const existingUser = await this.prisma.user.findFirst({
-      where: { OR: [{ email }, { mahasiswa: { nim } }] },
+      where: { OR: [{ email }, { mahasiswa: { nim } }, { phone_number: formattedPhoneNumber }] },
     });
 
     if (existingUser !== null) {
       throw new HttpError(
         409,
-        'User dengan email atau NIM tersebut sudah ada.',
+        'User dengan email, NIM, atau nomor HP tersebut sudah ada.',
       );
     }
 
@@ -103,6 +115,7 @@ export class AuthService {
         name,
         email,
         password: hashedPassword,
+        phone_number: formattedPhoneNumber,
         roles: {
           connect: { name: 'mahasiswa' },
         },
@@ -110,7 +123,6 @@ export class AuthService {
           create: {
             nim,
             prodi,
-            angkatan,
             kelas,
           },
         },

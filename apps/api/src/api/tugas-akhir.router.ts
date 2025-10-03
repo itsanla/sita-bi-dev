@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import asyncHandler from 'express-async-handler';
-import { TugasAkhirService, SimilarityError } from '../services/tugas-akhir.service';
+import { TugasAkhirService } from '../services/tugas-akhir.service';
 import { jwtAuthMiddleware } from '../middlewares/auth.middleware';
 import { authorizeRoles } from '../middlewares/roles.middleware';
 import { validate } from '../middlewares/validation.middleware';
@@ -22,14 +22,14 @@ router.post(
   asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.mahasiswa]),
   validate(createTugasAkhirSchema),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, response: Response): Promise<void> => {
     const SIMILARITY_BLOCK_THRESHOLD = 80;
     const { judul } = req.body;
     const results = await tugasAkhirService.checkSimilarity(judul);
 
     const isBlocked = results.some(res => res.similarity >= SIMILARITY_BLOCK_THRESHOLD);
 
-    res.status(200).json({ 
+    response.status(200).json({ 
       status: 'sukses', 
       data: { 
         results,
@@ -44,17 +44,17 @@ router.post(
   asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.mahasiswa]),
   validate(createTugasAkhirSchema),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, response: Response): Promise<void> => {
     const userId = req.user?.id;
     if (userId === undefined) {
-      res.status(401).json({
+      response.status(401).json({
         status: 'gagal',
         message: 'Akses ditolak: ID pengguna tidak ditemukan.',
       });
       return;
     }
     const newTugasAkhir = await tugasAkhirService.createFinal(req.body, userId);
-    res.status(201).json({ status: 'sukses', data: newTugasAkhir });
+    response.status(201).json({ status: 'sukses', data: newTugasAkhir });
   }),
 );
 
@@ -62,17 +62,21 @@ router.get(
   '/validasi',
   asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.admin, Role.kajur, Role.kaprodi_d3, Role.kaprodi_d4]),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, response: Response): Promise<void> => {
+    if (req.user == null) {
+      response.status(401).json({ status: 'gagal', message: 'Unauthorized' });
+      return;
+    }
     const page =
       req.query.page != null ? parseInt(req.query.page as string) : undefined;
     const limit =
       req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
     const tugasAkhirList = await tugasAkhirService.findAllForValidation(
-      req.user!,
+      req.user,
       page,
       limit,
     );
-    res.status(200).json({ status: 'sukses', data: tugasAkhirList });
+    response.status(200).json({ status: 'sukses', data: tugasAkhirList });
   }),
 );
 
@@ -81,17 +85,17 @@ router.patch(
   asyncHandler(jwtAuthMiddleware),
   asyncHandler(tugasAkhirGuard), // Custom guard for Tugas Akhir
   authorizeRoles([Role.admin, Role.kajur, Role.kaprodi_d3, Role.kaprodi_d4]),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, response: Response): Promise<void> => {
     const { id } = req.params;
     if (id == null) {
-      res
+      response
         .status(400)
         .json({ status: 'gagal', message: 'ID Tugas Akhir diperlukan' });
       return;
     }
     const approverId = req.user?.id;
     if (approverId === undefined) {
-      res.status(401).json({
+      response.status(401).json({
         status: 'gagal',
         message: 'Akses ditolak: ID pemberi persetujuan tidak ditemukan.',
       });
@@ -101,7 +105,7 @@ router.patch(
       parseInt(id, 10),
       approverId,
     );
-    res.status(200).json({ status: 'sukses', data: approvedTugasAkhir });
+    response.status(200).json({ status: 'sukses', data: approvedTugasAkhir });
   }),
 );
 
@@ -111,17 +115,17 @@ router.patch(
   asyncHandler(tugasAkhirGuard), // Custom guard for Tugas Akhir
   authorizeRoles([Role.admin, Role.kajur, Role.kaprodi_d3, Role.kaprodi_d4]),
   validate(rejectTugasAkhirSchema),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, response: Response): Promise<void> => {
     const { id } = req.params;
     if (id == null) {
-      res
+      response
         .status(400)
         .json({ status: 'gagal', message: 'ID Tugas Akhir diperlukan' });
       return;
     }
     const rejecterId = req.user?.id;
     if (rejecterId === undefined) {
-      res.status(401).json({
+      response.status(401).json({
         status: 'gagal',
         message: 'Akses ditolak: ID penolak tidak ditemukan.',
       });
@@ -133,7 +137,7 @@ router.patch(
       rejecterId,
       alasan_penolakan,
     );
-    res.status(200).json({ status: 'sukses', data: rejectedTugasAkhir });
+    response.status(200).json({ status: 'sukses', data: rejectedTugasAkhir });
   }),
 );
 
@@ -141,10 +145,10 @@ router.post(
   '/:id/cek-kemiripan',
   asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.admin, Role.kajur, Role.kaprodi_d3, Role.kaprodi_d4]),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, response: Response): Promise<void> => {
     const { id } = req.params;
     if (id == null) {
-      res
+      response
         .status(400)
         .json({ status: 'gagal', message: 'ID Tugas Akhir diperlukan' });
       return;
@@ -152,7 +156,7 @@ router.post(
     const kemiripanResult = await tugasAkhirService.cekKemiripan(
       parseInt(id, 10),
     );
-    res.status(200).json({ status: 'sukses', data: kemiripanResult });
+    response.status(200).json({ status: 'sukses', data: kemiripanResult });
   }),
 );
 
@@ -160,17 +164,17 @@ router.get(
   '/my-ta',
   asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.mahasiswa]),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, response: Response): Promise<void> => {
     const userId = req.user?.id;
     if (userId === undefined) {
-      res.status(401).json({
+      response.status(401).json({
         status: 'gagal',
         message: 'Akses ditolak: ID pengguna tidak ditemukan.',
       });
       return;
     }
     const tugasAkhir = await tugasAkhirService.findMyTugasAkhir(userId);
-    res.status(200).json({ status: 'sukses', data: tugasAkhir });
+    response.status(200).json({ status: 'sukses', data: tugasAkhir });
   }),
 );
 
@@ -178,26 +182,26 @@ router.delete(
   '/my-ta',
   asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.mahasiswa]),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, response: Response): Promise<void> => {
     const userId = req.user?.id;
     if (userId === undefined) {
-      res.status(401).json({
+      response.status(401).json({
         status: 'gagal',
         message: 'Akses ditolak: ID pengguna tidak ditemukan.',
       });
       return;
     }
     await tugasAkhirService.deleteMyTa(userId);
-    res.status(200).json({ status: 'sukses', message: 'Tugas Akhir berhasil dihapus.' });
+    response.status(200).json({ status: 'sukses', message: 'Tugas Akhir berhasil dihapus.' });
   }),
 );
 
 router.get(
   '/all-titles',
   asyncHandler(jwtAuthMiddleware),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, response: Response): Promise<void> => {
     const titles = await tugasAkhirService.findAllTitles();
-    res.status(200).json({ status: 'sukses', data: titles });
+    response.status(200).json({ status: 'sukses', data: titles });
   }),
 );
 

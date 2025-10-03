@@ -45,6 +45,7 @@ async function main() {
       create: {
         email: adminEmail,
         name: 'Super Admin',
+        phone_number: '+6281100000001',
         password: hashedPassword,
         email_verified_at: new Date(),
         roles: {
@@ -76,6 +77,7 @@ async function main() {
       create: {
         email: dosenEmail,
         name: 'Dosen Pengampu',
+        phone_number: '+6281100000002',
         password: hashedPassword,
         email_verified_at: new Date(),
         roles: {
@@ -112,6 +114,7 @@ async function main() {
       create: {
         email: mahasiswaEmail,
         name: 'Mahasiswa Uji',
+        phone_number: '+6281100000003',
         password: hashedPassword,
         email_verified_at: new Date(),
         roles: {
@@ -121,7 +124,6 @@ async function main() {
           create: {
             nim: '2201012023', // Placeholder NIM
             prodi: 'D4', // Placeholder Prodi
-            angkatan: '2022',
             kelas: 'TI-1A',
           },
         },

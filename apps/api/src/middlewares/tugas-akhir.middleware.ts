@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@repo/db';
 import { Role } from '@repo/types';
 
@@ -10,7 +10,7 @@ export const tugasAkhirGuard = async (
   next: NextFunction,
 ): Promise<void> => {
   const { id } = req.params;
-  if (id === null || id === undefined) {
+  if (id == null || id === '') {
     res.status(400).json({ message: 'Tugas Akhir ID is required' });
     return;
   }

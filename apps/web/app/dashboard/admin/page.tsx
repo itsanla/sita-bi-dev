@@ -1,9 +1,21 @@
-
 import React from 'react';
 import Link from 'next/link';
-import { BookOpen, Users, Megaphone, Calendar, ArrowRight } from 'lucide-react';
+import {
+  BookOpen,
+  Users,
+  Megaphone,
+  Calendar,
+  ArrowRight,
+  LucideIcon,
+} from 'lucide-react';
 
-const StatCard = ({ title, value, icon: Icon }) => (
+interface StatCardProps {
+  title: string;
+  value: string;
+  icon: LucideIcon;
+}
+
+const StatCard = ({ title, value, icon: Icon }: StatCardProps) => (
   <div className="bg-white border border-gray-200/75 rounded-xl p-6 flex items-center shadow-sm">
     <div className="p-3 bg-maroon-50 rounded-lg mr-4">
       <Icon className="w-7 h-7 text-maroon-600" />
@@ -15,7 +27,17 @@ const StatCard = ({ title, value, icon: Icon }) => (
   </div>
 );
 
-const QuickAccessLink = ({ title, description, href }) => (
+interface QuickAccessLinkProps {
+  title: string;
+  description: string;
+  href: string;
+}
+
+const QuickAccessLink = ({
+  title,
+  description,
+  href,
+}: QuickAccessLinkProps) => (
   <Link
     href={href}
     className="group block p-6 bg-white rounded-xl border border-gray-200/75 hover:shadow-lg hover:border-maroon-300 transition-all duration-300 hover:-translate-y-1"
@@ -25,7 +47,8 @@ const QuickAccessLink = ({ title, description, href }) => (
     </h3>
     <p className="text-gray-600 text-sm mb-4">{description}</p>
     <span className="font-semibold text-sm text-maroon-700 flex items-center group-hover:text-maroon-500 transition-colors">
-      Lanjutkan <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
+      Lanjutkan{' '}
+      <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
     </span>
   </Link>
 );
@@ -48,7 +71,9 @@ export default function AdminDashboardPage() {
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold text-gray-700 mb-6">Akses Cepat</h2>
+        <h2 className="text-xl font-semibold text-gray-700 mb-6">
+          Akses Cepat
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <QuickAccessLink
             title="Buat Pengumuman Baru"

@@ -19,7 +19,8 @@ const featureCards = [
   },
   {
     title: 'Tawaran Topik',
-    description: 'Publikasikan dan kelola topik tugas akhir yang Anda tawarkan.',
+    description:
+      'Publikasikan dan kelola topik tugas akhir yang Anda tawarkan.',
     href: '/dashboard/dosen/tawaran-topik',
     icon: Lightbulb,
     color: 'text-red-700',
@@ -48,7 +49,8 @@ export default function DosenDashboardPage() {
           Selamat Datang di Dasbor Dosen
         </h1>
         <p className="text-lg text-gray-600">
-          Pilih salah satu menu di bawah untuk mengelola aktivitas akademik Anda.
+          Pilih salah satu menu di bawah untuk mengelola aktivitas akademik
+          Anda.
         </p>
       </div>
 

@@ -15,7 +15,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "dev:frontend": "pnpm --filter web dev",
     "dev:backend": "pnpm --filter api dev",
-    "check:backend": "pnpm --filter api lint && pnpm --filter api run format:check && pnpm --filter api run build && pnpm --filter api run test"
+    "check:backend": "pnpm --filter api lint && pnpm --filter api run format:check && pnpm --filter api run build && pnpm --filter api run test",
+    "check:frontend": "pnpm --filter web lint && prettier --write apps/web/**/*.{ts,tsx,js,jsx,json} && set ANALYZE=true && pnpm --filter web build"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

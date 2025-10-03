@@ -1,6 +1,7 @@
 'use client';
 
-import { pipeline, Pipeline } from '@xenova/transformers';
+import type { Pipeline } from '@xenova/transformers';
+import { pipeline } from '@xenova/transformers';
 
 // Helper function to compute cosine similarity
 function cosineSimilarity(v1: number[], v2: number[]): number {
@@ -13,24 +14,22 @@ function cosineSimilarity(v1: number[], v2: number[]): number {
   return dotProduct / (magnitude1 * magnitude2);
 }
 
-class SimilarityPipeline {
-  static task = 'feature-extraction';
-  static model = 'Xenova/all-MiniLM-L6-v2';
-  static instance: Promise<Pipeline> | null = null;
+const SimilarityPipeline = {
+  task: 'feature-extraction',
+  model: 'Xenova/all-MiniLM-L6-v2',
+  instance: null as Promise<Pipeline> | null,
 
-  static async getInstance(progress_callback?: Function) {
-    if (this.instance === null) {
-      this.instance = pipeline(this.task, this.model, { progress_callback });
-    }
+  async getInstance(progress_callback?: () => void): Promise<Pipeline> {
+    this.instance ??= pipeline(this.task, this.model, { progress_callback });
     return this.instance;
-  }
-}
+  },
+};
 
 // Batched and improved version
-export async function calculateSimilarities(newTitle: string, existingTitles: { id: number, judul: string }[]) {
+export async function calculateSimilarities(newTitle: string, existingTitles: { id: number, judul: string }[]): Promise<{ id: number, judul: string, similarity: number }[]> {
   const extractor = await SimilarityPipeline.getInstance();
 
-  if (!extractor || existingTitles.length === 0) {
+  if (existingTitles.length === 0) {
     return [];
   }
 

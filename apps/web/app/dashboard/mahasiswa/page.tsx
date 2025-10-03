@@ -7,7 +7,8 @@ import { useAuth } from '../../../context/AuthContext';
 const featureCards = [
   {
     title: 'Tugas Akhir',
-    description: 'Ajukan judul baru atau lihat status tugas akhir Anda saat ini.',
+    description:
+      'Ajukan judul baru atau lihat status tugas akhir Anda saat ini.',
     href: '/dashboard/mahasiswa/tugas-akhir',
     icon: BookOpen,
   },
@@ -19,7 +20,8 @@ const featureCards = [
   },
   {
     title: 'Pendaftaran Sidang',
-    description: 'Daftarkan diri Anda untuk sidang dan pantau status verifikasi.',
+    description:
+      'Daftarkan diri Anda untuk sidang dan pantau status verifikasi.',
     href: '/dashboard/mahasiswa/sidang',
     icon: FileText,
   },
@@ -31,9 +33,12 @@ export default function MahasiswaDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-800">Selamat Datang, {user?.name}!</h1>
+        <h1 className="text-3xl font-bold text-gray-800">
+          Selamat Datang, {user?.name}!
+        </h1>
         <p className="mt-2 text-gray-600">
-          Ini adalah pusat kendali Anda. Kelola tugas akhir, bimbingan, dan pendaftaran sidang dari sini.
+          Ini adalah pusat kendali Anda. Kelola tugas akhir, bimbingan, dan
+          pendaftaran sidang dari sini.
         </p>
       </div>
 

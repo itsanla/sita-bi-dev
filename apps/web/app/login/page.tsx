@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LogIn, Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
+import request from '@/lib/api';
+
 import { useAuth } from '../../context/AuthContext';
 
 export default function LoginPage() {
@@ -20,21 +22,24 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/login', {
+      console.log('Attempting login with:', { identifier, password: '***' });
+
+      // Use the request utility for proper error handling
+      const response = await request<{
+        status: string;
+        data: { token: string; user: any };
+      }>('/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ identifier, password }),
+        body: { identifier, password },
       });
 
-      const data = await response.json();
+      console.log('Login response:', response);
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
+      if (response.status !== 'sukses') {
+        throw new Error('Login failed');
       }
 
-      const { token, user } = data.data;
+      const { token, user } = response.data;
       login(token, user);
 
       const userRole = user.roles[0]?.name;
@@ -48,6 +53,7 @@ export default function LoginPage() {
       }
     } catch (err) {
       const error = err as Error;
+      console.error('Login error:', error);
       setError(error.message);
     } finally {
       setLoading(false);

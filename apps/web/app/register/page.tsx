@@ -14,7 +14,7 @@ import {
   Book,
   Users,
   Hash,
-  Calendar,
+  Phone,
 } from 'lucide-react';
 
 // --- InputField Component (Refactored) ---
@@ -79,8 +79,8 @@ export default function RegisterPage() {
     email: '',
     nim: '',
     prodi: 'D3',
-    angkatan: '',
-    kelas: '',
+    phone_number: '',
+    kelas: '3A',
     password: '',
     password_confirmation: '',
   });
@@ -108,8 +108,8 @@ export default function RegisterPage() {
       return;
     }
 
-    const { name, email, nim, prodi, angkatan, kelas, password } = formData;
-    const payload = { name, email, nim, prodi, angkatan, kelas, password };
+    const { name, email, nim, prodi, phone_number, kelas, password } = formData;
+    const payload = { name, email, nim, prodi, phone_number, kelas, password };
 
     try {
       const response = await fetch('/api/auth/register', {
@@ -149,35 +149,116 @@ export default function RegisterPage() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl mb-4 shadow-lg">
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Create Account
+              </h1>
               <p className="text-white/90 text-sm">Join SITA-BI today!</p>
             </div>
           </div>
 
           <div className="p-8">
             <form onSubmit={handleSubmit} className="space-y-4">
-              <InputField id="name" name="name" type="text" placeholder="Full Name" value={formData.name} icon={User} onChange={handleChange} />
-              <InputField id="email" name="email" type="email" placeholder="Email Address" value={formData.email} icon={Mail} onChange={handleChange} />
+              <InputField
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Full Name"
+                value={formData.name}
+                icon={User}
+                onChange={handleChange}
+              />
+              <InputField
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Email Address"
+                value={formData.email}
+                icon={Mail}
+                onChange={handleChange}
+              />
               <div className="grid grid-cols-2 gap-4">
-                <InputField id="nim" name="nim" type="text" placeholder="NIM" value={formData.nim} icon={Hash} onChange={handleChange} />
-                <InputField id="angkatan" name="angkatan" type="text" placeholder="Angkatan" value={formData.angkatan} icon={Calendar} onChange={handleChange} />
+                <InputField
+                  id="nim"
+                  name="nim"
+                  type="text"
+                  placeholder="NIM"
+                  value={formData.nim}
+                  icon={Hash}
+                  onChange={handleChange}
+                />
+                <InputField
+                  id="phone_number"
+                  name="phone_number"
+                  type="text"
+                  placeholder="No. HP (08...)"
+                  value={formData.phone_number}
+                  icon={Phone}
+                  onChange={handleChange}
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                 <div>
-                    <div className="relative group">
-                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <Book className="h-5 w-5 text-gray-400 group-focus-within:text-rose-600 transition-colors" />
-                        </div>
-                        <select name="prodi" value={formData.prodi} onChange={handleChange} className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-rose-600 focus:ring-4 focus:ring-rose-100 outline-none transition-all duration-200 bg-gray-50 focus:bg-white">
-                            <option value="D3">D3</option>
-                            <option value="D4">D4</option>
-                        </select>
+                <div>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <Book className="h-5 w-5 text-gray-400 group-focus-within:text-rose-600 transition-colors" />
                     </div>
+                    <select
+                      name="prodi"
+                      value={formData.prodi}
+                      onChange={handleChange}
+                      className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-rose-600 focus:ring-4 focus:ring-rose-100 outline-none transition-all duration-200 bg-gray-50 focus:bg-white"
+                    >
+                      <option value="D3">D3</option>
+                      <option value="D4">D4</option>
+                    </select>
+                  </div>
                 </div>
-                <InputField id="kelas" name="kelas" type="text" placeholder="Kelas" value={formData.kelas} icon={Users} onChange={handleChange} />
+                <div>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <Users className="h-5 w-5 text-gray-400 group-focus-within:text-rose-600 transition-colors" />
+                    </div>
+                    <select
+                      name="kelas"
+                      value={formData.kelas}
+                      onChange={handleChange}
+                      className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-rose-600 focus:ring-4 focus:ring-rose-100 outline-none transition-all duration-200 bg-gray-50 focus:bg-white"
+                    >
+                      <option value="3A">3A</option>
+                      <option value="3B">3B</option>
+                      <option value="3C">3C</option>
+                      <option value="4A">4A</option>
+                      <option value="4B">4B</option>
+                    </select>
+                  </div>
+                </div>
               </div>
-              <InputField id="password" name="password" type={showPassword ? 'text' : 'password'} placeholder="Password" value={formData.password} icon={Lock} isPassword={true} showPasswordState={showPassword} toggleShowPassword={() => setShowPassword(!showPassword)} onChange={handleChange} />
-              <InputField id="password_confirmation" name="password_confirmation" type={showConfirmPassword ? 'text' : 'password'} placeholder="Confirm Password" value={formData.password_confirmation} icon={Lock} isPassword={true} showPasswordState={showConfirmPassword} toggleShowPassword={() => setShowConfirmPassword(!showConfirmPassword)} onChange={handleChange} />
+              <InputField
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
+                value={formData.password}
+                icon={Lock}
+                isPassword={true}
+                showPasswordState={showPassword}
+                toggleShowPassword={() => setShowPassword(!showPassword)}
+                onChange={handleChange}
+              />
+              <InputField
+                id="password_confirmation"
+                name="password_confirmation"
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="Confirm Password"
+                value={formData.password_confirmation}
+                icon={Lock}
+                isPassword={true}
+                showPasswordState={showConfirmPassword}
+                toggleShowPassword={() =>
+                  setShowConfirmPassword(!showConfirmPassword)
+                }
+                onChange={handleChange}
+              />
 
               {error && (
                 <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
@@ -227,7 +308,8 @@ export default function RegisterPage() {
         </div>
 
         <p className="text-center text-gray-500 text-xs mt-6">
-          By creating an account, you agree to our Terms of Service and Privacy Policy
+          By creating an account, you agree to our Terms of Service and Privacy
+          Policy
         </p>
       </div>
     </div>

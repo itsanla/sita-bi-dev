@@ -1,12 +1,8 @@
 import Cookies from 'js-cookie';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-if (!API_URL) {
-  throw new Error(
-    'NEXT_PUBLIC_API_URL is not defined. Please set it in your .env.local file',
-  );
-}
+console.log('API_URL configured:', API_URL);
 
 // Definisikan tipe kustom untuk error agar bisa menyertakan detail
 export class FetchError extends Error {
@@ -55,6 +51,8 @@ async function request<T>(
   // Logika cerdas untuk body
   if (options.body) {
     if (options.body instanceof FormData) {
+      // Untuk FormData, jangan set Content-Type header
+      // Browser akan otomatis set multipart/form-data dengan boundary
       config.body = options.body;
     } else if (typeof options.body === 'object') {
       config.body = JSON.stringify(options.body);
@@ -64,21 +62,33 @@ async function request<T>(
     }
   }
 
-  const response = await fetch(`${API_URL}/api${endpoint}`, config);
+  const fullUrl = `${API_URL}/api${endpoint}`;
+  console.log('Making request to:', fullUrl);
 
-  if (!response.ok) {
-    const errorData = await response
-      .json()
-      .catch(() => ({ message: 'An unexpected error occurred' }));
-    throw new FetchError(response, errorData);
+  try {
+    const response = await fetch(fullUrl, config);
+    console.log('Response status:', response.status);
+
+    if (!response.ok) {
+      const errorData = await response
+        .json()
+        .catch(() => ({ message: 'An unexpected error occurred' }));
+      console.error('Request failed:', errorData);
+      throw new FetchError(response, errorData);
+    }
+
+    // Handle kasus 204 No Content
+    if (response.status === 204) {
+      return null as T;
+    }
+
+    const result = await response.json();
+    console.log('Request successful:', result);
+    return result;
+  } catch (error) {
+    console.error('Request error:', error);
+    throw error;
   }
-
-  // Handle kasus 204 No Content
-  if (response.status === 204) {
-    return null as T;
-  }
-
-  return response.json();
 }
 
 export default request;
