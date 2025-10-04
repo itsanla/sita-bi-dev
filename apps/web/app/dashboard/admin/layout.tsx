@@ -72,13 +72,6 @@ export default function AdminLayout({
     );
   }
 
-  // Dummy function for footer, as it expects a function prop
-  const scrollToSection = (id: string) => {
-    console.log(
-      `Scroll to ${id} requested, but not implemented in this layout.`,
-    );
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <AdminHeader />
@@ -97,7 +90,7 @@ export default function AdminLayout({
         {/* Main Content Area */}
         <main className="flex-1 p-6 lg:p-10">{children}</main>
       </div>
-      <Footer scrollToSection={scrollToSection} />
+      <Footer scrollToSection={() => {}} />
     </div>
   );
 }

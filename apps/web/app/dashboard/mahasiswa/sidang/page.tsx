@@ -24,14 +24,6 @@ interface TugasAkhir {
   id: number;
 }
 
-interface Nilai {
-  id: number;
-  aspek: string;
-  skor: number;
-  komentar: string;
-  dosen: { user: { name: string } };
-}
-
 const fileInputs = [
   {
     name: 'file_ta',
@@ -76,14 +68,16 @@ function RegistrationForm({
     const { name, files: inputFiles } = e.target;
     if (inputFiles && inputFiles.length > 0) {
       const file = inputFiles[0];
-      // Validate file size (5MB limit)
-      if (file.size > 5 * 1024 * 1024) {
-        setError(`File ${file.name} is too large. Maximum size is 5MB.`);
-        e.target.value = ''; // Clear the input
-        return;
+      if (file) {
+        // Validate file size (5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+          setError(`File ${file.name} is too large. Maximum size is 5MB.`);
+          e.target.value = ''; // Clear the input
+          return;
+        }
+        setFiles((prev) => ({ ...prev, [name]: file }));
+        setError(''); // Clear error if file is valid
       }
-      setFiles((prev) => ({ ...prev, [name]: file }));
-      setError(''); // Clear error if file is valid
     }
   };
 
@@ -121,20 +115,17 @@ function RegistrationForm({
     }
 
     try {
-      console.log('Submitting form data...', Array.from(formData.entries()));
-
       // Use test upload endpoint instead of the authenticated one
-      const response = await request('/upload-test/sidang', {
+      await request('/upload-test/sidang', {
         method: 'POST',
         body: formData,
       });
 
-      console.log('Registration successful:', response);
       alert('Registration successful! Please wait for approval.');
       onRegistrationSuccess();
-    } catch (err: any) {
+    } catch (err) {
       console.error('Registration error:', err);
-      setError(err.message || 'Failed to submit registration');
+      setError((err as Error).message || 'Failed to submit registration');
     } finally {
       setIsSubmitting(false);
     }
@@ -146,17 +137,19 @@ function RegistrationForm({
         Register for a New Defense
       </h2>
       <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-        {error && (
+        {error ? (
           <p className="text-sm text-red-600 p-3 bg-red-50 rounded-lg">
             {error}
           </p>
-        )}
+        ) : null}
         <div className="space-y-4">
           {fileInputs.map((input) => (
             <div key={input.name}>
               <label className="block text-sm font-medium text-gray-700">
                 {input.label}{' '}
-                {input.required && <span className="text-red-500">*</span>}
+                {input.required ? (
+                  <span className="text-red-500">*</span>
+                ) : null}
               </label>
               <div className="mt-1 flex items-center gap-4">
                 <input
@@ -175,7 +168,7 @@ function RegistrationForm({
                   <UploadCloud size={16} />
                   Choose File
                 </label>
-                {files[input.name] && (
+                {files[input.name] ? (
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <FileIcon size={16} />
                     <span>{files[input.name]?.name}</span>
@@ -183,7 +176,7 @@ function RegistrationForm({
                       ({Math.round((files[input.name]?.size || 0) / 1024)} KB)
                     </span>
                   </div>
-                )}
+                ) : null}
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 Accepted formats: {input.types} | Max size: 5MB
@@ -255,9 +248,8 @@ export default function PendaftaranSidangPage() {
           setPendaftaran(null);
         }
       }
-    } catch (err: any) {
-      console.error('Error fetching data:', err);
-      setError(err.message || 'Failed to fetch data');
+    } catch (err) {
+      setError((err as Error).message || 'Failed to fetch data');
     } finally {
       setLoading(false);
     }
@@ -294,12 +286,12 @@ export default function PendaftaranSidangPage() {
             </span>
             <StatusPill status={pendaftaran.status_pembimbing_2} />
           </div>
-          {pendaftaran.catatan_admin && (
+          {pendaftaran.catatan_admin ? (
             <div className="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
               <p className="font-semibold text-yellow-800">Admin Notes:</p>
               <p className="text-yellow-700">{pendaftaran.catatan_admin}</p>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     );

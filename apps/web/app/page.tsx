@@ -99,14 +99,14 @@ export default function SitaBIHomepage() {
       <Footer scrollToSection={scrollToSection} />
 
       {/* Scroll to Top Button */}
-      {showScrollTop && (
+      {showScrollTop ? (
         <button
           onClick={scrollToTop}
           className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-r from-red-900 to-red-800 text-white rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl hover:-translate-y-1 hover:scale-110 transition-all z-30"
         >
           <ArrowUp size={24} />
         </button>
-      )}
+      ) : null}
     </div>
   );
 }

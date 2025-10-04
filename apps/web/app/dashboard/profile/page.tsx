@@ -89,16 +89,16 @@ export default function ProfilePage() {
       </div>
 
       <div className="bg-white p-8 rounded-lg shadow-md">
-        {error && (
+        {error ? (
           <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
             {error}
           </div>
-        )}
-        {success && (
+        ) : null}
+        {success ? (
           <div className="bg-green-100 text-green-700 p-3 rounded mb-4">
             {success}
           </div>
-        )}
+        ) : null}
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
@@ -123,7 +123,7 @@ export default function ProfilePage() {
               </label>
               <p className="mt-1 text-lg text-gray-500">{user.email}</p>
             </div>
-            {isMahasiswa && (
+            {isMahasiswa ? (
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
@@ -156,8 +156,8 @@ export default function ProfilePage() {
                   )}
                 </div>
               </>
-            )}
-            {isDosen && (
+            ) : null}
+            {isDosen ? (
               <div>
                 <label className="block text-sm font-medium text-gray-700">
                   NIDN
@@ -173,7 +173,7 @@ export default function ProfilePage() {
                   <p className="mt-1 text-lg">{user.dosen?.nidn}</p>
                 )}
               </div>
-            )}
+            ) : null}
           </div>
           <div className="mt-6 flex gap-4">
             {isEditing ? (

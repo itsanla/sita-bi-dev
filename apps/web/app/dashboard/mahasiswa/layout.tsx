@@ -34,13 +34,6 @@ export default function MahasiswaLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  const scrollToSection = (id: string) => {
-    // Dummy function for footer prop
-    console.log(
-      `Scroll to ${id} requested, but not implemented in this layout.`,
-    );
-  };
-
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
@@ -48,7 +41,7 @@ export default function MahasiswaLayout({ children }: { children: ReactNode }) {
         <Sidebar />
         <main className="flex-1 p-6 lg:p-10">{children}</main>
       </div>
-      <Footer scrollToSection={scrollToSection} />
+      <Footer scrollToSection={() => {}} />
     </div>
   );
 }

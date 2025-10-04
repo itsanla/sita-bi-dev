@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, FormEvent } from 'react';
 import request from '@/lib/api';
-import { Plus, Search, Edit, Trash2, Loader, Info, X } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Loader, X } from 'lucide-react';
 
 // --- Interfaces (Updated) ---
 interface User {
@@ -14,6 +14,24 @@ interface User {
   mahasiswa?: { nim: string };
   nim?: string; // Keep for search compatibility
   nidn?: string; // Keep for search compatibility
+}
+
+// --- Request Body Interfaces ---
+interface DosenRequestBody {
+  name: string;
+  email: string;
+  nidn: string;
+  password?: string;
+}
+
+interface MahasiswaRequestBody {
+  name: string;
+  email: string;
+  nim: string;
+  prodi: string;
+  angkatan: string;
+  kelas: string;
+  password?: string;
 }
 
 // --- Modal Component ---
@@ -54,7 +72,7 @@ const UserModal = ({
     setError('');
 
     let endpoint = '';
-    let body: any = {};
+    let body: DosenRequestBody | MahasiswaRequestBody;
     const method = isEditing ? 'PATCH' : 'POST';
 
     if (formData.role === 'dosen') {
@@ -89,9 +107,10 @@ const UserModal = ({
       await request(endpoint, { method, body });
       alert(`User successfully ${isEditing ? 'updated' : 'created'}!`);
       onSave();
-    } catch (err: any) {
+    } catch (err) {
       setError(
-        err.message || `Failed to ${isEditing ? 'update' : 'create'} user.`,
+        (err as Error).message ||
+          `Failed to ${isEditing ? 'update' : 'create'} user.`,
       );
     } finally {
       setIsSubmitting(false);
@@ -113,11 +132,11 @@ const UserModal = ({
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
+          {error ? (
             <div className="bg-red-100 text-red-700 p-3 rounded-md">
               {error}
             </div>
-          )}
+          ) : null}
           <div>
             <label
               htmlFor="role"
@@ -263,27 +282,34 @@ export default function KelolaPenggunaPage() {
     try {
       setLoading(true);
       setError('');
+      // Define more specific types for the API responses
+      type Role = { name: string };
+      type DosenResponse = Omit<User, 'roles'> & { roles: Role[] };
+      type MahasiswaResponse = Omit<User, 'roles'> & {
+        roles: Role[];
+        mahasiswa: { nim: string };
+      };
+
       const [dosenRes, mahasiswaRes] = await Promise.all([
-        request<{ data: { data: any[] } }>('/users/dosen'),
-        request<{ data: { data: any[] } }>('/users/mahasiswa'),
+        request<{ data: { data: DosenResponse[] } }>('/users/dosen'),
+        request<{ data: { data: MahasiswaResponse[] } }>('/users/mahasiswa'),
       ]);
 
-      // Backend now returns nested data for dosen, normalize it here
-      const mappedDosen = dosenRes.data.data.map((u) => ({
+      const mappedDosen: User[] = dosenRes.data.data.map((u) => ({
         ...u,
-        roles: u.roles.map((r: { name: string }) => r.name),
+        roles: u.roles.map((r) => r.name),
       }));
 
-      const mappedMahasiswa = mahasiswaRes.data.data.map((u) => ({
+      const mappedMahasiswa: User[] = mahasiswaRes.data.data.map((u) => ({
         ...u,
-        roles: u.roles.map((r: { name: string }) => r.name),
+        roles: u.roles.map((r) => r.name),
         nim: u.mahasiswa?.nim,
       }));
 
       const allUsers = [...mappedDosen, ...mappedMahasiswa];
       setUsers(allUsers);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch users');
+    } catch (err) {
+      setError((err as Error).message || 'Failed to fetch users');
     } finally {
       setLoading(false);
     }
@@ -299,8 +325,8 @@ export default function KelolaPenggunaPage() {
       await request(`/users/${id}`, { method: 'DELETE' });
       alert('User deleted successfully');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     }
   };
 
@@ -459,13 +485,13 @@ export default function KelolaPenggunaPage() {
         </table>
       </div>
 
-      {isModalOpen && (
+      {isModalOpen ? (
         <UserModal
           user={editingUser}
           onClose={handleCloseModal}
           onSave={handleSave}
         />
-      )}
+      ) : null}
     </div>
   );
 }

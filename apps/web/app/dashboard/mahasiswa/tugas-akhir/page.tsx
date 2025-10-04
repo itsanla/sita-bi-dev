@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState, FormEvent, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import request from '@/lib/api';
 import { useAuth } from '../../../../context/AuthContext';
 import {
-  Send,
   CheckCircle,
   Clock,
   Search,
@@ -29,6 +28,12 @@ interface TawaranTopik {
   dosenPencetus: {
     name: string;
   };
+}
+
+interface SimilarityResult {
+  id: number;
+  judul: string;
+  similarity: number;
 }
 
 // --- Helper to get status color ---
@@ -72,9 +77,9 @@ export default function TugasAkhirPage() {
   const [judulMandiri, setJudulMandiri] = useState('');
 
   // State for similarity check
-  const [similarityResults, setSimilarityResults] = useState<any[] | null>(
-    null,
-  );
+  const [similarityResults, setSimilarityResults] = useState<
+    SimilarityResult[] | null
+  >(null);
   const [isBlocked, setIsBlocked] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
 
@@ -95,9 +100,10 @@ export default function TugasAkhirPage() {
         '/tugas-akhir/my-ta',
       );
       setTugasAkhir(taResponse.data);
-    } catch (err: any) {
-      if (err.response?.status !== 404) {
-        setError(err.message || 'Failed to fetch data');
+    } catch (err) {
+      const error = err as { response?: { status: number }; message: string };
+      if (error.response?.status !== 404) {
+        setError(error.message || 'Failed to fetch data');
       }
       setTugasAkhir(null);
     } finally {
@@ -145,15 +151,15 @@ export default function TugasAkhirPage() {
     setIsBlocked(false);
     try {
       const response = await request<{
-        data: { results: any[]; isBlocked: boolean };
+        data: { results: SimilarityResult[]; isBlocked: boolean };
       }>('/tugas-akhir/check-similarity', {
         method: 'POST',
         body: { judul: titleToCheck },
       });
       setSimilarityResults(response.data.results || []);
       setIsBlocked(response.data.isBlocked || false);
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     } finally {
       setIsChecking(false);
     }
@@ -170,8 +176,8 @@ export default function TugasAkhirPage() {
       setSimilarityResults(null);
       fetchData();
       fetchAllTitles();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     }
   };
 
@@ -193,8 +199,8 @@ export default function TugasAkhirPage() {
       await request('/tugas-akhir/my-ta', { method: 'DELETE' });
       alert('Submission successfully deleted.');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     }
   };
 
@@ -363,7 +369,7 @@ export default function TugasAkhirPage() {
           </form>
 
           {/* --- Similarity Results Section --- */}
-          {similarityResults && (
+          {similarityResults ? (
             <div className="mt-6 space-y-4 pt-6 border-t">
               <h3 className="text-lg font-semibold text-gray-800">
                 Similarity Check Results
@@ -390,7 +396,7 @@ export default function TugasAkhirPage() {
                 </p>
               )}
 
-              {isBlocked && (
+              {isBlocked ? (
                 <div className="p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
                   <p className="font-bold">Submission Blocked</p>
                   <p>
@@ -398,7 +404,7 @@ export default function TugasAkhirPage() {
                     existing title. Please revise your title.
                   </p>
                 </div>
-              )}
+              ) : null}
 
               <button
                 onClick={handleFinalSubmit}
@@ -408,7 +414,7 @@ export default function TugasAkhirPage() {
                 Yakin Gunakan Judul Ini
               </button>
             </div>
-          )}
+          ) : null}
 
           <hr />
 
@@ -463,7 +469,7 @@ export default function TugasAkhirPage() {
               </table>
             </div>
 
-            {totalPages > 1 && (
+            {totalPages > 1 ? (
               <div className="mt-4 flex items-center justify-between text-sm">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
@@ -483,7 +489,7 @@ export default function TugasAkhirPage() {
                   Next
                 </button>
               </div>
-            )}
+            ) : null}
           </div>
 
           <hr />

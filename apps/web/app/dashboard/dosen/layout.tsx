@@ -10,7 +10,6 @@ import {
   ClipboardCheck,
   GraduationCap,
   LogOut,
-  ChevronDown,
   User as UserIcon,
   Users, // Add new icon
 } from 'lucide-react';
@@ -60,17 +59,6 @@ function DashboardHeader({
   );
 }
 
-// Simplified Footer from landing page
-function DashboardFooter() {
-  return (
-    <footer className="bg-gray-50 text-gray-600 py-6 mt-auto">
-      <div className="max-w-7xl mx-auto px-6 text-center">
-        <p>© 2024 SITA-BI. All rights reserved.</p>
-      </div>
-    </footer>
-  );
-}
-
 const NavLink = ({
   href,
   children,
@@ -97,7 +85,6 @@ const NavLink = ({
 
 export default function DosenLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
-  const pathname = usePathname();
 
   const isDosen = user?.roles?.some((role) => role.name === 'dosen');
 

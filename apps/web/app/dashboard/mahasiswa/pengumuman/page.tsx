@@ -71,8 +71,8 @@ const PengumumanPage = () => {
         <h1 className="text-3xl font-bold text-gray-800">Pengumuman</h1>
       </div>
 
-      {loading && <p className="text-center text-gray-500">Memuat...</p>}
-      {error && <p className="text-center text-red-500">{error}</p>}
+      {loading ? <p className="text-center text-gray-500">Memuat...</p> : null}
+      {error ? <p className="text-center text-red-500">{error}</p> : null}
 
       {!loading && !error && (
         <div className="space-y-6">

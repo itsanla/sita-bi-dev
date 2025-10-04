@@ -12,7 +12,6 @@ import {
   XCircle,
   BookOpen,
   MessageSquare,
-  Trash2,
 } from 'lucide-react';
 
 // --- Interfaces ---
@@ -345,26 +344,6 @@ export default function DosenBimbinganPage() {
     </div>
   );
 }
-
-// Add some global styles for inputs and buttons to avoid repetition
-// This can be in a global CSS file, but for this example, we'll just imagine it.
-const globalStyles = `
-  .input-styling {
-    @apply mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-maroon-500 focus:border-maroon-500 sm:text-sm;
-  }
-  .btn-primary {
-    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-maroon-700 hover:bg-maroon-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-maroon-500 disabled:bg-gray-400 transition;
-  }
-  .btn-secondary {
-    @apply inline-flex items-center justify-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-maroon-500 disabled:bg-gray-300 transition;
-  }
-  .btn-sm-success {
-    @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition;
-  }
-  .btn-sm-danger {
-    @apply inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition;
-  }
-`;
 
 // You would typically add these classes to your tailwind.config.js or a global CSS file.
 // For now, this comment serves as a reference for the class names used.

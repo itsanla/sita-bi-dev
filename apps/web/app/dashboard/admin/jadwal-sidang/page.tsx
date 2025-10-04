@@ -68,8 +68,8 @@ export default function JadwalSidangPage() {
       setSchedules(schedulesRes.data || []);
       setUnscheduled(unscheduledRes.data || []);
       setRooms(roomsRes.data || []);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch data');
+    } catch (err) {
+      setError((err as Error).message || 'Failed to fetch data');
     } finally {
       setLoading(false);
     }
@@ -101,8 +101,8 @@ export default function JadwalSidangPage() {
       setWaktuMulai('');
       setWaktuSelesai('');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -114,8 +114,8 @@ export default function JadwalSidangPage() {
       await request(`/jadwal-sidang/${id}`, { method: 'DELETE' });
       alert('Schedule deleted successfully');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     }
   };
 

@@ -1,20 +1,9 @@
 'use client';
 
-import { useEffect, useState, FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 import request from '@/lib/api';
 import { useAuth } from '../../../../context/AuthContext';
-import {
-  Book,
-  Plus,
-  Send,
-  CheckCircle,
-  Clock,
-  User,
-  Mail,
-  Shield,
-  X,
-  ThumbsUp,
-} from 'lucide-react';
+import { Send } from 'lucide-react';
 
 // --- Interfaces ---
 interface TugasAkhir {
@@ -73,8 +62,8 @@ export default function BimbinganPage() {
         );
         setAvailableDosen(dosenResponse.data.data || []);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch data');
+    } catch (err) {
+      setError((err as Error).message || 'Failed to fetch data');
     } finally {
       setLoading(false);
     }
@@ -100,8 +89,8 @@ export default function BimbinganPage() {
       });
       alert('Request sent successfully!');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     }
   };
 
@@ -111,8 +100,8 @@ export default function BimbinganPage() {
       await request(`/pengajuan/${pengajuanId}/batalkan`, { method: 'POST' });
       alert('Request cancelled.');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     }
   };
 
@@ -123,8 +112,8 @@ export default function BimbinganPage() {
       await request(`/pengajuan/${pengajuanId}/terima`, { method: 'POST' });
       alert('Offer accepted! You now have a supervisor.');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     }
   };
 
@@ -134,8 +123,8 @@ export default function BimbinganPage() {
       await request(`/pengajuan/${pengajuanId}/tolak`, { method: 'POST' });
       alert('Offer rejected.');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     }
   };
 

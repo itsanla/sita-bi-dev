@@ -3,7 +3,7 @@ import React from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 
 interface FooterProps {
-  scrollToSection: (id: string) => void;
+  scrollToSection: (_id: string) => void;
 }
 
 export default function Footer({ scrollToSection }: FooterProps) {

@@ -90,7 +90,7 @@ export default function ViewJadwalSidangPage() {
           <p className="text-md text-gray-600">
             Mahasiswa: {sidang.tugasAkhir.mahasiswa?.user.name}
           </p>
-          {sidang.jadwalSidang[0] && (
+          {sidang.jadwalSidang[0] ? (
             <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
               <p>
                 <strong>Tanggal:</strong>{' '}
@@ -119,7 +119,7 @@ export default function ViewJadwalSidangPage() {
                 </span>
               </p>
             </div>
-          )}
+          ) : null}
         </div>
       ))}
     </div>

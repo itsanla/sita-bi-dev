@@ -50,9 +50,9 @@ export default function PengajuanBimbinganPage() {
         '/users/mahasiswa-tanpa-pembimbing',
       );
       setAvailableMahasiswa(mahasiswaResponse.data.data || []);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Fetch error:', err);
-      setError(err.message || 'Failed to fetch data');
+      setError((err as Error).message || 'Failed to fetch data');
     } finally {
       setLoading(false);
     }
@@ -75,8 +75,8 @@ export default function PengajuanBimbinganPage() {
       });
       alert('Offer sent successfully!');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     }
   };
 
@@ -89,8 +89,8 @@ export default function PengajuanBimbinganPage() {
       await request(`/pengajuan/${pengajuanId}/terima`, { method: 'POST' });
       alert('Student accepted successfully!');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     }
   };
 
@@ -100,8 +100,8 @@ export default function PengajuanBimbinganPage() {
       await request(`/pengajuan/${pengajuanId}/tolak`, { method: 'POST' });
       alert('Student rejected.');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     }
   };
 
@@ -111,8 +111,8 @@ export default function PengajuanBimbinganPage() {
       await request(`/pengajuan/${pengajuanId}/batalkan`, { method: 'POST' });
       alert('Offer cancelled.');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     }
   };
 
