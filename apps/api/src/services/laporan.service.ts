@@ -1,6 +1,5 @@
-import { PrismaClient } from '@repo/db';
+import { PrismaClient, PeranDosen } from '@repo/db';
 import type { StatistikDto } from '../dto/laporan.dto';
-import { PeranDosen } from '@prisma/client';
 
 export class LaporanService {
   private prisma: PrismaClient;
@@ -13,12 +12,6 @@ export class LaporanService {
     const mahasiswaPerProdi = await this.prisma.mahasiswa.groupBy({
       by: ['prodi'],
       _count: { prodi: true },
-    });
-
-    const mahasiswaPerAngkatan = await this.prisma.mahasiswa.groupBy({
-      by: ['angkatan'],
-      _count: { angkatan: true },
-      orderBy: { angkatan: 'asc' },
     });
 
     const sidangStatistik = await this.prisma.sidang.groupBy({
@@ -53,7 +46,9 @@ export class LaporanService {
 
     const pengujiStatCounts = pengujiData.reduce<Record<number, number>>(
       (acc, curr) => {
-        acc[curr.dosen_id] = (acc[curr.dosen_id] ?? 0) + 1;
+        if (curr.dosen_id) {
+          acc[curr.dosen_id] = (acc[curr.dosen_id] ?? 0) + 1;
+        }
         return acc;
       },
       {},
@@ -68,7 +63,6 @@ export class LaporanService {
 
     return {
       mahasiswaPerProdi,
-      mahasiswaPerAngkatan,
       sidangStatistik,
       bimbinganPerDosen,
       dokumenStatistik,

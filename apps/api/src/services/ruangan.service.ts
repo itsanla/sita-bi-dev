@@ -9,7 +9,7 @@ export class RuanganService {
   }
 
   async findAll(): Promise<Ruangan[]> {
-    return this.prisma.ruangan.findMany({
+    return await this.prisma.ruangan.findMany({
       orderBy: {
         nama_ruangan: 'asc',
       },

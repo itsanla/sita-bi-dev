@@ -1,5 +1,10 @@
-import type { Dosen, Mahasiswa, Role, User } from '@repo/db';
-import { PrismaClient } from '@repo/db';
+import {
+  PrismaClient,
+  type Dosen,
+  type Mahasiswa,
+  type Role,
+  type User,
+} from '@repo/db';
 import type { LoginDto, RegisterDto } from '../dto/auth.dto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -61,7 +66,7 @@ export class AuthService {
       throw new HttpError(401, 'Email belum diverifikasi.');
     }
 
-    const jwtSecret = process.env.JWT_SECRET;
+    const jwtSecret = process.env['JWT_SECRET'];
     if (jwtSecret == null) {
       // In a real app, you'd want to throw an error or have a more secure fallback.
       // For this example, we'll proceed but it's not recommended for production.
@@ -98,7 +103,13 @@ export class AuthService {
     const formattedPhoneNumber = formatPhoneNumber(phone_number);
 
     const existingUser = await this.prisma.user.findFirst({
-      where: { OR: [{ email }, { mahasiswa: { nim } }, { phone_number: formattedPhoneNumber }] },
+      where: {
+        OR: [
+          { email },
+          { mahasiswa: { nim } },
+          { phone_number: formattedPhoneNumber },
+        ],
+      },
     });
 
     if (existingUser !== null) {

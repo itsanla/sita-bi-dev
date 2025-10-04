@@ -1,11 +1,13 @@
 'use client';
 
-import type { Pipeline } from '@xenova/transformers';
-import { pipeline } from '@xenova/transformers';
+import { pipeline, type FeatureExtractionPipeline } from '@xenova/transformers';
 
 // Helper function to compute cosine similarity
 function cosineSimilarity(v1: number[], v2: number[]): number {
-  const dotProduct = v1.reduce((sum, a, i) => sum + a * v2[i], 0);
+  if (v1.length !== v2.length) {
+    return 0; // Vectors must be the same length
+  }
+  const dotProduct = v1.reduce((sum, a, i) => sum + a * (v2[i] as number), 0);
   const magnitude1 = Math.sqrt(v1.reduce((sum, a) => sum + a * a, 0));
   const magnitude2 = Math.sqrt(v2.reduce((sum, a) => sum + a * a, 0));
   if (magnitude1 === 0 || magnitude2 === 0) {
@@ -17,16 +19,23 @@ function cosineSimilarity(v1: number[], v2: number[]): number {
 const SimilarityPipeline = {
   task: 'feature-extraction',
   model: 'Xenova/all-MiniLM-L6-v2',
-  instance: null as Promise<Pipeline> | null,
+  instance: null as Promise<FeatureExtractionPipeline> | null,
 
-  async getInstance(progress_callback?: () => void): Promise<Pipeline> {
-    this.instance ??= pipeline(this.task, this.model, { progress_callback });
+  async getInstance(
+    progress_callback?: () => void,
+  ): Promise<FeatureExtractionPipeline> {
+    this.instance ??= pipeline(this.task, this.model, {
+      progress_callback,
+    }) as Promise<FeatureExtractionPipeline>;
     return this.instance;
   },
 };
 
 // Batched and improved version
-export async function calculateSimilarities(newTitle: string, existingTitles: { id: number, judul: string }[]): Promise<{ id: number, judul: string, similarity: number }[]> {
+export async function calculateSimilarities(
+  newTitle: string,
+  existingTitles: { id: number; judul: string }[],
+): Promise<{ id: number; judul: string; similarity: number }[]> {
   const extractor = await SimilarityPipeline.getInstance();
 
   if (existingTitles.length === 0) {
@@ -34,7 +43,7 @@ export async function calculateSimilarities(newTitle: string, existingTitles: { 
   }
 
   // Create a single batch of all texts to be processed
-  const texts = [newTitle, ...existingTitles.map(t => t.judul)];
+  const texts = [newTitle, ...existingTitles.map((t) => t.judul)];
 
   // Generate embeddings for all texts in one go
   const embeddings = await extractor(texts, {
@@ -43,14 +52,19 @@ export async function calculateSimilarities(newTitle: string, existingTitles: { 
   });
 
   // Extract the embedding for the new title (it's the first one)
-  const newTitleEmbedding = Array.from(embeddings[0].data);
+  const newTitleEmbedding = Array.from(embeddings[0].data as number[]);
 
   const results = [];
 
   // Compare the new title with all existing titles
   for (let i = 0; i < existingTitles.length; i++) {
-    const existingTitleEmbedding = Array.from(embeddings[i + 1].data);
-    const similarity = cosineSimilarity(newTitleEmbedding, existingTitleEmbedding);
+    const existingTitleEmbedding = Array.from(
+      embeddings[i + 1].data as number[],
+    );
+    const similarity = cosineSimilarity(
+      newTitleEmbedding,
+      existingTitleEmbedding,
+    );
 
     results.push({
       id: existingTitles[i].id,

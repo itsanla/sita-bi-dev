@@ -20,7 +20,10 @@ export const errorHandler = (
   _next: NextFunction,
 ): void => {
   // Only log for upload routes or in development
-  if (req.originalUrl.includes('/pendaftaran-sidang') || process.env.NODE_ENV === 'development') {
+  if (
+    req.originalUrl.includes('/pendaftaran-sidang') ||
+    process.env['NODE_ENV'] === 'development'
+  ) {
     console.error('=== ERROR HANDLER ===');
     console.error('URL:', req.method, req.originalUrl);
     console.error('Error Name:', err.name);

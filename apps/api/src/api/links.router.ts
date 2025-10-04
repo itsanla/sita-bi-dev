@@ -25,9 +25,13 @@ router.get(
   '/',
   asyncHandler(async (req, res): Promise<void> => {
     const page =
-      req.query.page != null ? parseInt(req.query.page as string) : undefined;
+      req.query['page'] != null
+        ? parseInt(req.query['page'] as string)
+        : undefined;
     const limit =
-      req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
+      req.query['limit'] != null
+        ? parseInt(req.query['limit'] as string)
+        : undefined;
     const links = await linksService.findAll(page, limit);
     res.status(200).json({ status: 'sukses', data: links });
   }),

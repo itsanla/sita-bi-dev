@@ -1,5 +1,4 @@
-import type { User } from '@repo/db';
-import { PrismaClient, Prisma } from '@repo/db';
+import { PrismaClient, Prisma, type User } from '@repo/db';
 import * as bcrypt from 'bcrypt';
 import type {
   CreateDosenDto,
@@ -19,7 +18,7 @@ export class UsersService {
   async findOneByEmail(
     email: string,
   ): Promise<Prisma.UserGetPayload<{ include: { roles: true } }> | null> {
-    return this.prisma.user.findUnique({
+    return await this.prisma.user.findUnique({
       where: { email },
       include: { roles: true },
     });
@@ -28,7 +27,7 @@ export class UsersService {
   async findUserById(id: number): Promise<Prisma.UserGetPayload<{
     include: { roles: true; mahasiswa: true; dosen: true };
   }> | null> {
-    return this.prisma.user.findUnique({
+    return await this.prisma.user.findUnique({
       where: { id },
       include: { roles: true, mahasiswa: true, dosen: true },
     });
@@ -37,7 +36,7 @@ export class UsersService {
   async createMahasiswa(dto: CreateMahasiswaDto): Promise<User> {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    return this.prisma.user.create({
+    return await this.prisma.user.create({
       data: {
         name: dto.name,
         email: dto.email,
@@ -76,7 +75,7 @@ export class UsersService {
       });
     }
 
-    return this.prisma.user.create({
+    return await this.prisma.user.create({
       data: {
         name: dto.name,
         email: dto.email,
@@ -115,7 +114,7 @@ export class UsersService {
       };
     }
 
-    return this.prisma.user.update({
+    return await this.prisma.user.update({
       where: { id },
       data: userData,
       include: { dosen: true, roles: true },
@@ -142,7 +141,7 @@ export class UsersService {
       };
     }
 
-    return this.prisma.user.update({
+    return await this.prisma.user.update({
       where: { id },
       data: userData,
       include: { mahasiswa: true, roles: true },
@@ -218,11 +217,11 @@ export class UsersService {
           none: {
             peranDosenTa: {
               some: {
-                peran: { in: ['pembimbing1', 'pembimbing2'] }
-              }
-            }
-          }
-        }
+                peran: { in: ['pembimbing1', 'pembimbing2'] },
+              },
+            },
+          },
+        },
       },
       include: {
         user: {
@@ -244,11 +243,11 @@ export class UsersService {
           none: {
             peranDosenTa: {
               some: {
-                peran: { in: ['pembimbing1', 'pembimbing2'] }
-              }
-            }
-          }
-        }
+                peran: { in: ['pembimbing1', 'pembimbing2'] },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -329,7 +328,7 @@ export class UsersService {
   }
 
   async updateUser(id: number, data: Prisma.UserUpdateInput): Promise<User> {
-    return this.prisma.user.update({
+    return await this.prisma.user.update({
       where: { id },
       data,
     });

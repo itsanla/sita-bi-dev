@@ -98,6 +98,6 @@ export class PenugasanService {
     );
 
     // Execute all queries in a single transaction
-    return this.prisma.$transaction(queries);
+    return await this.prisma.$transaction(queries);
   }
 }

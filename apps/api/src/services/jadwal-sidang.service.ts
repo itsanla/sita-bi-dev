@@ -65,7 +65,7 @@ export class JadwalSidangService {
       pengujiIds,
     } = dto;
 
-    return this.prisma.$transaction(async (prisma) => {
+    return await this.prisma.$transaction(async (prisma) => {
       // 1. Check for scheduling conflicts
       const conflictingJadwal = await prisma.jadwalSidang.findFirst({
         where: {

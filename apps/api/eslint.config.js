@@ -65,6 +65,7 @@ export default tseslint.config(
       '@typescript-eslint/prefer-ts-expect-error': 'error',
       '@typescript-eslint/sort-type-constituents': 'error',
       '@typescript-eslint/unified-signatures': 'error',
+      '@typescript-eslint/no-non-null-assertion': 'off',
     }
   }
 )

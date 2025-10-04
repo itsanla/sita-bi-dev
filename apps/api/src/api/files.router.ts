@@ -10,7 +10,7 @@ const router: Router = Router();
 // Endpoint untuk download file berdasarkan path
 router.get(
   '/download/*',
-  asyncHandler((req: Request, res: Response): Promise<void> => {
+  asyncHandler((req: Request, res: Response) => {
     try {
       // Extract file path from URL
       const filePath = req.params[0]; // This captures everything after /download/
@@ -51,7 +51,10 @@ router.get(
 
       // Set appropriate headers
       const filename = path.basename(fullPath);
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${filename}"`,
+      );
       res.setHeader('Content-Type', 'application/octet-stream');
       res.setHeader('Content-Length', stats.size);
 
@@ -71,7 +74,7 @@ router.get(
 // Endpoint untuk mendapatkan informasi file
 router.get(
   '/info/*',
-  asyncHandler((req: Request, res: Response): Promise<void> => {
+  asyncHandler((req: Request, res: Response) => {
     try {
       const filePath = req.params[0];
       const fullPath = getAbsolutePath(`uploads/${filePath}`);

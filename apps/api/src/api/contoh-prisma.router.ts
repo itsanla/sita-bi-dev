@@ -8,8 +8,14 @@ const contohPrismaService = new ContohPrismaService();
 router.get(
   '/',
   asyncHandler(async (req, res) => {
-    const page = parseInt(req.query.page as string) || undefined;
-    const limit = parseInt(req.query.limit as string) || undefined;
+    const page =
+      req.query['page'] != null
+        ? parseInt(req.query['page'] as string)
+        : undefined;
+    const limit =
+      req.query['limit'] != null
+        ? parseInt(req.query['limit'] as string)
+        : undefined;
     const users = await contohPrismaService.findAll(page, limit);
     res.status(200).json({ status: 'sukses', data: users });
   }),

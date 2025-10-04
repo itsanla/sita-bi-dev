@@ -1,4 +1,4 @@
-import type { Prisma} from '@repo/db';
+import type { Prisma } from '@repo/db';
 import { PrismaClient, StatusTugasAkhir } from '@repo/db';
 
 // Interface untuk return types
@@ -123,15 +123,18 @@ export class BimbinganService {
       },
     });
 
+    if (bimbingan === null) {
+      throw new Error('Bimbingan session not found or is invalid.');
+    }
 
     const isMahasiswa = bimbingan.tugasAkhir.mahasiswa.user.id === authorId;
     const peranDosenList = bimbingan.tugasAkhir.peranDosenTa as {
       dosen_id: number | null;
     }[];
 
-    const isPembimbing =
-      bimbingan.dosen_id !== null &&
-      peranDosenList.some((p) => p.dosen_id === bimbingan.dosen_id);
+    const isPembimbing = peranDosenList.some(
+      (p) => p.dosen_id === bimbingan.dosen_id,
+    );
 
     if (!(isMahasiswa || isPembimbing)) {
       throw new Error(
@@ -155,12 +158,12 @@ export class BimbinganService {
     tanggal: string,
     jam: string,
   ): Promise<unknown> {
-    return this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx) => {
       const peranDosen = await tx.peranDosenTa.findFirst({
         where: { tugas_akhir_id: tugasAkhirId, dosen_id: dosenId },
       });
 
-      if (!peranDosen?.peran?.startsWith('pembimbing')) {
+      if (peranDosen?.peran.startsWith('pembimbing') !== true) {
         throw new Error('You are not a supervisor for this final project.');
       }
 
@@ -181,10 +184,11 @@ export class BimbinganService {
 
   async cancelBimbingan(
     bimbinganId: number,
-    _dosenId: number,
+    dosenId: number,
   ): Promise<unknown> {
-    return this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx) => {
       const bimbingan = await tx.bimbinganTA.findFirst({
+        where: { id: bimbinganId, dosen_id: dosenId },
       });
       if (bimbingan === null) {
         throw new Error(
@@ -200,7 +204,7 @@ export class BimbinganService {
   }
 
   async selesaikanSesi(bimbinganId: number, dosenId: number): Promise<unknown> {
-    return this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx) => {
       const bimbingan = await tx.bimbinganTA.findFirst({
         where: { id: bimbinganId, dosen_id: dosenId },
         include: { tugasAkhir: true },
@@ -236,7 +240,7 @@ export class BimbinganService {
         where: { tugas_akhir_id: bimbingan.tugasAkhir.id, dosen_id: dosenId },
       });
 
-      if (peranDosen) {
+      if (peranDosen !== null) {
         const updateData: Prisma.DokumenTaUpdateInput = {};
         if (peranDosen.peran === 'pembimbing1') {
           updateData.validatorP1 = { connect: { id: dosenId } };
@@ -267,4 +271,3 @@ export class BimbinganService {
     });
   }
 }
-

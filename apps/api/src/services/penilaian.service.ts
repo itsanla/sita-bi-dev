@@ -13,7 +13,7 @@ export class PenilaianService {
     dto: CreatePenilaianDto,
     dosenId: number,
   ): Promise<unknown> {
-    return this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx) => {
       const sidang = await tx.sidang.findUnique({
         where: { id: dto.sidang_id },
         include: {
@@ -30,8 +30,8 @@ export class PenilaianService {
       const isAllowed = peranDosen.some(
         (p) =>
           p.dosen_id === dosenId &&
-          (p.peran.startsWith('pembimbing') ||
-            p.peran.startsWith('penguji')),
+          typeof p.peran === 'string' &&
+          (p.peran.startsWith('pembimbing') || p.peran.startsWith('penguji')),
       );
 
       if (!isAllowed) {
@@ -53,8 +53,8 @@ export class PenilaianService {
       // --- Finalize Logic ---
       const jumlahPenilai = peranDosen.filter(
         (p) =>
-          p.peran.startsWith('pembimbing') ||
-          p.peran.startsWith('penguji'),
+          typeof p.peran === 'string' &&
+          (p.peran.startsWith('pembimbing') || p.peran.startsWith('penguji')),
       ).length;
       const jumlahNilaiMasuk = sidang._count.nilaiSidang + 1; // +1 for the one just created
 
@@ -107,7 +107,7 @@ export class PenilaianService {
   }
 
   async getNilaiForSidang(sidangId: number): Promise<unknown> {
-    return this.prisma.nilaiSidang.findMany({
+    return await this.prisma.nilaiSidang.findMany({
       where: { sidang_id: sidangId },
       include: { dosen: { include: { user: true } } },
     });

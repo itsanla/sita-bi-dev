@@ -9,7 +9,7 @@ export class TawaranTopikService {
   }
 
   async create(dto: CreateTawaranTopikDto, userId: number): Promise<unknown> {
-    return this.prisma.tawaranTopik.create({
+    return await this.prisma.tawaranTopik.create({
       data: {
         ...dto,
         user_id: userId,
@@ -193,7 +193,7 @@ export class TawaranTopikService {
     applicationId: number,
     dosenId: number,
   ): Promise<unknown> {
-    return this.prisma.$transaction(async (prisma) => {
+    return await this.prisma.$transaction(async (prisma) => {
       const application = await prisma.historyTopikMahasiswa.findUnique({
         where: { id: applicationId },
         include: { tawaranTopik: true, mahasiswa: true },

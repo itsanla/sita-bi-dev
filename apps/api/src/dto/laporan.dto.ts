@@ -6,11 +6,6 @@ const mahasiswaPerProdiSchema = z.object({
   _count: z.object({ prodi: z.number() }),
 });
 
-const mahasiswaPerAngkatanSchema = z.object({
-  angkatan: z.string(),
-  _count: z.object({ angkatan: z.number() }),
-});
-
 const sidangStatistikSchema = z.object({
   jenis_sidang: z.string(),
   status_hasil: z.string(),
@@ -35,7 +30,6 @@ const pengujiStatSchema = z.object({
 
 export const statistikDtoSchema = z.object({
   mahasiswaPerProdi: z.array(mahasiswaPerProdiSchema),
-  mahasiswaPerAngkatan: z.array(mahasiswaPerAngkatanSchema),
   sidangStatistik: z.array(sidangStatistikSchema),
   bimbinganPerDosen: z.array(bimbinganPerDosenSchema),
   dokumenStatistik: z.array(dokumenStatistikSchema),

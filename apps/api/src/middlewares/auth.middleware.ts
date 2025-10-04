@@ -6,7 +6,7 @@ import type { Role } from '@repo/types';
 
 const prisma = new PrismaClient();
 
-const JWT_SECRET = process.env.JWT_SECRET ?? 'supersecretjwtkey';
+const JWT_SECRET = process.env['JWT_SECRET'] ?? 'supersecretjwtkey';
 
 // Interface untuk JWT payload yang kita expect
 interface CustomJwtPayload extends JwtPayload {
@@ -39,7 +39,7 @@ export const jwtAuthMiddleware = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
+    if (authHeader?.startsWith('Bearer ') !== true) {
       res.status(401).json({ message: 'Unauthorized: No token provided' });
       return;
     }
@@ -47,7 +47,7 @@ export const jwtAuthMiddleware = async (
     const token = authHeader.split(' ')[1];
 
     // Pastikan token ada setelah split
-    if (token === undefined || token === null || token === '') {
+    if (token == null) {
       res.status(401).json({ message: 'Unauthorized: Invalid token format' });
       return;
     }
@@ -87,19 +87,24 @@ export const jwtAuthMiddleware = async (
       return;
     }
 
-    req.user = {
+    const userProfile: Express.Request['user'] = {
       id: user.id,
       email: user.email,
-      role: userRole.name as Role, // Non-null assertion karena sudah dicek di atas
-      dosen:
-        user.dosen !== null
-          ? { id: user.dosen.id, nidn: user.dosen.nidn }
-          : undefined,
-      mahasiswa:
-        user.mahasiswa !== null
-          ? { id: user.mahasiswa.id, nim: user.mahasiswa.nim }
-          : undefined,
+      role: userRole.name as Role,
     };
+
+    if (user.dosen !== null) {
+      userProfile.dosen = { id: user.dosen.id, nidn: user.dosen.nidn };
+    }
+
+    if (user.mahasiswa !== null) {
+      userProfile.mahasiswa = {
+        id: user.mahasiswa.id,
+        nim: user.mahasiswa.nim,
+      };
+    }
+
+    req.user = userProfile;
 
     next();
   } catch (error: unknown) {

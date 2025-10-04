@@ -1,5 +1,4 @@
-import type { Pengumuman } from '@repo/db';
-import { PrismaClient, AudiensPengumuman } from '@repo/db';
+import { PrismaClient, AudiensPengumuman, type Pengumuman } from '@repo/db';
 import type {
   CreatePengumumanDto,
   UpdatePengumumanDto,
@@ -16,7 +15,7 @@ export class PengumumanService {
     dto: CreatePengumumanDto,
     authorId: number,
   ): Promise<Pengumuman> {
-    return this.prisma.pengumuman.create({
+    return await this.prisma.pengumuman.create({
       data: {
         ...dto,
         dibuat_oleh: authorId,
@@ -146,17 +145,17 @@ export class PengumumanService {
   }
 
   async findOne(id: number): Promise<Pengumuman | null> {
-    return this.prisma.pengumuman.findUnique({ where: { id } });
+    return await this.prisma.pengumuman.findUnique({ where: { id } });
   }
 
   async update(id: number, dto: UpdatePengumumanDto): Promise<Pengumuman> {
-    return this.prisma.pengumuman.update({
+    return await this.prisma.pengumuman.update({
       where: { id },
       data: dto,
     });
   }
 
   async remove(id: number): Promise<Pengumuman> {
-    return this.prisma.pengumuman.delete({ where: { id } });
+    return await this.prisma.pengumuman.delete({ where: { id } });
   }
 }
