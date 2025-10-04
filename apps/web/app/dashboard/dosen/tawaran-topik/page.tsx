@@ -65,9 +65,9 @@ function CreateTopikForm({ onTopicCreated }: { onTopicCreated: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {error && (
+      {error ? (
         <div className="bg-red-100 text-red-700 p-3 rounded-md">{error}</div>
-      )}
+      ) : null}
       <div>
         <label
           htmlFor="judul_topik"
@@ -207,7 +207,7 @@ export default function TawaranTopikPage() {
       </div>
 
       {/* Create Form Section */}
-      {showCreateForm && (
+      {showCreateForm ? (
         <div className="bg-white p-6 rounded-2xl shadow-lg">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
             Formulir Topik Baru
@@ -219,7 +219,7 @@ export default function TawaranTopikPage() {
             }}
           />
         </div>
-      )}
+      ) : null}
 
       {/* My Topics Section */}
       <div className="bg-white p-6 rounded-2xl shadow-lg">

@@ -5,9 +5,9 @@ import Image from 'next/image';
 
 interface HeaderProps {
   isMenuOpen: boolean;
-  setIsMenuOpen: (isOpen: boolean) => void;
+  setIsMenuOpen: (_isOpen: boolean) => void;
   activeSection: string;
-  scrollToSection: (id: string) => void;
+  scrollToSection: (_id: string) => void;
 }
 
 export default function Header({
@@ -85,7 +85,7 @@ export default function Header({
         </div>
 
         {/* Mobile Navigation */}
-        {isMenuOpen && (
+        {isMenuOpen ? (
           <nav className="md:hidden py-6 border-t border-red-900/10">
             {['hero', 'tawarantopik', 'jadwal', 'pengumuman', 'team'].map(
               (section) => (
@@ -112,7 +112,7 @@ export default function Header({
               Login
             </a>
           </nav>
-        )}
+        ) : null}
       </div>
     </header>
   );

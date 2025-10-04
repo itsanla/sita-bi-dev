@@ -30,8 +30,12 @@ export default function KelolaPengumumanPage() {
         '/pengumuman/all',
       );
       setAnnouncements(response.data.data || []);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch announcements');
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to fetch announcements');
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -47,8 +51,12 @@ export default function KelolaPengumumanPage() {
       await request(`/pengumuman/${id}`, { method: 'DELETE' });
       alert('Announcement deleted successfully');
       fetchData(); // Refresh the list
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     }
   };
 

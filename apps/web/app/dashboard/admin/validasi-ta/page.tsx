@@ -31,8 +31,12 @@ export default function ValidasiTAPage() {
         '/tugas-akhir/validasi',
       );
       setSubmissions(response.data.data || []);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch submissions');
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to fetch submissions');
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -48,8 +52,12 @@ export default function ValidasiTAPage() {
       await request(`/tugas-akhir/${id}/approve`, { method: 'PATCH' });
       alert('Submission approved!');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     }
   };
 
@@ -63,8 +71,12 @@ export default function ValidasiTAPage() {
       });
       alert('Submission rejected!');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     }
   };
 

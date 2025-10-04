@@ -33,8 +33,12 @@ export default function CreatePengumumanPage() {
       });
       alert('Pengumuman berhasil dibuat!');
       router.push('/dashboard/admin/pengumuman');
-    } catch (err: any) {
-      setError(err.message || 'Gagal membuat pengumuman');
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || 'Gagal membuat pengumuman');
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -59,12 +63,12 @@ export default function CreatePengumumanPage() {
         onSubmit={handleSubmit}
         className="bg-white shadow-md rounded-lg p-8 space-y-6"
       >
-        {error && (
+        {error ? (
           <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md">
             <p className="font-bold">Error</p>
             <p>{error}</p>
           </div>
-        )}
+        ) : null}
         <div>
           <label
             htmlFor="title"

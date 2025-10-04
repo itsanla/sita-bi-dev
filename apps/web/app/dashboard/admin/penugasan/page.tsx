@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, FormEvent } from 'react';
 import request from '@/lib/api';
-import { Plus, Search, UserPlus, Loader, Info, X } from 'lucide-react';
+import { Search, UserPlus, Loader, Info, X } from 'lucide-react';
 
 // --- Interfaces ---
 interface TugasAkhir {
@@ -43,8 +43,12 @@ export default function PenugasanPage() {
       ]);
       setUnassignedTAs(taRes.data.data || []);
       setAllDosen(dosenRes.data.data || []);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch data');
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to fetch data');
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -84,8 +88,12 @@ export default function PenugasanPage() {
       alert('Supervisors assigned successfully!');
       handleCloseModal();
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -174,7 +182,7 @@ export default function PenugasanPage() {
       </div>
 
       {/* Assignment Modal */}
-      {isModalOpen && selectedTA && (
+      {isModalOpen && selectedTA ? (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg">
             <div className="flex justify-between items-center mb-4">
@@ -263,7 +271,7 @@ export default function PenugasanPage() {
             </form>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

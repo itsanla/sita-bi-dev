@@ -73,10 +73,9 @@ export default function AdminLayout({
   }
 
   // Dummy function for footer, as it expects a function prop
-  const scrollToSection = (id: string) => {
-    console.log(
-      `Scroll to ${id} requested, but not implemented in this layout.`,
-    );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const scrollToSection = (_id: string) => {
+    // This layout does not have sections to scroll to, so this function is empty.
   };
 
   return (

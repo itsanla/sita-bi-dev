@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, FormEvent } from 'react';
 import request from '@/lib/api';
-import { Plus, Search, Edit, Trash2, Loader, Info, X } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Loader, X } from 'lucide-react';
 
 // --- Interfaces (Updated) ---
 interface User {
@@ -10,6 +10,17 @@ interface User {
   name: string;
   email: string;
   roles: string[];
+  dosen?: { nidn: string };
+  mahasiswa?: { nim: string };
+  nim?: string; // Keep for search compatibility
+  nidn?: string; // Keep for search compatibility
+}
+
+interface ApiUser {
+  id: number;
+  name: string;
+  email: string;
+  roles: { name: string }[];
   dosen?: { nidn: string };
   mahasiswa?: { nim: string };
   nim?: string; // Keep for search compatibility
@@ -54,16 +65,14 @@ const UserModal = ({
     setError('');
 
     let endpoint = '';
-    let body: any = {};
+    const body: { [key: string]: unknown } = {};
     const method = isEditing ? 'PATCH' : 'POST';
 
     if (formData.role === 'dosen') {
       endpoint = isEditing ? `/users/dosen/${user!.id}` : '/users/dosen';
-      body = {
-        name: formData.name,
-        email: formData.email,
-        nidn: formData.nidn,
-      };
+      body.name = formData.name;
+      body.email = formData.email;
+      body.nidn = formData.nidn;
       if (formData.password || !isEditing) {
         body.password = formData.password;
       }
@@ -72,27 +81,32 @@ const UserModal = ({
       endpoint = isEditing
         ? `/users/mahasiswa/${user!.id}`
         : '/users/mahasiswa';
-      body = {
-        name: formData.name,
-        email: formData.email,
-        nim: formData.nim,
-        prodi: formData.prodi,
-        angkatan: formData.angkatan,
-        kelas: formData.kelas,
-      };
+      body.name = formData.name;
+      body.email = formData.email;
+      body.nim = formData.nim;
+      body.prodi = formData.prodi;
+      body.angkatan = formData.angkatan;
+      body.kelas = formData.kelas;
       if (formData.password || !isEditing) {
         body.password = formData.password;
       }
     }
 
     try {
-      await request(endpoint, { method, body });
+      await request(endpoint, {
+        method,
+        body: body as Record<string, unknown>,
+      });
       alert(`User successfully ${isEditing ? 'updated' : 'created'}!`);
       onSave();
-    } catch (err: any) {
-      setError(
-        err.message || `Failed to ${isEditing ? 'update' : 'create'} user.`,
-      );
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(
+          err.message || `Failed to ${isEditing ? 'update' : 'create'} user.`,
+        );
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -113,11 +127,11 @@ const UserModal = ({
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
+          {error ? (
             <div className="bg-red-100 text-red-700 p-3 rounded-md">
               {error}
             </div>
-          )}
+          ) : null}
           <div>
             <label
               htmlFor="role"
@@ -264,26 +278,32 @@ export default function KelolaPenggunaPage() {
       setLoading(true);
       setError('');
       const [dosenRes, mahasiswaRes] = await Promise.all([
-        request<{ data: { data: any[] } }>('/users/dosen'),
-        request<{ data: { data: any[] } }>('/users/mahasiswa'),
+        request<{ data: { data: ApiUser[] } }>('/users/dosen'),
+        request<{ data: { data: ApiUser[] } }>('/users/mahasiswa'),
       ]);
 
       // Backend now returns nested data for dosen, normalize it here
-      const mappedDosen = dosenRes.data.data.map((u) => ({
+      const mappedDosen: User[] = dosenRes.data.data.map((u: ApiUser) => ({
         ...u,
         roles: u.roles.map((r: { name: string }) => r.name),
       }));
 
-      const mappedMahasiswa = mahasiswaRes.data.data.map((u) => ({
-        ...u,
-        roles: u.roles.map((r: { name: string }) => r.name),
-        nim: u.mahasiswa?.nim,
-      }));
+      const mappedMahasiswa: User[] = mahasiswaRes.data.data.map(
+        (u: ApiUser) => ({
+          ...u,
+          roles: u.roles.map((r: { name: string }) => r.name),
+          nim: u.mahasiswa?.nim,
+        }),
+      );
 
       const allUsers = [...mappedDosen, ...mappedMahasiswa];
       setUsers(allUsers);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch users');
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to fetch users');
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -299,8 +319,12 @@ export default function KelolaPenggunaPage() {
       await request(`/users/${id}`, { method: 'DELETE' });
       alert('User deleted successfully');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     }
   };
 
@@ -459,13 +483,13 @@ export default function KelolaPenggunaPage() {
         </table>
       </div>
 
-      {isModalOpen && (
+      {isModalOpen ? (
         <UserModal
           user={editingUser}
           onClose={handleCloseModal}
           onSave={handleSave}
         />
-      )}
+      ) : null}
     </div>
   );
 }

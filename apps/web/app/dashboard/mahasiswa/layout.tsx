@@ -34,11 +34,9 @@ export default function MahasiswaLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  const scrollToSection = (id: string) => {
-    // Dummy function for footer prop
-    console.log(
-      `Scroll to ${id} requested, but not implemented in this layout.`,
-    );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const scrollToSection = (_id: string) => {
+    // Dummy function for footer prop, not implemented in this layout.
   };
 
   return (

@@ -68,8 +68,12 @@ export default function JadwalSidangPage() {
       setSchedules(schedulesRes.data || []);
       setUnscheduled(unscheduledRes.data || []);
       setRooms(roomsRes.data || []);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch data');
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to fetch data');
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -101,8 +105,12 @@ export default function JadwalSidangPage() {
       setWaktuMulai('');
       setWaktuSelesai('');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -114,8 +122,12 @@ export default function JadwalSidangPage() {
       await request(`/jadwal-sidang/${id}`, { method: 'DELETE' });
       alert('Schedule deleted successfully');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     }
   };
 

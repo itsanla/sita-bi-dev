@@ -7,6 +7,13 @@ import request from '@/lib/api';
 
 import { useAuth } from '../../context/AuthContext';
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  roles: { name: string }[];
+}
+
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -22,18 +29,14 @@ export default function LoginPage() {
     setError('');
 
     try {
-      console.log('Attempting login with:', { identifier, password: '***' });
-
       // Use the request utility for proper error handling
       const response = await request<{
         status: string;
-        data: { token: string; user: any };
+        data: { token: string; user: User };
       }>('/auth/login', {
         method: 'POST',
         body: { identifier, password },
       });
-
-      console.log('Login response:', response);
 
       if (response.status !== 'sukses') {
         throw new Error('Login failed');
@@ -158,11 +161,11 @@ export default function LoginPage() {
               </div>
 
               {/* Error message */}
-              {error && (
+              {error ? (
                 <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
                   <p className="text-red-700 text-sm font-medium">{error}</p>
                 </div>
-              )}
+              ) : null}
 
               {/* Submit button */}
               <button

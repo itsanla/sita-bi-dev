@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState, FormEvent, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import request from '@/lib/api';
 import { useAuth } from '../../../../context/AuthContext';
 import {
-  Send,
   CheckCircle,
   Clock,
   Search,
@@ -72,9 +71,9 @@ export default function TugasAkhirPage() {
   const [judulMandiri, setJudulMandiri] = useState('');
 
   // State for similarity check
-  const [similarityResults, setSimilarityResults] = useState<any[] | null>(
-    null,
-  );
+  const [similarityResults, setSimilarityResults] = useState<
+    { id: string; judul: string; similarity: number }[] | null
+  >(null);
   const [isBlocked, setIsBlocked] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
 
@@ -95,9 +94,11 @@ export default function TugasAkhirPage() {
         '/tugas-akhir/my-ta',
       );
       setTugasAkhir(taResponse.data);
-    } catch (err: any) {
-      if (err.response?.status !== 404) {
+    } catch (err) {
+      if (err instanceof Error) {
         setError(err.message || 'Failed to fetch data');
+      } else {
+        setError('An unknown error occurred');
       }
       setTugasAkhir(null);
     } finally {
@@ -145,15 +146,22 @@ export default function TugasAkhirPage() {
     setIsBlocked(false);
     try {
       const response = await request<{
-        data: { results: any[]; isBlocked: boolean };
+        data: {
+          results: { id: string; judul: string; similarity: number }[];
+          isBlocked: boolean;
+        };
       }>('/tugas-akhir/check-similarity', {
         method: 'POST',
         body: { judul: titleToCheck },
       });
       setSimilarityResults(response.data.results || []);
       setIsBlocked(response.data.isBlocked || false);
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     } finally {
       setIsChecking(false);
     }
@@ -170,8 +178,12 @@ export default function TugasAkhirPage() {
       setSimilarityResults(null);
       fetchData();
       fetchAllTitles();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     }
   };
 
@@ -193,8 +205,12 @@ export default function TugasAkhirPage() {
       await request('/tugas-akhir/my-ta', { method: 'DELETE' });
       alert('Submission successfully deleted.');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     }
   };
 
@@ -268,7 +284,7 @@ export default function TugasAkhirPage() {
           <div>
             <h3 className="text-sm font-medium text-gray-500">Supervisors</h3>
             <ul className="mt-2 space-y-2">
-              {tugasAkhir.peranDosenTa?.length > 0 ? (
+              {tugasAkhir.peranDosenTa && tugasAkhir.peranDosenTa.length > 0 ? (
                 tugasAkhir.peranDosenTa.map((p) => (
                   <li
                     key={p.peran}
@@ -289,8 +305,7 @@ export default function TugasAkhirPage() {
           </div>
         </div>
 
-        {(tugasAkhir.status === 'DIAJUKAN' ||
-          tugasAkhir.status === 'DITOLAK') && (
+        {tugasAkhir.status === 'DIAJUKAN' || tugasAkhir.status === 'DITOLAK' ? (
           <div className="mt-6 pt-6 border-t border-gray-200">
             <button
               onClick={handleDelete}
@@ -304,7 +319,7 @@ export default function TugasAkhirPage() {
               propose a new title.
             </p>
           </div>
-        )}
+        ) : null}
       </div>
     );
   } else {
@@ -363,7 +378,7 @@ export default function TugasAkhirPage() {
           </form>
 
           {/* --- Similarity Results Section --- */}
-          {similarityResults && (
+          {similarityResults ? (
             <div className="mt-6 space-y-4 pt-6 border-t">
               <h3 className="text-lg font-semibold text-gray-800">
                 Similarity Check Results
@@ -390,7 +405,7 @@ export default function TugasAkhirPage() {
                 </p>
               )}
 
-              {isBlocked && (
+              {isBlocked ? (
                 <div className="p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
                   <p className="font-bold">Submission Blocked</p>
                   <p>
@@ -398,7 +413,7 @@ export default function TugasAkhirPage() {
                     existing title. Please revise your title.
                   </p>
                 </div>
-              )}
+              ) : null}
 
               <button
                 onClick={handleFinalSubmit}
@@ -408,7 +423,7 @@ export default function TugasAkhirPage() {
                 Yakin Gunakan Judul Ini
               </button>
             </div>
-          )}
+          ) : null}
 
           <hr />
 

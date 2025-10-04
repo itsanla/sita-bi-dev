@@ -14,6 +14,12 @@ const audienceOptions = [
   'mahasiswa',
 ];
 
+interface Pengumuman {
+  judul: string;
+  isi: string;
+  audiens: string;
+}
+
 export default function EditPengumumanPage() {
   const [judul, setJudul] = useState('');
   const [isi, setIsi] = useState('');
@@ -32,13 +38,19 @@ export default function EditPengumumanPage() {
     const fetchAnnouncement = async () => {
       try {
         setLoading(true);
-        const response = await request<{ data: any }>(`/pengumuman/${id}`);
+        const response = await request<{ data: Pengumuman }>(
+          `/pengumuman/${id}`,
+        );
         const data = response.data;
         setJudul(data.judul);
         setIsi(data.isi);
         setAudiens(data.audiens);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch announcement');
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message || 'Failed to fetch announcement');
+        } else {
+          setError('An unknown error occurred');
+        }
       } finally {
         setLoading(false);
       }
@@ -58,8 +70,12 @@ export default function EditPengumumanPage() {
       });
       alert('Pengumuman berhasil diperbarui!');
       router.push('/dashboard/admin/pengumuman');
-    } catch (err: any) {
-      setError(err.message || 'Gagal memperbarui pengumuman');
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || 'Gagal memperbarui pengumuman');
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -74,8 +90,12 @@ export default function EditPengumumanPage() {
       await request(`/pengumuman/${id}`, { method: 'DELETE' });
       alert('Pengumuman berhasil dihapus.');
       router.push('/dashboard/admin/pengumuman');
-    } catch (err: any) {
-      setError(err.message || 'Gagal menghapus pengumuman');
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || 'Gagal menghapus pengumuman');
+      } else {
+        setError('An unknown error occurred');
+      }
     }
   };
 
@@ -108,12 +128,12 @@ export default function EditPengumumanPage() {
         </Link>
       </div>
 
-      {error && (
+      {error ? (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md mb-6">
           <p className="font-bold">Error</p>
           <p>{error}</p>
         </div>
-      )}
+      ) : null}
 
       <form
         onSubmit={handleSubmit}

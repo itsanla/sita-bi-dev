@@ -3,16 +3,7 @@
 import { useEffect, useState, FormEvent } from 'react';
 import request from '@/lib/api';
 import { useAuth } from '../../../../context/AuthContext';
-import {
-  Loader,
-  Info,
-  Send,
-  Star,
-  List,
-  Calendar,
-  Clock,
-  Home,
-} from 'lucide-react';
+import { Loader, Info, Send, List, Calendar, Clock, Home } from 'lucide-react';
 
 // --- Interfaces ---
 interface Nilai {
@@ -78,9 +69,9 @@ function PenilaianForm({
       <h4 className="text-lg font-semibold text-gray-800">
         Formulir Penilaian Baru
       </h4>
-      {error && (
+      {error ? (
         <div className="bg-red-100 text-red-700 p-3 rounded-md">{error}</div>
-      )}
+      ) : null}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label
@@ -217,7 +208,7 @@ export default function PenilaianPage() {
                 <p className="text-md text-gray-600">
                   {sidang.tugasAkhir.judul}
                 </p>
-                {sidang.jadwalSidang[0] && (
+                {sidang.jadwalSidang[0] ? (
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500 mt-2">
                     <span className="flex items-center gap-2">
                       <Calendar size={14} />{' '}
@@ -233,7 +224,7 @@ export default function PenilaianPage() {
                       {sidang.jadwalSidang[0].ruangan.nama_ruangan}
                     </span>
                   </div>
-                )}
+                ) : null}
               </div>
 
               <div className="bg-gray-50 p-4 rounded-lg">

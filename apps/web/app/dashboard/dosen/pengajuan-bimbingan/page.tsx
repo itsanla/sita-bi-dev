@@ -50,9 +50,13 @@ export default function PengajuanBimbinganPage() {
         '/users/mahasiswa-tanpa-pembimbing',
       );
       setAvailableMahasiswa(mahasiswaResponse.data.data || []);
-    } catch (err: any) {
-      console.error('Fetch error:', err);
-      setError(err.message || 'Failed to fetch data');
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error('Fetch error:', err);
+        setError(err.message || 'Failed to fetch data');
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -75,8 +79,12 @@ export default function PengajuanBimbinganPage() {
       });
       alert('Offer sent successfully!');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     }
   };
 
@@ -89,8 +97,12 @@ export default function PengajuanBimbinganPage() {
       await request(`/pengajuan/${pengajuanId}/terima`, { method: 'POST' });
       alert('Student accepted successfully!');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     }
   };
 
@@ -100,8 +112,12 @@ export default function PengajuanBimbinganPage() {
       await request(`/pengajuan/${pengajuanId}/tolak`, { method: 'POST' });
       alert('Student rejected.');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     }
   };
 
@@ -111,8 +127,12 @@ export default function PengajuanBimbinganPage() {
       await request(`/pengajuan/${pengajuanId}/batalkan`, { method: 'POST' });
       alert('Offer cancelled.');
       fetchData();
-    } catch (err: any) {
-      alert(`Error: ${err.message}`);
+    } catch (err) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      } else {
+        alert('An unknown error occurred');
+      }
     }
   };
 

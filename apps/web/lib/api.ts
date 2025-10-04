@@ -1,8 +1,4 @@
-import Cookies from 'js-cookie';
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
-console.log('API_URL configured:', API_URL);
 
 // Definisikan tipe kustom untuk error agar bisa menyertakan detail
 export class FetchError extends Error {
@@ -63,32 +59,23 @@ async function request<T>(
   }
 
   const fullUrl = `${API_URL}/api${endpoint}`;
-  console.log('Making request to:', fullUrl);
 
-  try {
-    const response = await fetch(fullUrl, config);
-    console.log('Response status:', response.status);
+  const response = await fetch(fullUrl, config);
 
-    if (!response.ok) {
-      const errorData = await response
-        .json()
-        .catch(() => ({ message: 'An unexpected error occurred' }));
-      console.error('Request failed:', errorData);
-      throw new FetchError(response, errorData);
-    }
-
-    // Handle kasus 204 No Content
-    if (response.status === 204) {
-      return null as T;
-    }
-
-    const result = await response.json();
-    console.log('Request successful:', result);
-    return result;
-  } catch (error) {
-    console.error('Request error:', error);
-    throw error;
+  if (!response.ok) {
+    const errorData = await response
+      .json()
+      .catch(() => ({ message: 'An unexpected error occurred' }));
+    throw new FetchError(response, errorData);
   }
+
+  // Handle kasus 204 No Content
+  if (response.status === 204) {
+    return null as T;
+  }
+
+  const result = await response.json();
+  return result;
 }
 
 export default request;
