@@ -39,9 +39,13 @@ router.get(
       return;
     }
     const page =
-      req.query.page != null ? parseInt(req.query.page as string) : undefined;
+      req.query['page'] != null
+        ? parseInt(req.query['page'] as string)
+        : undefined;
     const limit =
-      req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
+      req.query['limit'] != null
+        ? parseInt(req.query['limit'] as string)
+        : undefined;
     const tawaranTopik = await tawaranTopikService.findByDosen(
       req.user.id,
       page,
@@ -56,9 +60,13 @@ router.get(
   authorizeRoles([Role.mahasiswa]),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const page =
-      req.query.page != null ? parseInt(req.query.page as string) : undefined;
+      req.query['page'] != null
+        ? parseInt(req.query['page'] as string)
+        : undefined;
     const limit =
-      req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
+      req.query['limit'] != null
+        ? parseInt(req.query['limit'] as string)
+        : undefined;
     const availableTopics = await tawaranTopikService.findAvailable(
       page,
       limit,
@@ -76,9 +84,13 @@ router.get(
       return;
     }
     const page =
-      req.query.page != null ? parseInt(req.query.page as string) : undefined;
+      req.query['page'] != null
+        ? parseInt(req.query['page'] as string)
+        : undefined;
     const limit =
-      req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
+      req.query['limit'] != null
+        ? parseInt(req.query['limit'] as string)
+        : undefined;
     const applications = await tawaranTopikService.getApplicationsForDosen(
       req.user.id,
       page,

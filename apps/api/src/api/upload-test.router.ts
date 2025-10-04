@@ -12,53 +12,63 @@ router.post(
   '/sidang',
   uploadSidangFiles, // Multer middleware to handle file uploads
   asyncHandler(async (req, res): Promise<void> => {
-    
     try {
       // ID Mahasiswa di-hardcode untuk testing
       const mahasiswaId = 1;
-      
+
       // Check if mahasiswa exists, if not create test data
       const prisma = new PrismaClient();
-      
+      const testUser = await prisma.user.upsert({
+        where: { email: 'test.mahasiswa@test.com' },
+        update: {},
+        create: {
+          name: 'Test Mahasiswa',
+          email: 'test.mahasiswa@test.com',
+          password: 'hashed_password_test',
+          phone_number: '+6281234567891', // Unique phone number
+        },
+      });
+
       let mahasiswa = await prisma.mahasiswa.findUnique({
         where: { id: mahasiswaId },
-        include: { tugasAkhir: true }
+        include: { tugasAkhir: true },
       });
-      
+
       mahasiswa ??= await prisma.mahasiswa.create({
         data: {
           user_id: testUser.id,
           nim: '12345678',
           prodi: 'D4',
+          angkatan: '2022',
           kelas: 'A',
         },
-        include: { tugasAkhir: true }
+        include: { tugasAkhir: true },
       });
-      
+
       // Check if approved tugas akhir exists, create if not
       let tugasAkhir = await prisma.tugasAkhir.findFirst({
-        where: { mahasiswa_id: mahasiswa.id, status: 'DISETUJUI' }
+        where: { mahasiswa_id: mahasiswa.id, status: 'DISETUJUI' },
       });
-      
+
       tugasAkhir ??= await prisma.tugasAkhir.create({
         data: {
           mahasiswa_id: mahasiswa.id,
           judul: 'Test Thesis Title for Upload',
           status: 'DISETUJUI',
           tanggal_pengajuan: new Date(),
-        }
+        },
       });
-      
+
       // Process the upload
       const pendaftaran = await pendaftaranSidangService.registerForSidang(
         mahasiswa.id,
         req.files,
       );
-      
-      res.status(201).json({ 
-        status: 'sukses', 
+
+      res.status(201).json({
+        status: 'sukses',
         message: 'File upload test berhasil!',
-        data: pendaftaran 
+        data: pendaftaran,
       });
     } catch (error) {
       console.error('Upload test error:', error);

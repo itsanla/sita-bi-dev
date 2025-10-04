@@ -8,9 +8,9 @@ export interface UploadConfig {
 }
 
 export const uploadConfig: UploadConfig = {
-  uploadsDir: process.env.UPLOADS_DIR ?? 'uploads',
-  maxFileSize: parseInt(process.env.MAX_FILE_SIZE ?? '5242880', 10), // 5MB default
-  allowedFileTypes: process.env.ALLOWED_FILE_TYPES?.split(',') ?? [
+  uploadsDir: process.env['UPLOADS_DIR'] ?? 'uploads',
+  maxFileSize: parseInt(process.env['MAX_FILE_SIZE'] ?? '5242880', 10), // 5MB default
+  allowedFileTypes: process.env['ALLOWED_FILE_TYPES']?.split(',') ?? [
     'jpeg',
     'jpg',
     'png',
@@ -25,12 +25,12 @@ export const uploadConfig: UploadConfig = {
 export const getMonorepoRoot = (): string => {
   // Dari apps/api, naik 2 level untuk sampai ke monorepo root
   const currentDir = process.cwd();
-  
+
   // Jika kita di apps/api, naik 2 level
   if (currentDir.includes(path.join('apps', 'api'))) {
     return path.resolve(currentDir, '../..');
   }
-  
+
   // Jika sudah di monorepo root atau lokasi lain
   return currentDir;
 };
@@ -46,7 +46,7 @@ export const ensureDirectoryExists = (dirPath: string): void => {
 export const getUploadPath = (subDir?: string): string => {
   const monorepoRoot = getMonorepoRoot();
   const basePath = path.join(monorepoRoot, uploadConfig.uploadsDir);
-  
+
   if (subDir !== undefined && subDir.length > 0) {
     const fullPath = path.join(basePath, subDir);
     ensureDirectoryExists(fullPath);
@@ -57,12 +57,15 @@ export const getUploadPath = (subDir?: string): string => {
 };
 
 // Utility function untuk generate unique filename
-export const generateFileName = (originalName: string, prefix?: string): string => {
+export const generateFileName = (
+  originalName: string,
+  prefix?: string,
+): string => {
   const timestamp = Date.now();
   const random = Math.round(Math.random() * 1e9);
   const extension = path.extname(originalName);
   const baseName = prefix ?? 'file';
-  
+
   return `${baseName}-${timestamp}-${random}${extension}`;
 };
 

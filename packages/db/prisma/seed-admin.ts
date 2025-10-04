@@ -124,6 +124,7 @@ async function main() {
           create: {
             nim: '2201012023', // Placeholder NIM
             prodi: 'D4', // Placeholder Prodi
+            angkatan: '2022',
             kelas: 'TI-1A',
           },
         },

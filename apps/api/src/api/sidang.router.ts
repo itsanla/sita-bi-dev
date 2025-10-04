@@ -16,7 +16,7 @@ router.get(
   asyncHandler(async (_req, res) => {
     const result = await sidangService.findUnscheduled();
     res.status(200).json({ status: 'sukses', data: result });
-  })
+  }),
 );
 
 export default router;

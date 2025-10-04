@@ -24,10 +24,7 @@ router.post(
       res.status(401).json({ status: 'gagal', message: 'Unauthorized' });
       return;
     }
-    const newPengumuman = await pengumumanService.create(
-      req.body,
-      req.user.id,
-    );
+    const newPengumuman = await pengumumanService.create(req.body, req.user.id);
     res.status(201).json({ status: 'sukses', data: newPengumuman });
   }),
 );
@@ -38,9 +35,13 @@ router.get(
   authorizeRoles([Role.admin]),
   asyncHandler(async (req, res): Promise<void> => {
     const page =
-      req.query.page != null ? parseInt(req.query.page as string) : undefined;
+      req.query['page'] != null
+        ? parseInt(req.query['page'] as string)
+        : undefined;
     const limit =
-      req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
+      req.query['limit'] != null
+        ? parseInt(req.query['limit'] as string)
+        : undefined;
     const pengumumans = await pengumumanService.findAll(page, limit);
     res.status(200).json({ status: 'sukses', data: pengumumans });
   }),
@@ -91,9 +92,13 @@ router.get(
   '/public',
   asyncHandler(async (req, res): Promise<void> => {
     const page =
-      req.query.page != null ? parseInt(req.query.page as string) : undefined;
+      req.query['page'] != null
+        ? parseInt(req.query['page'] as string)
+        : undefined;
     const limit =
-      req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
+      req.query['limit'] != null
+        ? parseInt(req.query['limit'] as string)
+        : undefined;
     const publicPengumumans = await pengumumanService.findPublic(page, limit);
     res.status(200).json({ status: 'sukses', data: publicPengumumans });
   }),
@@ -105,9 +110,13 @@ router.get(
   authorizeRoles([Role.mahasiswa]),
   asyncHandler(async (req, res): Promise<void> => {
     const page =
-      req.query.page != null ? parseInt(req.query.page as string) : undefined;
+      req.query['page'] != null
+        ? parseInt(req.query['page'] as string)
+        : undefined;
     const limit =
-      req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
+      req.query['limit'] != null
+        ? parseInt(req.query['limit'] as string)
+        : undefined;
     const mahasiswaPengumumans = await pengumumanService.findForMahasiswa(
       page,
       limit,
@@ -122,9 +131,13 @@ router.get(
   authorizeRoles([Role.dosen]),
   asyncHandler(async (req, res): Promise<void> => {
     const page =
-      req.query.page != null ? parseInt(req.query.page as string) : undefined;
+      req.query['page'] != null
+        ? parseInt(req.query['page'] as string)
+        : undefined;
     const limit =
-      req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
+      req.query['limit'] != null
+        ? parseInt(req.query['limit'] as string)
+        : undefined;
     const dosenPengumumans = await pengumumanService.findForDosen(page, limit);
     res.status(200).json({ status: 'sukses', data: dosenPengumumans });
   }),

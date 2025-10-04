@@ -1,11 +1,19 @@
-// d.ts file for extending Express Request interface
+import type { Role } from '@repo/types';
 
 declare namespace Express {
   export interface Request {
     user?: {
       id: number;
-      // Add other user properties if you know them, e.g., roles
-      roles?: string[];
+      email: string;
+      role: Role;
+      dosen?: {
+        id: number;
+        nidn: string;
+      };
+      mahasiswa?: {
+        id: number;
+        nim: string;
+      };
     };
   }
 }

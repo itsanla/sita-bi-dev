@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { z} from 'zod';
+import type { z } from 'zod';
 import { ZodError } from 'zod';
 
 export const validate =

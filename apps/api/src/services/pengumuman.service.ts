@@ -150,9 +150,25 @@ export class PengumumanService {
   }
 
   async update(id: number, dto: UpdatePengumumanDto): Promise<Pengumuman> {
+    const updateData: {
+      judul?: string;
+      isi?: string;
+      audiens?: AudiensPengumuman;
+    } = {};
+
+    if (dto.judul != null) {
+      updateData.judul = dto.judul;
+    }
+    if (dto.isi != null) {
+      updateData.isi = dto.isi;
+    }
+    if (dto.audiens != null) {
+      updateData.audiens = dto.audiens;
+    }
+
     return this.prisma.pengumuman.update({
       where: { id },
-      data: dto,
+      data: updateData,
     });
   }
 

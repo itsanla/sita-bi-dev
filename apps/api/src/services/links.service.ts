@@ -1,4 +1,3 @@
-import { PrismaClient } from '@repo/db';
 import type { CreateLinkDto, UpdateLinkDto } from '../dto/links.dto';
 import { paginate } from '../utils/pagination.util';
 
@@ -7,11 +6,10 @@ interface Link {
   id: number;
   title: string;
   url: string;
-  description: string;
+  description?: string;
 }
 
 export class LinksService {
-  private prisma: PrismaClient;
   private readonly _links: Link[] = [
     {
       id: 0,
@@ -42,51 +40,53 @@ export class LinksService {
     },
   ];
 
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
-
   create(createLinkDto: CreateLinkDto): unknown {
-    // In a real scenario, this would interact with Prisma
-    const newLink = {
+    const newLink: Link = {
       id: this._links.length,
-      description: '',
-      ...createLinkDto,
+      title: createLinkDto.title,
+      url: createLinkDto.url,
     };
+
+    if (createLinkDto.description != null) {
+      newLink.description = createLinkDto.description;
+    }
+
     this._links.push(newLink);
     return newLink;
   }
 
   findAll(page = 1, limit = 50): unknown {
-    // In a real scenario, this would interact with Prisma
     const paginatedResult = paginate(this._links, { page, limit });
     return { ...paginatedResult, total: this._links.length };
   }
 
   findOne(id: number): unknown {
-    // In a real scenario, this would interact with Prisma
     return this._links.find((link) => link.id === id);
   }
 
   update(id: number, updateLinkDto: UpdateLinkDto): unknown {
-    // In a real scenario, this would interact with Prisma
     const index = this._links.findIndex((link) => link.id === id);
     if (index > -1) {
-      this._links[index] = {
-        id: id,
-        title: '',
-        url: '',
-        description: '',
-        ...this._links[index],
-        ...updateLinkDto,
-      };
-      return this._links[index];
+      const existingLink = this._links[index];
+      if (existingLink) {
+        const updatedLink = { ...existingLink };
+        if (updateLinkDto.title != null) {
+          updatedLink.title = updateLinkDto.title;
+        }
+        if (updateLinkDto.url != null) {
+          updatedLink.url = updateLinkDto.url;
+        }
+        if (updateLinkDto.description != null) {
+          updatedLink.description = updateLinkDto.description;
+        }
+        this._links[index] = updatedLink;
+        return this._links[index];
+      }
     }
     return null;
   }
 
   remove(id: number): unknown {
-    // In a real scenario, this would interact with Prisma
     const index = this._links.findIndex((link) => link.id === id);
     if (index > -1) {
       const [removed] = this._links.splice(index, 1);
