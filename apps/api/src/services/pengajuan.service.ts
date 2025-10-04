@@ -30,7 +30,7 @@ export class PengajuanService {
       },
     });
 
-    if (existingPengajuan) {
+    if (existingPengajuan !== null) {
       throw new Error('Pengajuan ke dosen ini sudah ada');
     }
 
@@ -92,7 +92,7 @@ export class PengajuanService {
       },
     });
 
-    if (existingPengajuan) {
+    if (existingPengajuan !== null) {
       throw new Error('Pengajuan dengan mahasiswa ini sudah ada');
     }
 
@@ -140,7 +140,7 @@ export class PengajuanService {
         },
       });
 
-      if (!pengajuan) {
+      if (pengajuan === null) {
         throw new Error('Pengajuan tidak ditemukan');
       }
 
@@ -237,7 +237,7 @@ export class PengajuanService {
       },
     });
 
-    if (!pengajuan) {
+    if (pengajuan === null) {
       throw new Error('Pengajuan tidak ditemukan');
     }
 
@@ -289,7 +289,7 @@ export class PengajuanService {
       },
     });
 
-    if (!pengajuan) {
+    if (pengajuan === null) {
       throw new Error('Pengajuan tidak ditemukan');
     }
 
