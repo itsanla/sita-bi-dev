@@ -173,6 +173,7 @@ model Mahasiswa {
   user_id    Int      @unique
   nim        String   @unique
   prodi      Prodi
+  angkatan   String
   kelas      String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

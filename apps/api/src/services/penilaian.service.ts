@@ -30,8 +30,7 @@ export class PenilaianService {
       const isAllowed = peranDosen.some(
         (p) =>
           p.dosen_id === dosenId &&
-          (p.peran.startsWith('pembimbing') ||
-            p.peran.startsWith('penguji')),
+          (p.peran.startsWith('pembimbing') || p.peran.startsWith('penguji')),
       );
 
       if (!isAllowed) {
@@ -53,8 +52,7 @@ export class PenilaianService {
       // --- Finalize Logic ---
       const jumlahPenilai = peranDosen.filter(
         (p) =>
-          p.peran.startsWith('pembimbing') ||
-          p.peran.startsWith('penguji'),
+          p.peran.startsWith('pembimbing') || p.peran.startsWith('penguji'),
       ).length;
       const jumlahNilaiMasuk = sidang._count.nilaiSidang + 1; // +1 for the one just created
 

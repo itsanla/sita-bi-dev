@@ -36,12 +36,14 @@ export class UsersService {
 
   async createMahasiswa(dto: CreateMahasiswaDto): Promise<User> {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const angkatan = `20${dto.nim.substring(0, 2)}`;
 
     return this.prisma.user.create({
       data: {
         name: dto.name,
         email: dto.email,
         password: hashedPassword,
+        phone_number: dto.phone_number,
         roles: {
           connect: { name: Role.mahasiswa },
         },
@@ -49,7 +51,7 @@ export class UsersService {
           create: {
             nim: dto.nim,
             prodi: dto.prodi,
-            angkatan: dto.angkatan,
+            angkatan: angkatan,
             kelas: dto.kelas,
           },
         },
@@ -81,6 +83,7 @@ export class UsersService {
         name: dto.name,
         email: dto.email,
         password: hashedPassword,
+        phone_number: dto.phone_number,
         roles: {
           connect: rolesToConnect,
         },
@@ -131,9 +134,11 @@ export class UsersService {
     if (dto.password != null)
       userData.password = await bcrypt.hash(dto.password, 10);
 
-    if (dto.nim != null) mahasiswaData.nim = dto.nim;
+    if (dto.nim != null) {
+      mahasiswaData.nim = dto.nim;
+      mahasiswaData.angkatan = `20${dto.nim.substring(0, 2)}`;
+    }
     if (dto.prodi != null) mahasiswaData.prodi = dto.prodi;
-    if (dto.angkatan != null) mahasiswaData.angkatan = dto.angkatan;
     if (dto.kelas != null) mahasiswaData.kelas = dto.kelas;
 
     if (Object.keys(mahasiswaData).length > 0) {
@@ -211,19 +216,21 @@ export class UsersService {
   }> {
     const offset = (page - 1) * limit;
 
-    // Cari mahasiswa yang belum punya tugas akhir dengan pembimbing
-    const mahasiswaQuery = this.prisma.mahasiswa.findMany({
-      where: {
+    // Cari mahasiswa yang belum punya tugas akhir atau TA-nya belum punya pembimbing
+    const whereClause: Prisma.MahasiswaWhereInput = {
+      NOT: {
         tugasAkhir: {
-          none: {
-            peranDosenTa: {
-              some: {
-                peran: { in: ['pembimbing1', 'pembimbing2'] }
-              }
-            }
-          }
-        }
+          peranDosenTa: {
+            some: {
+              peran: { in: ['pembimbing1', 'pembimbing2'] },
+            },
+          },
+        },
       },
+    };
+
+    const mahasiswaQuery = this.prisma.mahasiswa.findMany({
+      where: whereClause,
       include: {
         user: {
           select: {
@@ -239,17 +246,7 @@ export class UsersService {
     });
 
     const countQuery = this.prisma.mahasiswa.count({
-      where: {
-        tugasAkhir: {
-          none: {
-            peranDosenTa: {
-              some: {
-                peran: { in: ['pembimbing1', 'pembimbing2'] }
-              }
-            }
-          }
-        }
-      },
+      where: whereClause,
     });
 
     const [mahasiswa, total] = await Promise.all([mahasiswaQuery, countQuery]);
@@ -257,7 +254,7 @@ export class UsersService {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: mahasiswa,
+      data: mahasiswa.map((m) => ({ ...m, user: m.user })), // Use non-null assertion for user
       page,
       limit,
       total,

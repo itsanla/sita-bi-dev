@@ -1,15 +1,12 @@
 import type { User, Prisma } from '@repo/db';
-import { PrismaClient } from '@repo/db';
 import type { UpdateProfileDto } from '../dto/profile.dto';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service'; // Will be created next
 
 export class ProfileService {
-  private prisma: PrismaClient;
   private usersService: UsersService;
 
   constructor() {
-    this.prisma = new PrismaClient();
     this.usersService = new UsersService(); // Instantiate UsersService
   }
 

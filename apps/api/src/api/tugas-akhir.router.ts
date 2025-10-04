@@ -10,9 +10,11 @@ import {
   rejectTugasAkhirSchema,
 } from '../dto/tugas-akhir.dto';
 import { tugasAkhirGuard } from '../middlewares/tugas-akhir.middleware';
+import { PrismaClient } from '@repo/db';
 
 const router: Router = Router();
 const tugasAkhirService = new TugasAkhirService();
+const prisma = new PrismaClient();
 
 // Apply JWT Auth and Roles Guard globally for this router
 // router.use(jwtAuthMiddleware);
@@ -27,14 +29,17 @@ router.post(
     const { judul } = req.body;
     const results = await tugasAkhirService.checkSimilarity(judul);
 
-    const isBlocked = results.some(res => res.similarity >= SIMILARITY_BLOCK_THRESHOLD);
+    const isBlocked = results.some(
+      (res: { similarity: number }) =>
+        res.similarity >= SIMILARITY_BLOCK_THRESHOLD,
+    );
 
-    response.status(200).json({ 
-      status: 'sukses', 
-      data: { 
+    response.status(200).json({
+      status: 'sukses',
+      data: {
         results,
-        isBlocked 
-      }
+        isBlocked,
+      },
     });
   }),
 );
@@ -68,9 +73,13 @@ router.get(
       return;
     }
     const page =
-      req.query.page != null ? parseInt(req.query.page as string) : undefined;
+      req.query['page'] != null
+        ? parseInt(req.query['page'] as string)
+        : undefined;
     const limit =
-      req.query.limit != null ? parseInt(req.query.limit as string) : undefined;
+      req.query['limit'] != null
+        ? parseInt(req.query['limit'] as string)
+        : undefined;
     const tugasAkhirList = await tugasAkhirService.findAllForValidation(
       req.user,
       page,
@@ -153,8 +162,20 @@ router.post(
         .json({ status: 'gagal', message: 'ID Tugas Akhir diperlukan' });
       return;
     }
-    const kemiripanResult = await tugasAkhirService.cekKemiripan(
-      parseInt(id, 10),
+
+    const tugasAkhir = await prisma.tugasAkhir.findUnique({
+      where: { id: parseInt(id, 10) },
+    });
+
+    if (!tugasAkhir) {
+      response
+        .status(404)
+        .json({ status: 'gagal', message: 'Tugas Akhir tidak ditemukan' });
+      return;
+    }
+
+    const kemiripanResult = await tugasAkhirService.checkSimilarity(
+      tugasAkhir.judul,
     );
     response.status(200).json({ status: 'sukses', data: kemiripanResult });
   }),
@@ -192,14 +213,16 @@ router.delete(
       return;
     }
     await tugasAkhirService.deleteMyTa(userId);
-    response.status(200).json({ status: 'sukses', message: 'Tugas Akhir berhasil dihapus.' });
+    response
+      .status(200)
+      .json({ status: 'sukses', message: 'Tugas Akhir berhasil dihapus.' });
   }),
 );
 
 router.get(
   '/all-titles',
   asyncHandler(jwtAuthMiddleware),
-  asyncHandler(async (req: Request, response: Response): Promise<void> => {
+  asyncHandler(async (_req: Request, response: Response): Promise<void> => {
     const titles = await tugasAkhirService.findAllTitles();
     response.status(200).json({ status: 'sukses', data: titles });
   }),

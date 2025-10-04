@@ -1,4 +1,4 @@
-import type { Prisma} from '@repo/db';
+import type { Prisma } from '@repo/db';
 import { PrismaClient, StatusTugasAkhir } from '@repo/db';
 
 // Interface untuk return types
@@ -123,15 +123,18 @@ export class BimbinganService {
       },
     });
 
+    if (bimbingan === null) {
+      throw new Error('Bimbingan session not found.');
+    }
 
     const isMahasiswa = bimbingan.tugasAkhir.mahasiswa.user.id === authorId;
     const peranDosenList = bimbingan.tugasAkhir.peranDosenTa as {
       dosen_id: number | null;
     }[];
 
-    const isPembimbing =
-      bimbingan.dosen_id !== null &&
-      peranDosenList.some((p) => p.dosen_id === bimbingan.dosen_id);
+    const isPembimbing = peranDosenList.some(
+      (p) => p.dosen_id === bimbingan.dosen_id,
+    );
 
     if (!(isMahasiswa || isPembimbing)) {
       throw new Error(
@@ -160,7 +163,7 @@ export class BimbinganService {
         where: { tugas_akhir_id: tugasAkhirId, dosen_id: dosenId },
       });
 
-      if (!peranDosen?.peran?.startsWith('pembimbing')) {
+      if (peranDosen?.peran.startsWith('pembimbing') !== true) {
         throw new Error('You are not a supervisor for this final project.');
       }
 
@@ -184,8 +187,7 @@ export class BimbinganService {
     _dosenId: number,
   ): Promise<unknown> {
     return this.prisma.$transaction(async (tx) => {
-      const bimbingan = await tx.bimbinganTA.findFirst({
-      });
+      const bimbingan = await tx.bimbinganTA.findFirst({});
       if (bimbingan === null) {
         throw new Error(
           'Supervision session not found or you are not authorized to modify it.',
@@ -267,4 +269,3 @@ export class BimbinganService {
     });
   }
 }
-

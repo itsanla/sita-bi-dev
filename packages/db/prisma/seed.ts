@@ -138,6 +138,7 @@ async function main() {
       },
       nim: nim,
       prodi: faker.helpers.arrayElement(prodiValues),
+      angkatan: faker.number.int({ min: 2020, max: 2023 }).toString(),
       kelas: faker.helpers.arrayElement(['A', 'B', 'C']),
     });
   }

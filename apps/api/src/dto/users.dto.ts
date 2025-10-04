@@ -8,6 +8,7 @@ export const createDosenSchema = z.object({
   name: z.string().min(1, 'Name cannot be empty'),
   email: z.email(),
   password: z.string().min(8, 'Password must be at least 8 characters long'),
+  phone_number: z.string().min(1, 'Phone number cannot be empty'),
   nidn: z.string().min(1, 'NIDN cannot be empty'),
   roles: z
     .array(z.enum(Object.values(Role)))
@@ -53,6 +54,7 @@ export const createMahasiswaSchema = z.object({
   name: z.string().min(1, 'Name cannot be empty'),
   email: z.email(),
   password: z.string().min(8, 'Password must be at least 8 characters long'),
+  phone_number: z.string().min(1, 'Phone number cannot be empty'),
   nim: z.string().min(1, 'NIM cannot be empty'),
   prodi: z.enum([Prodi.D3, Prodi.D4]),
   kelas: z.string().min(1, 'Kelas cannot be empty'),

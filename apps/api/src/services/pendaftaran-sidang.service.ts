@@ -1,10 +1,5 @@
-import type {
-  PendaftaranSidang,
-  Prisma} from '@repo/db';
-import {
-  PrismaClient,
-  TipeDokumenSidang
-} from '@repo/db';
+import type { PendaftaranSidang, Prisma } from '@repo/db';
+import { PrismaClient, TipeDokumenSidang } from '@repo/db';
 import { getRelativePath } from '../utils/upload.config';
 
 // Interface untuk Local file
@@ -50,9 +45,10 @@ export class PendaftaranSidangService {
   async registerForSidang(
     mahasiswaId: number,
     files:
-      Express.Multer.File[] | Record<string, Express.Multer.File[]> | undefined,
+      | Express.Multer.File[]
+      | Record<string, Express.Multer.File[]>
+      | undefined,
   ): Promise<PendaftaranSidang> {
-    
     return this.prisma.$transaction(async (tx) => {
       try {
         const tugasAkhir = await tx.tugasAkhir.findFirst({
@@ -93,18 +89,19 @@ export class PendaftaranSidangService {
             const fileArray = files[fieldname];
             if (fileArray !== undefined) {
               for (const file of fileArray) {
-                
                 // The file object from multer has a 'path' property which is the local file path.
                 const uploadedFilePath = (file as LocalFile).path;
 
                 if (!uploadedFilePath) {
-                  throw new Error(`Failed to upload ${file.originalname} to local storage.`);
+                  throw new Error(
+                    `Failed to upload ${file.originalname} to local storage.`,
+                  );
                 }
 
                 // Generate relative path untuk database
                 const relativePath = getRelativePath(uploadedFilePath);
 
-                const _fileRecord = await tx.pendaftaranSidangFile.create({
+                await tx.pendaftaranSidangFile.create({
                   data: {
                     pendaftaran_sidang_id: pendaftaran.id,
                     file_path: relativePath, // Save the relative path
@@ -134,10 +131,12 @@ export class PendaftaranSidangService {
           {
             status_pembimbing_1: 'menunggu',
             tugasAkhir: {
-            peranDosenTa: {
-              some: { dosen_id: dosenId, peran: 'pembimbing1' },
+              peranDosenTa: {
+                some: { dosen_id: dosenId, peran: 'pembimbing1' },
+              },
             },
           },
+          {
             status_pembimbing_2: 'menunggu',
             tugasAkhir: {
               peranDosenTa: {
@@ -184,7 +183,7 @@ export class PendaftaranSidangService {
       const updateData: Prisma.PendaftaranSidangUpdateInput = {};
       if (peran.peran === 'pembimbing1') {
         updateData.status_pembimbing_1 = 'disetujui';
-      } 
+      }
       if (peran.peran === 'pembimbing2') {
         updateData.status_pembimbing_2 = 'disetujui';
       }
@@ -252,7 +251,7 @@ export class PendaftaranSidangService {
       if (peran.peran === 'pembimbing1') {
         updateData.status_pembimbing_1 = 'ditolak';
         updateData.catatan_pembimbing_1 = catatan;
-      } 
+      }
       if (peran.peran === 'pembimbing2') {
         updateData.status_pembimbing_2 = 'ditolak';
         updateData.catatan_pembimbing_2 = catatan;

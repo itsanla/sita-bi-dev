@@ -12,7 +12,7 @@ router.get(
   '/',
   asyncHandler(jwtAuthMiddleware),
   authorizeRoles([Role.admin]),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (_req, res) => {
     const ruangan = await ruanganService.findAll();
     res.status(200).json({ status: 'sukses', data: ruangan });
   }),

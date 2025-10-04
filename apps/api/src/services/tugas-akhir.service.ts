@@ -13,13 +13,14 @@ export class SimilarityError extends Error {
 
 export class TugasAkhirService {
   private prisma: PrismaClient;
-  private readonly SIMILARITY_THRESHOLD = 80; // 80%
 
   constructor() {
     this.prisma = new PrismaClient();
   }
 
-  async checkSimilarity(judul: string): Promise<unknown[]> {
+  async checkSimilarity(
+    judul: string,
+  ): Promise<{ id: number; judul: string; similarity: number }[]> {
     const allTitles = await this.prisma.tugasAkhir.findMany({
       select: { id: true, judul: true },
     });
@@ -29,14 +30,15 @@ export class TugasAkhirService {
     }
 
     const similarities = await calculateSimilarities(judul, allTitles);
-    
+
     // Return top 5 results or any result above 50%
-    return similarities
-      .filter(res => res.similarity > 50)
-      .slice(0, 5);
+    return similarities.filter((res) => res.similarity > 50).slice(0, 5);
   }
 
-  async createFinal(dto: CreateTugasAkhirDto, userId: number): Promise<TugasAkhir> {
+  async createFinal(
+    dto: CreateTugasAkhirDto,
+    userId: number,
+  ): Promise<TugasAkhir> {
     const mahasiswa = await this.prisma.mahasiswa.findUnique({
       where: { user_id: userId },
     });
@@ -50,16 +52,18 @@ export class TugasAkhirService {
     });
 
     if (existingTugasAkhir) {
-      throw new Error('Anda sudah memiliki Tugas Akhir dan tidak dapat mengajukan lagi.');
+      throw new Error(
+        'Anda sudah memiliki Tugas Akhir dan tidak dapat mengajukan lagi.',
+      );
     }
 
     // Check for exact title match just in case
     const existingTitle = await this.prisma.tugasAkhir.findFirst({
-        where: { judul: { equals: dto.judul } },
+      where: { judul: { equals: dto.judul } },
     });
 
     if (existingTitle) {
-        throw new Error(`Judul "${dto.judul}" sudah pernah diajukan.`);
+      throw new Error(`Judul "${dto.judul}" sudah pernah diajukan.`);
     }
 
     return this.prisma.tugasAkhir.create({
@@ -68,6 +72,72 @@ export class TugasAkhirService {
         mahasiswa_id: mahasiswa.id,
         status: StatusTugasAkhir.DIAJUKAN,
         tanggal_pengajuan: new Date(),
+      },
+    });
+  }
+
+  async findAllForValidation(
+    user: Express.Request['user'],
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    data: unknown[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    if (!user) {
+      throw new Error('User data is missing');
+    }
+    const whereClause = {
+      status: StatusTugasAkhir.DIAJUKAN,
+    };
+
+    const total = await this.prisma.tugasAkhir.count({ where: whereClause });
+    const data = await this.prisma.tugasAkhir.findMany({
+      where: whereClause,
+      include: {
+        mahasiswa: {
+          include: {
+            user: true,
+          },
+        },
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async approve(tugasAkhirId: number, approverId: number): Promise<TugasAkhir> {
+    return this.prisma.tugasAkhir.update({
+      where: { id: tugasAkhirId },
+      data: {
+        status: StatusTugasAkhir.DISETUJUI,
+        disetujui_oleh: approverId,
+      },
+    });
+  }
+
+  async reject(
+    tugasAkhirId: number,
+    rejecterId: number,
+    alasan: string,
+  ): Promise<TugasAkhir> {
+    return this.prisma.tugasAkhir.update({
+      where: { id: tugasAkhirId },
+      data: {
+        status: StatusTugasAkhir.DITOLAK,
+        ditolak_oleh: rejecterId,
+        alasan_penolakan: alasan,
       },
     });
   }
