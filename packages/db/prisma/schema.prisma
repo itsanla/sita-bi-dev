@@ -139,7 +139,7 @@ model User {
   notifikasi         NotifikasiTA[]
   emailTokens        EmailVerificationToken[]
   catatanBimbingan   CatatanBimbingan[] // Catatan yang dibuat oleh user ini
-  files              File[] // File yang diunggah oleh user ini
+  historyPerubahanSidang HistoryPerubahanSidang[]
 
   @@map("users")
 }
@@ -410,6 +410,7 @@ model Sidang {
   pendaftaranSidang PendaftaranSidang? @relation(fields: [pendaftaran_sidang_id], references: [id])
   jadwalSidang      JadwalSidang[]
   nilaiSidang       NilaiSidang[]
+  historyPerubahan  HistoryPerubahanSidang[]
 
   @@map("sidang")
 }
@@ -457,6 +458,20 @@ model NilaiSidang {
   dosen  Dosen  @relation(fields: [dosen_id], references: [id])
 
   @@map("nilai_sidang")
+}
+
+model HistoryPerubahanSidang {
+  id               Int      @id @default(autoincrement())
+  sidang_id        Int
+  user_id          Int?
+  perubahan        String
+  alasan_perubahan String?
+  created_at       DateTime @default(now())
+
+  sidang Sidang @relation(fields: [sidang_id], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [user_id], references: [id])
+
+  @@map("history_perubahan_sidang")
 }
 
 //================================================================================
@@ -537,24 +552,4 @@ model NotifikasiTA {
   tugasAkhir TugasAkhir @relation(fields: [tugas_akhir_id], references: [id])
 
   @@map("notifikasi_ta")
-}
-
-//================================================================================
-//  MODEL FILE MANAGEMENT
-//================================================================================
-
-model File {
-  id            Int      @id @default(autoincrement())
-  original_name String
-  filename      String   @unique
-  path          String
-  mime_type     String
-  size          Int
-  uploaded_by   Int?
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-
-  uploader      User?    @relation(fields: [uploaded_by], references: [id])
-
-  @@map("files")
 }

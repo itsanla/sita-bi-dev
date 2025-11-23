@@ -36,11 +36,12 @@ router.get(
 
 router.post(
   '/',
-  asyncHandler(insecureAuthMiddleware),
+  asyncHandler(authMiddleware), // Must be authenticated to get userId
   authorizeRoles([Role.admin]),
   validate(createJadwalSchema),
   asyncHandler(async (req, res): Promise<void> => {
-    const newJadwal = await jadwalSidangService.createJadwal(req.body);
+    const userId = req.user?.id;
+    const newJadwal = await jadwalSidangService.createJadwal(req.body, userId);
     res.status(201).json({ status: 'sukses', data: newJadwal });
   }),
 );
