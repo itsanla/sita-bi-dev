@@ -12,9 +12,10 @@ import {
   XCircle,
   BookOpen,
   MessageSquare,
-  History,
-  Calendar,
+  AlertTriangle,
+  Clock,
 } from 'lucide-react';
+import ActivityLog from '@/app/components/ActivityLog';
 
 // --- Interfaces ---
 interface Catatan {
@@ -70,9 +71,65 @@ function ScheduleForm({
   const [tanggal, setTanggal] = useState('');
   const [jam, setJam] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [conflictWarning, setConflictWarning] = useState<string | null>(null);
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [checkingConflict, setCheckingConflict] = useState(false);
+
+  useEffect(() => {
+    // Check conflicts when date or time changes
+    const checkConflict = async () => {
+      if (!tanggal || !jam) {
+        setConflictWarning(null);
+        return;
+      }
+      setCheckingConflict(true);
+      try {
+        const res = await request<{ data: { hasConflict: boolean } }>(
+          `/bimbingan/conflicts?tanggal=${tanggal}&jam=${jam}`,
+        );
+        if (res.data.hasConflict) {
+          setConflictWarning('Jadwal ini bentrok dengan kegiatan lain!');
+        } else {
+          setConflictWarning(null);
+        }
+      } catch (error) {
+        console.error('Failed to check conflicts', error);
+      } finally {
+        setCheckingConflict(false);
+      }
+    };
+
+    const timeoutId = setTimeout(checkConflict, 500); // Debounce
+    return () => clearTimeout(timeoutId);
+  }, [tanggal, jam]);
+
+  useEffect(() => {
+    // Fetch available slots when date changes
+    const fetchSlots = async () => {
+      if (!tanggal) return;
+      try {
+        const res = await request<{ data: string[] }>(
+          `/bimbingan/available-slots?tanggal=${tanggal}`,
+        );
+        setAvailableSlots(res.data);
+      } catch (error) {
+        console.error('Failed to fetch slots', error);
+      }
+    };
+    fetchSlots();
+  }, [tanggal]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (conflictWarning) {
+      if (
+        !confirm(
+          'Jadwal ini bentrok. Apakah Anda yakin ingin tetap menjadwalkannya?',
+        )
+      ) {
+        return;
+      }
+    }
     setSubmitting(true);
     try {
       await request(`/bimbingan/${tugasAkhirId}/jadwal`, {
@@ -82,6 +139,8 @@ function ScheduleForm({
       alert('Schedule set successfully!');
       setTanggal('');
       setJam('');
+      setAvailableSlots([]);
+      setConflictWarning(null);
       onActionSuccess();
     } catch (err) {
       alert(
@@ -97,46 +156,82 @@ function ScheduleForm({
       onSubmit={handleSubmit}
       className="p-4 bg-gray-50 rounded-lg border border-gray-200 mt-4"
     >
-      <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-        <CalendarPlus size={18} className="text-red-600" />
-        Jadwalkan Sesi Baru
-      </h4>
-      <div className="flex flex-wrap items-end gap-4">
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
-            Tanggal
-          </label>
-          <input
-            type="date"
-            value={tanggal}
-            onChange={(e) => setTanggal(e.target.value)}
-            className="px-3 py-2 border rounded-md text-sm"
-            required
-          />
+      <h4 className="font-semibold text-gray-800 mb-2">Jadwalkan Sesi Baru</h4>
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Tanggal
+            </label>
+            <input
+              type="date"
+              value={tanggal}
+              onChange={(e) => setTanggal(e.target.value)}
+              className="input-styling"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Jam
+            </label>
+            <input
+              type="time"
+              value={jam}
+              onChange={(e) => setJam(e.target.value)}
+              className="input-styling"
+              required
+            />
+          </div>
+          <div className="self-end pb-1">
+            <button
+              type="submit"
+              disabled={submitting || checkingConflict}
+              className={`btn-primary inline-flex items-center ${conflictWarning ? 'bg-yellow-600 hover:bg-yellow-700' : ''}`}
+            >
+              {submitting ? (
+                <Loader className="animate-spin mr-2" size={16} />
+              ) : (
+                <CalendarPlus size={16} className="mr-2" />
+              )}
+              Atur Jadwal
+            </button>
+          </div>
         </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
-            Waktu
-          </label>
-          <input
-            type="time"
-            value={jam}
-            onChange={(e) => setJam(e.target.value)}
-            className="px-3 py-2 border rounded-md text-sm"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={submitting}
-          className="px-4 py-2 bg-red-700 text-white rounded-md text-sm hover:bg-red-800 disabled:bg-gray-400 flex items-center"
-        >
-          {submitting ? (
-            <Loader className="animate-spin mr-2" size={16} />
-          ) : (
-            'Simpan Jadwal'
-          )}
-        </button>
+
+        {checkingConflict && (
+          <p className="text-xs text-gray-500">Mengecek jadwal...</p>
+        )}
+
+        {conflictWarning && (
+          <div className="flex items-center text-amber-600 text-sm bg-amber-50 p-2 rounded">
+            <AlertTriangle size={16} className="mr-2" />
+            {conflictWarning}
+          </div>
+        )}
+
+        {availableSlots.length > 0 && (
+          <div className="mt-2">
+            <p className="text-xs font-medium text-gray-600 mb-1 flex items-center">
+              <Clock size={12} className="mr-1" /> Rekomendasi Jam Kosong:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {availableSlots.slice(0, 8).map((slot) => (
+                <button
+                  key={slot}
+                  type="button"
+                  onClick={() => setJam(slot)}
+                  className="text-xs bg-white border border-gray-300 px-2 py-1 rounded hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                >
+                  {slot}
+                </button>
+              ))}
+              {availableSlots.length > 8 && (
+                <span className="text-xs text-gray-400 self-center">...</span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </form>
   );
@@ -263,147 +358,109 @@ export default function DosenBimbinganPage() {
   }
 
   return (
-    <div className="space-y-8 pb-20">
-      <h1 className="text-3xl font-bold text-gray-800">Mahasiswa Bimbingan</h1>
+    <div className="space-y-8 relative">
+      <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex-grow space-y-8">
+          <h1 className="text-3xl font-bold text-gray-800">
+            Mahasiswa Bimbingan
+          </h1>
 
-      {supervisedStudents.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center text-gray-500 bg-white p-12 rounded-2xl shadow-lg">
-          <Info size={48} className="mb-4 text-gray-400" />
-          <h2 className="text-xl font-semibold">
-            Tidak Ada Mahasiswa Bimbingan
-          </h2>
-          <p className="mt-1">
-            Saat ini Anda tidak sedang membimbing mahasiswa manapun.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-8">
-          {supervisedStudents.map((ta) => (
-            <div key={ta.id} className="bg-white p-6 rounded-2xl shadow-lg">
-              <div className="mb-6 border-b pb-4">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {ta.mahasiswa.user.name}
-                </h2>
-                <p className="text-md text-gray-600 mt-1">{ta.judul}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-sm font-medium text-gray-500">
-                    Status TA:
-                  </span>
-                  <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">
-                    {ta.status}
-                  </span>
-                </div>
-              </div>
+          {supervisedStudents.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center text-gray-500 bg-white p-12 rounded-2xl shadow-lg">
+              <Info size={48} className="mb-4 text-gray-400" />
+              <h2 className="text-xl font-semibold">
+                Tidak Ada Mahasiswa Bimbingan
+              </h2>
+              <p className="mt-1">
+                Saat ini Anda tidak sedang membimbing mahasiswa manapun.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {supervisedStudents.map((ta) => (
+                <div key={ta.id} className="bg-white p-6 rounded-2xl shadow-lg">
+                  <div className="mb-4">
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      {ta.mahasiswa.user.name}
+                    </h2>
+                    <p className="text-md text-gray-600">{ta.judul}</p>
+                    <p className="text-sm font-medium text-gray-500 mt-1">
+                      Status TA:{' '}
+                      <span className="font-bold text-maroon-800">
+                        {ta.status}
+                      </span>
+                    </p>
+                  </div>
 
-              <ScheduleForm tugasAkhirId={ta.id} onActionSuccess={fetchData} />
+                  <ScheduleForm
+                    tugasAkhirId={ta.id}
+                    onActionSuccess={fetchData}
+                  />
 
-              <div className="mt-8">
-                <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                  <BookOpen size={20} className="mr-2 text-gray-500" /> Riwayat
-                  Sesi Bimbingan
-                </h4>
-
-                {ta.bimbinganTa.length > 0 ? (
-                  <div className="space-y-4">
-                    {ta.bimbinganTa.map((session) => (
-                      <div
-                        key={session.id}
-                        className={`rounded-lg border overflow-hidden ${
-                          session.status_bimbingan === 'selesai'
-                            ? 'border-green-200 bg-green-50/30'
-                            : session.status_bimbingan === 'dibatalkan'
-                              ? 'border-red-200 bg-red-50/30'
-                              : 'border-blue-200 bg-white'
-                        }`}
-                      >
-                        {/* Session Header */}
-                        <div
-                          className={`px-4 py-3 flex justify-between items-center border-b ${
-                            session.status_bimbingan === 'selesai'
-                              ? 'bg-green-50'
-                              : session.status_bimbingan === 'dibatalkan'
-                                ? 'bg-red-50'
-                                : 'bg-blue-50'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`p-1.5 rounded-full ${
-                                session.status_bimbingan === 'selesai'
-                                  ? 'bg-green-200 text-green-700'
-                                  : session.status_bimbingan === 'dibatalkan'
-                                    ? 'bg-red-200 text-red-700'
-                                    : 'bg-blue-200 text-blue-700'
-                              }`}
-                            >
-                              <Calendar size={16} />
-                            </div>
-                            <div>
-                              <p className="text-sm font-bold text-gray-800">
-                                {new Date(
-                                  session.tanggal_bimbingan,
-                                ).toLocaleDateString('id-ID')}{' '}
-                                • {session.jam_bimbingan || '-'}
-                              </p>
-                            </div>
-                          </div>
-                          <span
-                            className={`text-xs font-bold uppercase px-2 py-1 rounded ${
-                              session.status_bimbingan === 'selesai'
-                                ? 'bg-green-200 text-green-800'
-                                : session.status_bimbingan === 'dibatalkan'
-                                  ? 'bg-red-200 text-red-800'
-                                  : 'bg-blue-200 text-blue-800'
-                            }`}
+                  <div className="mt-6">
+                    <h4 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                      <BookOpen size={20} className="mr-2" /> Sesi Bimbingan
+                    </h4>
+                    {ta.bimbinganTa.length > 0 ? (
+                      <div className="space-y-4">
+                        {ta.bimbinganTa.map((session) => (
+                          <div
+                            key={session.id}
+                            className="bg-gray-50 p-4 rounded-lg border"
                           >
-                            {session.status_bimbingan}
-                          </span>
-                        </div>
+                            <div className="flex justify-between items-center mb-2">
+                              <p className="font-semibold text-gray-800">
+                                Sesi ID: {session.id}
+                              </p>
+                              <span
+                                className={`px-3 py-1 text-xs font-bold rounded-full ${session.status_bimbingan === 'dijadwalkan' ? 'bg-blue-100 text-blue-800' : session.status_bimbingan === 'selesai' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-800'}`}
+                              >
+                                {session.status_bimbingan}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600">
+                              Jadwal:{' '}
+                              {new Date(
+                                session.tanggal_bimbingan,
+                              ).toLocaleString()}
+                            </p>
 
-                        <div className="p-4">
-                          {/* Actions for Scheduled Sessions */}
-                          {session.status_bimbingan === 'dijadwalkan' && (
-                            <div className="flex items-center gap-3 mb-4 pb-4 border-b">
+                            <div className="flex items-center gap-2 mt-3">
                               <button
                                 onClick={() =>
                                   handleSessionAction(session.id, 'selesaikan')
                                 }
-                                className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 transition-colors"
+                                className="btn-sm-success"
                               >
-                                <CheckCircle size={14} />
-                                Tandai Selesai
+                                <CheckCircle size={14} className="mr-1" />{' '}
+                                Selesaikan
                               </button>
                               <button
                                 onClick={() =>
                                   handleSessionAction(session.id, 'cancel')
                                 }
-                                className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 transition-colors"
+                                className="btn-sm-danger"
                               >
-                                <XCircle size={14} />
-                                Batalkan Sesi
+                                <XCircle size={14} className="mr-1" /> Batalkan
                               </button>
                             </div>
-                          )}
 
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Catatan Section */}
-                            <div>
-                              <h5 className="text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-1">
-                                <MessageSquare size={12} /> Diskusi & Catatan
+                            <div className="mt-4 pt-3 border-t">
+                              <h5 className="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                <MessageSquare size={16} className="mr-2" />{' '}
+                                Catatan
                               </h5>
-                              <div className="bg-gray-50 rounded border p-3 max-h-40 overflow-y-auto space-y-2">
+                              <div className="space-y-2">
                                 {session.catatan.map((c) => (
-                                  <div key={c.id} className="text-sm">
-                                    <span className="font-bold text-gray-800 text-xs">
-                                      {c.author.name}:{' '}
-                                    </span>
-                                    <span className="text-gray-600">
-                                      {c.catatan}
-                                    </span>
+                                  <div
+                                    key={c.id}
+                                    className="text-sm text-gray-800 bg-white p-2 rounded-md shadow-sm"
+                                  >
+                                    <strong>{c.author.name}:</strong> {c.catatan}
                                   </div>
                                 ))}
                                 {session.catatan.length === 0 && (
-                                  <p className="text-xs text-gray-400 italic">
+                                  <p className="text-xs text-gray-500">
                                     Belum ada catatan.
                                   </p>
                                 )}
@@ -413,76 +470,26 @@ export default function DosenBimbinganPage() {
                                 onActionSuccess={fetchData}
                               />
                             </div>
-
-                            {/* Lampiran & History Section */}
-                            <div className="space-y-4">
-                              <div>
-                                <h5 className="text-xs font-bold text-gray-500 uppercase mb-2">
-                                  Lampiran
-                                </h5>
-                                {session.lampiran &&
-                                session.lampiran.length > 0 ? (
-                                  <ul className="space-y-1">
-                                    {session.lampiran.map((f) => (
-                                      <li
-                                        key={f.id}
-                                        className="text-xs text-blue-600 underline truncate"
-                                      >
-                                        {f.original_name}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                ) : (
-                                  <p className="text-xs text-gray-400 italic">
-                                    Tidak ada lampiran.
-                                  </p>
-                                )}
-                              </div>
-
-                              {session.historyPerubahan &&
-                                session.historyPerubahan.length > 0 && (
-                                  <div>
-                                    <h5 className="text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-1">
-                                      <History size={12} /> Log Aktivitas
-                                    </h5>
-                                    <div className="space-y-1">
-                                      {session.historyPerubahan
-                                        .slice(0, 3)
-                                        .map((h) => (
-                                          <p
-                                            key={h.id}
-                                            className="text-[10px] text-gray-500"
-                                          >
-                                            <span className="font-semibold">
-                                              {h.status}
-                                            </span>{' '}
-                                            -{' '}
-                                            {new Date(
-                                              h.created_at,
-                                            ).toLocaleDateString()}
-                                          </p>
-                                        ))}
-                                    </div>
-                                  </div>
-                                )}
-                            </div>
                           </div>
-                        </div>
+                        ))}
                       </div>
-                    ))}
+                    ) : (
+                      <p className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">
+                        Belum ada sesi bimbingan yang dijadwalkan.
+                      </p>
+                    )}
                   </div>
-                ) : (
-                  <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed">
-                    <p className="text-gray-500 text-sm">
-                      Belum ada sesi bimbingan. Jadwalkan sesi baru di atas.
-                    </p>
-                  </div>
-                )}
-              </div>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
-      )}
+
+        {/* Sidebar for Activity Log */}
+        <div className="w-full lg:w-80 flex-shrink-0">
+          <ActivityLog />
+        </div>
+      </div>
     </div>
   );
 }

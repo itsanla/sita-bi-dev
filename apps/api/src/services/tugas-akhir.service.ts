@@ -13,10 +13,31 @@ export class SimilarityError extends Error {
 
 export class TugasAkhirService {
   private prisma: PrismaClient;
-  // private readonly SIMILARITY_THRESHOLD = 80; // Unused for now // 80%
 
   constructor() {
     this.prisma = new PrismaClient();
+  }
+
+  private async logActivity(
+    userId: number,
+    action: string,
+    url?: string,
+    method?: string,
+  ) {
+    try {
+      await this.prisma.log.create({
+        data: {
+          user_id: userId,
+          action,
+          url,
+          method,
+          ip_address: '127.0.0.1', // Placeholder
+          user_agent: 'System', // Placeholder
+        },
+      });
+    } catch (error) {
+      console.error('Failed to create log:', error);
+    }
   }
 
   async checkSimilarity(
@@ -67,7 +88,7 @@ export class TugasAkhirService {
       throw new Error(`Judul "${dto.judul}" sudah pernah diajukan.`);
     }
 
-    return this.prisma.tugasAkhir.create({
+    const newTa = await this.prisma.tugasAkhir.create({
       data: {
         judul: dto.judul,
         mahasiswa_id: mahasiswa.id,
@@ -75,6 +96,13 @@ export class TugasAkhirService {
         tanggal_pengajuan: new Date(),
       },
     });
+
+    await this.logActivity(
+      userId,
+      `Mengajukan judul Tugas Akhir: "${dto.judul}"`,
+    );
+
+    return newTa;
   }
 
   async findMyTugasAkhir(userId: number): Promise<TugasAkhir | null> {
@@ -147,9 +175,16 @@ export class TugasAkhirService {
       );
     }
 
-    return this.prisma.tugasAkhir.delete({
+    const deleted = await this.prisma.tugasAkhir.delete({
       where: { id: tugasAkhir.id },
     });
+
+    await this.logActivity(
+      userId,
+      `Menghapus pengajuan Tugas Akhir: "${tugasAkhir.judul}"`,
+    );
+
+    return deleted;
   }
 
   async findAllTitles(): Promise<{ judul: string }[]> {
@@ -214,7 +249,7 @@ export class TugasAkhirService {
     }
 
     // Approve the tugas akhir
-    return this.prisma.tugasAkhir.update({
+    const approved = await this.prisma.tugasAkhir.update({
       where: { id: tugasAkhirId },
       data: {
         status: StatusTugasAkhir.DISETUJUI,
@@ -229,6 +264,13 @@ export class TugasAkhirService {
         approver: true,
       },
     });
+
+    await this.logActivity(
+      approverId,
+      `Menyetujui Tugas Akhir mahasiswa ${approved.mahasiswa.nim}: "${approved.judul}"`,
+    );
+
+    return approved;
   }
 
   /**
@@ -285,7 +327,7 @@ export class TugasAkhirService {
     }
 
     // Reject the tugas akhir
-    return this.prisma.tugasAkhir.update({
+    const rejected = await this.prisma.tugasAkhir.update({
       where: { id: tugasAkhirId },
       data: {
         status: StatusTugasAkhir.DITOLAK,
@@ -301,6 +343,13 @@ export class TugasAkhirService {
         rejecter: true,
       },
     });
+
+    await this.logActivity(
+      rejecterId,
+      `Menolak Tugas Akhir mahasiswa ${rejected.mahasiswa.nim}: "${rejected.judul}"`,
+    );
+
+    return rejected;
   }
 
   /**
@@ -348,5 +397,4 @@ export class TugasAkhirService {
       },
     });
   }
-  // NOTE: The old `cekKemiripan` method is now removed.
 }

@@ -205,39 +205,63 @@ router.post(
   }),
 );
 
-router.post(
-  '/sesi/:id/upload',
-  authorizeRoles([Role.dosen, Role.mahasiswa]),
-  upload.single('file'),
+// New endpoints for Smart Scheduling
+router.get(
+  '/conflicts',
+  authorizeRoles([Role.dosen]),
   asyncHandler(async (req, res): Promise<void> => {
-    const { id } = req.params;
-    if (id == null || req.file === undefined) {
-      res
-        .status(400)
-        .json({ status: 'gagal', message: 'ID Sesi dan file diperlukan' });
-      return;
-    }
-
-    const userId = req.user?.id;
-    if (userId === undefined) {
+    const dosenId = req.user?.dosen?.id;
+    if (dosenId === undefined) {
       res.status(401).json({
         status: 'gagal',
-        message: 'Akses ditolak: ID pengguna tidak ditemukan.',
+        message: 'Akses ditolak: Pengguna tidak memiliki profil dosen.',
+      });
+      return;
+    }
+    const { tanggal, jam } = req.query;
+    if (!tanggal || !jam) {
+      res.status(400).json({
+        status: 'gagal',
+        message: 'Parameter tanggal dan jam diperlukan',
       });
       return;
     }
 
-    const result = await bimbinganService.uploadLampiran(
-      parseInt(id, 10),
-      userId,
-      req.file.path,
-      req.file.originalname,
+    const hasConflict = await bimbinganService.detectScheduleConflicts(
+      dosenId,
+      new Date(tanggal as string),
+      jam as string,
     );
+    res.status(200).json({ status: 'sukses', data: { hasConflict } });
+  }),
+);
 
-    res.status(201).json({
-      status: 'sukses',
-      data: result,
-    });
+router.get(
+  '/available-slots',
+  authorizeRoles([Role.dosen]),
+  asyncHandler(async (req, res): Promise<void> => {
+    const dosenId = req.user?.dosen?.id;
+    if (dosenId === undefined) {
+      res.status(401).json({
+        status: 'gagal',
+        message: 'Akses ditolak: Pengguna tidak memiliki profil dosen.',
+      });
+      return;
+    }
+    const { tanggal } = req.query;
+    if (!tanggal) {
+      res.status(400).json({
+        status: 'gagal',
+        message: 'Parameter tanggal diperlukan',
+      });
+      return;
+    }
+
+    const slots = await bimbinganService.suggestAvailableSlots(
+      dosenId,
+      tanggal as string,
+    );
+    res.status(200).json({ status: 'sukses', data: slots });
   }),
 );
 
