@@ -139,6 +139,7 @@ model User {
   notifikasi         NotifikasiTA[]
   emailTokens        EmailVerificationToken[]
   catatanBimbingan   CatatanBimbingan[] // Catatan yang dibuat oleh user ini
+  historyPerubahanSidang HistoryPerubahanSidang[]
 
   @@map("users")
 }
@@ -409,6 +410,7 @@ model Sidang {
   pendaftaranSidang PendaftaranSidang? @relation(fields: [pendaftaran_sidang_id], references: [id])
   jadwalSidang      JadwalSidang[]
   nilaiSidang       NilaiSidang[]
+  historyPerubahan  HistoryPerubahanSidang[]
 
   @@map("sidang")
 }
@@ -456,6 +458,20 @@ model NilaiSidang {
   dosen  Dosen  @relation(fields: [dosen_id], references: [id])
 
   @@map("nilai_sidang")
+}
+
+model HistoryPerubahanSidang {
+  id               Int      @id @default(autoincrement())
+  sidang_id        Int
+  user_id          Int?
+  perubahan        String
+  alasan_perubahan String?
+  created_at       DateTime @default(now())
+
+  sidang Sidang @relation(fields: [sidang_id], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [user_id], references: [id])
+
+  @@map("history_perubahan_sidang")
 }
 
 //================================================================================
