@@ -1,8 +1,8 @@
+/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  rootDir: 'src',
   moduleNameMapper: {
-    '^@repo/db$': '<rootDir>/../../../packages/db/src',
+    '^@repo/db$': '<rootDir>/../../packages/db/src/index.ts',
   },
 };
