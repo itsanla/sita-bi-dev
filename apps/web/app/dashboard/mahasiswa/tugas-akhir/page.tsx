@@ -1,10 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Trash2, BookOpen, Sparkles, Users, CheckCircle2 } from 'lucide-react';
+import { Trash2, BookOpen, Users, CheckCircle2 } from 'lucide-react';
 import { useTugasAkhir } from '@/hooks/useTugasAkhir';
-import Card from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
 import { getStatusChip } from '@/app/components/ui/StatusChip';
 import PageLoader from '@/app/components/loading/PageLoader';
 import SimilarityForm from './SimilarityForm';

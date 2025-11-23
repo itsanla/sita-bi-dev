@@ -15,11 +15,12 @@ export interface MahasiswaProfile {
   nim: string;
 }
 export interface CustomUser {
-  id: number;
-  email: string;
-  role: Role;
-  dosen?: DosenProfile | null;
-  mahasiswa?: MahasiswaProfile | null;
+    id: number;
+    email: string;
+    phone_number: string;
+    role: Role;
+    dosen?: DosenProfile | null;
+    mahasiswa?: MahasiswaProfile | null;
 }
 declare global {
   namespace Express {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Users, GraduationCap, BookOpen, TrendingUp } from 'lucide-react';
+import { Users, GraduationCap, BookOpen } from 'lucide-react';
 
 export default function QuickActions() {
   const [systemStats, setSystemStats] = useState({

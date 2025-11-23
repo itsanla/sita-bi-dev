@@ -16,6 +16,7 @@ const QuickActions = dynamic(() => import('./components/QuickActions'));
 const UpcomingSchedule = dynamic(() => import('./components/UpcomingSchedule'));
 
 export default function MahasiswaDashboardPage() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -53,10 +54,6 @@ export default function MahasiswaDashboardPage() {
 
     fetchStats();
   }, []);
-
-  const handleStatsUpdate = (newStats: any) => {
-    setStats(newStats);
-  };
 
   return (
     <div className="space-y-8 pb-8">
