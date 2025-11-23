@@ -62,3 +62,4 @@ pnpm-debug.log*
 .DS_Store
 *.pem
 .wwebjs_auth
+apps/api/.wwebjs_auth

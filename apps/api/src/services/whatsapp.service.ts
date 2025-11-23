@@ -36,8 +36,9 @@ class WhatsAppService {
   private readonly sessionDir: string;
 
   constructor() {
-    // Simpan session di directory /tmp
-    this.sessionDir = path.join('/tmp', '.wwebjs_auth');
+    // Simpan session di directory dalam project, bukan di root system
+    // Menggunakan process.cwd() yang biasanya adalah apps/api saat dijalankan via pnpm dev
+    this.sessionDir = path.join(process.cwd(), '.wwebjs_auth');
 
     // Ensure session directory exists
     // Use try-catch to handle permission issues during tests or dev
