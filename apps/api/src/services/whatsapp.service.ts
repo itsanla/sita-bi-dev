@@ -36,7 +36,8 @@ class WhatsAppService {
   private readonly sessionDir: string;
 
   constructor() {
-    // Simpan session di directory local
+    // Simpan session di directory current working directory (biasanya apps/api atau root)
+    // Hindari navigasi ../ yang terlalu jauh yang bisa keluar dari permission scope
     this.sessionDir = path.join(process.cwd(), '.wwebjs_auth');
 
     // Ensure session directory exists
