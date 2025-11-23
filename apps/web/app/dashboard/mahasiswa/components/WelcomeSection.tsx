@@ -11,8 +11,8 @@ export default function WelcomeSection() {
     currentHour < 12
       ? 'Selamat Pagi'
       : currentHour < 18
-      ? 'Selamat Siang'
-      : 'Selamat Malam';
+        ? 'Selamat Siang'
+        : 'Selamat Malam';
 
   return (
     <div className="group relative overflow-hidden bg-gradient-to-br from-red-900 via-red-800 to-red-900 rounded-2xl p-8 shadow-lg border border-red-700/20 hover:shadow-2xl transition-all duration-500">

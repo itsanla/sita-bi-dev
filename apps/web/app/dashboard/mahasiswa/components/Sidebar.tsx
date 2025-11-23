@@ -53,7 +53,13 @@ const navItems = [
 ];
 
 // Sub-component for individual navigation links
-const NavLink = ({ item, sidebarOpen }: { item: (typeof navItems)[0]; sidebarOpen: boolean }) => {
+const NavLink = ({
+  item,
+  sidebarOpen,
+}: {
+  item: (typeof navItems)[0];
+  sidebarOpen: boolean;
+}) => {
   const pathname = usePathname();
   const isActive = pathname === item.href;
 
@@ -68,12 +74,16 @@ const NavLink = ({ item, sidebarOpen }: { item: (typeof navItems)[0]; sidebarOpe
         }`}
         title={!sidebarOpen ? item.label : ''}
       >
-        <item.icon className={`h-5 w-5 flex-shrink-0 transition-transform duration-200 ${
-          isActive ? '' : 'group-hover:scale-110'
-        }`} />
-        {sidebarOpen && <span className="text-sm font-medium">{item.label}</span>}
+        <item.icon
+          className={`h-5 w-5 flex-shrink-0 transition-transform duration-200 ${
+            isActive ? '' : 'group-hover:scale-110'
+          }`}
+        />
+        {sidebarOpen && (
+          <span className="text-sm font-medium">{item.label}</span>
+        )}
       </Link>
-      
+
       {/* Tooltip on hover when collapsed */}
       {!sidebarOpen && !isActive && (
         <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 top-1/2 -translate-y-1/2">
@@ -104,10 +114,10 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
         >
           <Menu className="h-5 w-5" />
         </button>
-        
+
         {sidebarOpen && (
-          <Link 
-            href="/dashboard/mahasiswa" 
+          <Link
+            href="/dashboard/mahasiswa"
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
             <div className="w-8 h-8 flex-shrink-0 bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-red-900 transition-colors">
@@ -121,7 +131,9 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
               />
             </div>
             <div className="flex flex-col">
-              <span className="text-xs font-semibold text-gray-900">SITA-BI</span>
+              <span className="text-xs font-semibold text-gray-900">
+                SITA-BI
+              </span>
               <span className="text-[10px] text-gray-500">Student Portal</span>
             </div>
           </Link>
@@ -137,7 +149,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
         >
           <Home className="h-5 w-5 flex-shrink-0 transition-transform duration-200 group-hover:scale-110" />
           {sidebarOpen && <span className="text-sm font-medium">Beranda</span>}
-          
+
           {/* Tooltip when collapsed */}
           {!sidebarOpen && (
             <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 top-1/2 -translate-y-1/2">
@@ -188,7 +200,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                 {user?.name?.charAt(0).toUpperCase() || 'U'}
               </span>
             </div>
-            
+
             {/* Tooltip when collapsed */}
             <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 top-1/2 -translate-y-1/2">
               {user?.name || 'Student'}
@@ -206,7 +218,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
         >
           <LogOut className="h-5 w-5 flex-shrink-0 group-hover:scale-110 transition-transform duration-200" />
           {sidebarOpen && <span>Logout</span>}
-          
+
           {/* Tooltip when collapsed */}
           {!sidebarOpen && (
             <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 top-1/2 -translate-y-1/2">

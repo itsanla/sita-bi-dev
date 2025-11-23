@@ -92,7 +92,11 @@ export class BimbinganService {
       include: {
         peranDosenTa: { include: { dosen: { include: { user: true } } } },
         bimbinganTa: {
-          include: { catatan: { include: { author: true } } },
+          include: {
+            catatan: { include: { author: true } },
+            lampiran: { include: { uploader: true } }, // Include lampiran
+            historyPerubahan: true, // Include history
+          },
           orderBy: { created_at: 'desc' },
         },
         pendaftaranSidang: { orderBy: { created_at: 'desc' } },
@@ -161,6 +165,13 @@ export class BimbinganService {
     return this.prisma.$transaction(async (tx) => {
       const peranDosen = await tx.peranDosenTa.findFirst({
         where: { tugas_akhir_id: tugasAkhirId, dosen_id: dosenId },
+        include: {
+          tugasAkhir: {
+            include: {
+              mahasiswa: true,
+            },
+          },
+        },
       });
 
       if (peranDosen?.peran == null) {
@@ -171,37 +182,108 @@ export class BimbinganService {
         throw new Error('You are not a supervisor for this final project.');
       }
 
-      // TODO: Check for conflicting schedules
+      const tanggalDate = new Date(tanggal);
 
-      return tx.bimbinganTA.create({
-        data: {
-          tugas_akhir_id: tugasAkhirId,
+      // Cek Konflik Jadwal Dosen
+      const konflikDosen = await tx.bimbinganTA.findFirst({
+        where: {
           dosen_id: dosenId,
-          peran: peranDosen.peran,
-          tanggal_bimbingan: new Date(tanggal),
+          tanggal_bimbingan: tanggalDate,
           jam_bimbingan: jam,
           status_bimbingan: 'dijadwalkan',
         },
       });
+
+      if (konflikDosen) {
+        throw new Error(
+          'Jadwal bentrok: Anda sudah memiliki bimbingan di waktu tersebut.',
+        );
+      }
+
+      // Cek Konflik Jadwal Mahasiswa (optional, tapi bagus)
+      const konflikMahasiswa = await tx.bimbinganTA.findFirst({
+        where: {
+          tugas_akhir_id: tugasAkhirId,
+          tanggal_bimbingan: tanggalDate,
+          jam_bimbingan: jam,
+          status_bimbingan: 'dijadwalkan',
+        },
+      });
+
+      if (konflikMahasiswa) {
+        throw new Error(
+          'Jadwal bentrok: Mahasiswa sudah memiliki jadwal bimbingan di waktu tersebut.',
+        );
+      }
+
+      const bimbinganBaru = await tx.bimbinganTA.create({
+        data: {
+          tugas_akhir_id: tugasAkhirId,
+          dosen_id: dosenId,
+          peran: peranDosen.peran,
+          tanggal_bimbingan: tanggalDate,
+          jam_bimbingan: jam,
+          status_bimbingan: 'dijadwalkan',
+        },
+      });
+
+      // Log Aktivitas
+      await tx.historyPerubahanJadwal.create({
+        data: {
+          bimbingan_ta_id: bimbinganBaru.id,
+          mahasiswa_id: peranDosen.tugasAkhir.mahasiswa.id,
+          status: 'dijadwalkan',
+          alasan_perubahan: 'Jadwal baru ditetapkan oleh dosen.',
+          tanggal_baru: tanggalDate,
+          jam_baru: jam,
+        },
+      });
+
+      return bimbinganBaru;
     });
   }
 
   async cancelBimbingan(
     bimbinganId: number,
-    _dosenId: number,
+    dosenId: number,
+    alasan = 'Dibatalkan oleh dosen',
   ): Promise<unknown> {
     return this.prisma.$transaction(async (tx) => {
-      const bimbingan = await tx.bimbinganTA.findFirst({});
+      const bimbingan = await tx.bimbinganTA.findFirst({
+        where: { id: bimbinganId, dosen_id: dosenId },
+        include: {
+          tugasAkhir: {
+            include: {
+              mahasiswa: true,
+            },
+          },
+        },
+      });
+
       if (bimbingan === null) {
         throw new Error(
           'Supervision session not found or you are not authorized to modify it.',
         );
       }
 
-      return tx.bimbinganTA.update({
+      const updatedBimbingan = await tx.bimbinganTA.update({
         where: { id: bimbinganId },
         data: { status_bimbingan: 'dibatalkan' },
       });
+
+      // Log Pembatalan
+      await tx.historyPerubahanJadwal.create({
+        data: {
+          bimbingan_ta_id: bimbinganId,
+          mahasiswa_id: bimbingan.tugasAkhir.mahasiswa.id,
+          status: 'dibatalkan',
+          alasan_perubahan: alasan,
+          tanggal_lama: bimbingan.tanggal_bimbingan,
+          jam_lama: bimbingan.jam_bimbingan,
+        },
+      });
+
+      return updatedBimbingan;
     });
   }
 
@@ -209,7 +291,13 @@ export class BimbinganService {
     return this.prisma.$transaction(async (tx) => {
       const bimbingan = await tx.bimbinganTA.findFirst({
         where: { id: bimbinganId, dosen_id: dosenId },
-        include: { tugasAkhir: true },
+        include: {
+          tugasAkhir: {
+            include: {
+              mahasiswa: true,
+            },
+          },
+        },
       });
 
       if (bimbingan === null) {
@@ -226,6 +314,16 @@ export class BimbinganService {
       const updatedBimbingan = await tx.bimbinganTA.update({
         where: { id: bimbinganId },
         data: { status_bimbingan: 'selesai' },
+      });
+
+      // Log Penyelesaian
+      await tx.historyPerubahanJadwal.create({
+        data: {
+          bimbingan_ta_id: bimbinganId,
+          mahasiswa_id: bimbingan.tugasAkhir.mahasiswa.id,
+          status: 'selesai',
+          alasan_perubahan: 'Sesi bimbingan selesai.',
+        },
       });
 
       // 2. Start document validation logic (mimicking Laravel)
@@ -271,5 +369,52 @@ export class BimbinganService {
 
       return updatedBimbingan;
     });
+  }
+
+  async uploadLampiran(
+    bimbinganId: number,
+    userId: number,
+    filePath: string,
+    originalName: string,
+  ): Promise<unknown> {
+    // 1. Validasi Akses: Cek apakah user adalah mahasiswa atau dosen yang terkait dengan sesi ini.
+    const bimbingan = await this.prisma.bimbinganTA.findUnique({
+      where: { id: bimbinganId },
+      include: {
+        tugasAkhir: {
+          include: {
+            mahasiswa: { include: { user: true } },
+          },
+        },
+      },
+    });
+
+    if (!bimbingan) {
+      throw new Error('Sesi bimbingan tidak ditemukan.');
+    }
+
+    const isMahasiswa = bimbingan.tugasAkhir.mahasiswa.user.id === userId;
+    const isDosenTerkait = bimbingan.dosen_id === (await this.getDosenIdFromUserId(userId));
+
+    if (!isMahasiswa && !isDosenTerkait) {
+      throw new Error('Anda tidak memiliki izin untuk mengunggah file ke sesi ini.');
+    }
+
+    return this.prisma.lampiranBimbingan.create({
+      data: {
+        bimbingan_ta_id: bimbinganId,
+        uploaded_by: userId,
+        file_path: filePath,
+        original_name: originalName,
+      },
+    });
+  }
+
+  // Helper untuk mendapatkan dosen_id dari user_id (jika diperlukan)
+  private async getDosenIdFromUserId(userId: number): Promise<number | null> {
+    const dosen = await this.prisma.dosen.findUnique({
+      where: { user_id: userId },
+    });
+    return dosen ? dosen.id : null;
   }
 }
