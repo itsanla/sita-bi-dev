@@ -122,6 +122,8 @@ model User {
   password          String
   photo             String?
   remember_token    String?
+  failed_login_attempts Int      @default(0)
+  lockout_until     DateTime?
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
 
@@ -138,6 +140,7 @@ model User {
   taDitolak          TugasAkhir[]             @relation("Rejecter")
   notifikasi         NotifikasiTA[]
   emailTokens        EmailVerificationToken[]
+  passwordResetTokens PasswordResetToken[]
   catatanBimbingan   CatatanBimbingan[] // Catatan yang dibuat oleh user ini
 
   @@map("users")
@@ -521,6 +524,16 @@ model EmailVerificationToken {
   user User @relation(fields: [email], references: [email])
 
   @@map("email_verification_tokens")
+}
+
+model PasswordResetToken {
+  email      String   @unique
+  token      String   @unique
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [email], references: [email])
+
+  @@map("password_reset_tokens")
 }
 
 model NotifikasiTA {
