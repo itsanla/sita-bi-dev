@@ -184,4 +184,64 @@ router.post(
   }),
 );
 
+// New endpoints for Smart Scheduling
+router.get(
+  '/conflicts',
+  authorizeRoles([Role.dosen]),
+  asyncHandler(async (req, res): Promise<void> => {
+    const dosenId = req.user?.dosen?.id;
+    if (dosenId === undefined) {
+      res.status(401).json({
+        status: 'gagal',
+        message: 'Akses ditolak: Pengguna tidak memiliki profil dosen.',
+      });
+      return;
+    }
+    const { tanggal, jam } = req.query;
+    if (!tanggal || !jam) {
+      res.status(400).json({
+        status: 'gagal',
+        message: 'Parameter tanggal dan jam diperlukan',
+      });
+      return;
+    }
+
+    const hasConflict = await bimbinganService.detectScheduleConflicts(
+      dosenId,
+      new Date(tanggal as string),
+      jam as string,
+    );
+    res.status(200).json({ status: 'sukses', data: { hasConflict } });
+  }),
+);
+
+router.get(
+  '/available-slots',
+  authorizeRoles([Role.dosen]),
+  asyncHandler(async (req, res): Promise<void> => {
+    const dosenId = req.user?.dosen?.id;
+    if (dosenId === undefined) {
+      res.status(401).json({
+        status: 'gagal',
+        message: 'Akses ditolak: Pengguna tidak memiliki profil dosen.',
+      });
+      return;
+    }
+    const { tanggal } = req.query;
+    if (!tanggal) {
+      res.status(400).json({
+        status: 'gagal',
+        message: 'Parameter tanggal diperlukan',
+      });
+      return;
+    }
+
+    const slots = await bimbinganService.suggestAvailableSlots(
+      dosenId,
+      tanggal as string,
+    );
+    res.status(200).json({ status: 'sukses', data: slots });
+  }),
+);
+
 export default router;

@@ -29,4 +29,28 @@ export class LogService {
       totalPages: Math.ceil(total / limit),
     };
   }
+
+  async findByUserId(userId: number, page = 1, limit = 50): Promise<unknown> {
+    const skip = (page - 1) * limit;
+    const take = limit;
+
+    const [logs, total] = await this.prisma.$transaction([
+      this.prisma.log.findMany({
+        where: { user_id: userId },
+        skip,
+        take,
+        include: { user: { select: { name: true, email: true } } },
+        orderBy: { created_at: 'desc' },
+      }),
+      this.prisma.log.count({ where: { user_id: userId } }),
+    ]);
+
+    return {
+      data: logs,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
 }
