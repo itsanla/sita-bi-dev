@@ -21,15 +21,17 @@ function VerifyComponent() {
 
     const verifyToken = async () => {
       try {
-        const response = await request<{ message: string }>('/auth/verify-email', {
+        await request<{ message: string }>('/auth/verify-email', {
           method: 'POST',
           body: { token },
         });
         setStatus('Success!');
         setError(''); // Clear any previous errors
-      } catch (err: any) {
+      } catch (err) {
+        const error = err as { data?: { message?: string }; message?: string };
         setStatus('Failed');
-        const errorMessage = err.data?.message || err.message || 'An unknown error occurred.';
+        const errorMessage =
+          error.data?.message || error.message || 'An unknown error occurred.';
         setError(errorMessage);
       }
     };
@@ -40,11 +42,18 @@ function VerifyComponent() {
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
       <h1>Email Verification</h1>
-      {status === 'Verifying...' && <p>Please wait while we verify your email address.</p>}
+      {status === 'Verifying...' && (
+        <p>Please wait while we verify your email address.</p>
+      )}
       {status === 'Success!' && (
         <div>
-          <p style={{ color: 'green' }}>Your email has been successfully verified!</p>
-          <button onClick={() => router.push('/login')} style={{ marginTop: '20px' }}>
+          <p style={{ color: 'green' }}>
+            Your email has been successfully verified!
+          </p>
+          <button
+            onClick={() => router.push('/login')}
+            style={{ marginTop: '20px' }}
+          >
             Proceed to Login
           </button>
         </div>

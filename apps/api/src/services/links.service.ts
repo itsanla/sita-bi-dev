@@ -1,5 +1,5 @@
-import { PrismaClient } from '@repo/db';
-import { CreateLinkDto, UpdateLinkDto } from '../dto/links.dto';
+// import { PrismaClient } from '@repo/db'; // Unused
+import type { CreateLinkDto, UpdateLinkDto } from '../dto/links.dto';
 import { paginate } from '../utils/pagination.util';
 
 // Mock data from NestJS service
@@ -11,7 +11,7 @@ interface Link {
 }
 
 export class LinksService {
-  private prisma: PrismaClient;
+  // private prisma: PrismaClient; // Unused - commented out
   private readonly _links: Link[] = [
     {
       id: 0,
@@ -42,41 +42,52 @@ export class LinksService {
     },
   ];
 
-  constructor() {
-    this.prisma = new PrismaClient();
-  }
+  // No-op constructor
 
-  async create(createLinkDto: CreateLinkDto): Promise<unknown> {
+  create(createLinkDto: CreateLinkDto): unknown {
     // In a real scenario, this would interact with Prisma
-    const newLink = { id: this._links.length, description: '', ...createLinkDto };
+    const newLink: Link = {
+      id: this._links.length,
+      title: createLinkDto.title,
+      url: createLinkDto.url,
+      description: createLinkDto.description ?? '',
+    };
     this._links.push(newLink);
     return newLink;
   }
 
-  async findAll(page = 1, limit = 50): Promise<unknown> {
+  findAll(page = 1, limit = 50): unknown {
     // In a real scenario, this would interact with Prisma
     const paginatedResult = paginate(this._links, { page, limit });
     return { ...paginatedResult, total: this._links.length };
   }
 
-  async findOne(id: number): Promise<unknown> {
+  findOne(id: number): unknown {
     // In a real scenario, this would interact with Prisma
-    return this._links.find(link => link.id === id);
+    return this._links.find((link) => link.id === id);
   }
 
-  async update(id: number, updateLinkDto: UpdateLinkDto): Promise<unknown> {
+  update(id: number, updateLinkDto: UpdateLinkDto): unknown {
     // In a real scenario, this would interact with Prisma
-    const index = this._links.findIndex(link => link.id === id);
+    const index = this._links.findIndex((link) => link.id === id);
     if (index > -1) {
-      this._links[index] = { id: id, title: '', url: '', description: '', ...this._links[index], ...updateLinkDto };
-      return this._links[index];
+      const currentLink = this._links[index];
+      if (currentLink != null) {
+        this._links[index] = {
+          id: id,
+          title: updateLinkDto.title ?? currentLink.title,
+          url: updateLinkDto.url ?? currentLink.url,
+          description: updateLinkDto.description ?? currentLink.description,
+        };
+        return this._links[index];
+      }
     }
     return null;
   }
 
-  async remove(id: number): Promise<unknown> {
+  remove(id: number): unknown {
     // In a real scenario, this would interact with Prisma
-    const index = this._links.findIndex(link => link.id === id);
+    const index = this._links.findIndex((link) => link.id === id);
     if (index > -1) {
       const [removed] = this._links.splice(index, 1);
       return removed;

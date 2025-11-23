@@ -1,176 +1,218 @@
 'use client';
 
-import { useEffect, useState, FormEvent } from 'react';
-import request from '@/lib/api';
-import { useAuth } from '../../../../context/AuthContext';
+import { useState } from 'react';
+import { Trash2, BookOpen, Sparkles, Users, CheckCircle2 } from 'lucide-react';
+import { useTugasAkhir } from '@/hooks/useTugasAkhir';
+import Card from '@/app/components/ui/Card';
+import Button from '@/app/components/ui/Button';
+import { getStatusChip } from '@/app/components/ui/StatusChip';
+import PageLoader from '@/app/components/loading/PageLoader';
+import SimilarityForm from './SimilarityForm';
+import RecommendedTopics from './RecommendedTopics';
+import SubmittedTitlesTable from './SubmittedTitlesTable';
 
-// --- Interfaces ---
-interface TugasAkhir {
-  id: number;
-  judul: string;
-  status: string;
-  peranDosenTa: { peran: string; dosen: { user: { name: string } } }[];
-}
-
-interface TawaranTopik {
-  id: number;
-  judul_topik: string;
-  deskripsi: string;
-  dosenPencetus: { user: { name: string } };
-}
-
-// --- Main Page Component ---
 export default function TugasAkhirPage() {
-  const { user } = useAuth();
-  const [tugasAkhir, setTugasAkhir] = useState<TugasAkhir | null>(null);
-  const [availableTopics, setAvailableTopics] = useState<TawaranTopik[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [judulMandiri, setJudulMandiri] = useState('');
+  const { tugasAkhir, loading, error, refetch, deleteTugasAkhir } =
+    useTugasAkhir();
+  const [selectedTitle, setSelectedTitle] = useState('');
 
-  const fetchData = async () => {
+  const handleDeleteTugasAkhir = async () => {
+    if (
+      !confirm(
+        'Are you sure you want to delete your thesis submission? This action cannot be undone.',
+      )
+    )
+      return;
     try {
-      setLoading(true);
-      setError('');
-      // Check for active TA first
-      const taResponse = await request<{ status: string, data: TugasAkhir | null }>('/bimbingan/sebagai-mahasiswa');
-      
-      if (taResponse.data) {
-        setTugasAkhir(taResponse.data);
-      } else {
-        // If no active TA, fetch available topics
-        setTugasAkhir(null);
-        try {
-          const topicsResponse = await request<{ 
-            status: string, 
-            data: { data: TawaranTopik[] } 
-          }>('/tawaran-topik/available');
-          
-          if (topicsResponse.data && Array.isArray(topicsResponse.data.data)) {
-            setAvailableTopics(topicsResponse.data.data);
-          } else {
-            setAvailableTopics([]); // Fallback to empty array
-          }
-        } catch (topicsErr: unknown) {
-          if (topicsErr instanceof Error) {
-            setError(topicsErr.message || 'Failed to fetch available topics');
-          } else {
-            setError('An unknown error occurred while fetching topics.');
-          }
-        }
-      }
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || 'Failed to fetch data');
-      } else {
-        setError('An unknown error occurred.');
-      }
-    } finally {
-      setLoading(false);
+      await deleteTugasAkhir();
+      alert('Submission successfully deleted.');
+    } catch (err) {
+      alert(`Error: ${(err as Error).message}`);
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user]);
-
-  const handleApply = async (topicId: number) => {
-    if (!confirm('Are you sure you want to apply for this topic?')) return;
-    try {
-      await request(`/tawaran-topik/${topicId}/apply`, { method: 'POST' });
-      alert('Successfully applied for the topic! Please wait for lecturer approval.');
-      fetchData(); // Refresh data
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        alert(`Error applying: ${err.message}`);
-      } else {
-        alert('An unknown error occurred while applying.');
-      }
-    }
+  const handleSelectRecommendedTitle = (title: string) => {
+    setSelectedTitle(title);
+    // Scroll to form
+    document.getElementById('similarity-form')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
   };
 
-  const handleMandiriSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!confirm('Are you sure you want to submit this title?')) return;
-    try {
-      await request('/tugas-akhir', { 
-        method: 'POST',
-        body: JSON.stringify({ judul: judulMandiri })
-      });
-      alert('Successfully submitted title for approval.');
-      fetchData(); // Refresh data
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        alert(`Error submitting title: ${err.message}`);
-      } else {
-        alert('An unknown error occurred while submitting title.');
-      }
-    }
-  };
+  if (loading) return <PageLoader />;
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
-
-  // --- Render Logic ---
-  if (tugasAkhir) {
-    // Render current TA status
+  if (error) {
     return (
-      <div>
-        <h2>My Final Project</h2>
-        <p><strong>Title:</strong> {tugasAkhir.judul}</p>
-        <p><strong>Status:</strong> {tugasAkhir.status}</p>
-        <h4>Supervisors:</h4>
-        <ul>
-          {tugasAkhir.peranDosenTa && tugasAkhir.peranDosenTa.length > 0 ? (
-            tugasAkhir.peranDosenTa.map(p => (
-              <li key={p.peran}>{p.peran}: {p.dosen.user.name}</li>
-            ))
-          ) : (
-            <li>Belum ada dosen pembimbing yang ditugaskan.</li>
-          )}
-        </ul>
-      </div>
-    );
-  } else {
-    // Render topic list and self-proposal form
-    return (
-      <div>
-        <h2>Propose a Final Project</h2>
-        <p>You do not have an active final project. You can apply for an existing topic or propose your own.</p>
-        
-        <hr style={{ margin: '2rem 0' }} />
-
-        <h3>Propose Your Own Title</h3>
-        <form onSubmit={handleMandiriSubmit}>
-          <div>
-            <label>Judul TA: </label>
-            <input type="text" value={judulMandiri} onChange={e => setJudulMandiri(e.target.value)} required style={{ width: '400px' }}/>
+      <div className="p-6">
+        <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow-sm animate-in fade-in slide-in-from-bottom-3 duration-300">
+          <div className="flex items-center gap-3">
+            <div className="bg-red-100 p-2 rounded-full">
+              <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-red-800">Error</h3>
+              <p className="text-red-600">{error}</p>
+            </div>
           </div>
-          <button type="submit">Submit for Approval</button>
-        </form>
-
-        <hr style={{ margin: '2rem 0' }} />
-
-        <h3>Available Topics from Lecturers</h3>
-        <table border={1} style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr><th>ID</th><th>Judul Topik</th><th>Deskripsi</th><th>Dosen</th><th>Action</th></tr>
-          </thead>
-          <tbody>
-            {availableTopics.map(topic => (
-              <tr key={topic.id}>
-                <td>{topic.id}</td>
-                <td>{topic.judul_topik}</td>
-                <td>{topic.deskripsi}</td>
-                <td>{topic.dosenPencetus.user.name}</td>
-                <td><button onClick={() => handleApply(topic.id)}>Apply</button></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        </div>
       </div>
     );
   }
+
+  return (
+    <div className="space-y-6">
+      {/* Hero Header */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-white via-white to-gray-50/50 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
+        {/* Decorative Elements */}
+        <div className="absolute top-0 right-0 w-48 h-48 bg-maroon-900/5 rounded-full blur-3xl -mr-24 -mt-24"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-maroon-900/5 rounded-full blur-3xl -ml-16 -mb-16"></div>
+        
+        <div className="relative p-6">
+          <div className="flex items-start gap-4">
+            {/* Icon */}
+            <div className="flex-shrink-0">
+              <div className="relative">
+                <div className="absolute inset-0 bg-maroon-900/20 rounded-xl blur-lg"></div>
+                <div className="relative bg-gradient-to-br from-maroon-900 to-maroon-800 p-3 rounded-xl shadow-md hover:scale-105 transition-transform duration-300">
+                  <BookOpen className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl font-bold text-gray-700 mb-1 tracking-tight">
+                Tugas Akhir
+              </h1>
+              <p className="text-gray-600 text-sm leading-normal max-w-3xl">
+                Kelola pengajuan tugas akhir, cek kemiripan judul, dan jelajahi topik rekomendasi dari dosen pembimbing
+              </p>
+              
+              {/* Stats Pills */}
+              <div className="flex flex-wrap items-center gap-2 mt-4">
+                <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs font-medium text-gray-700">Sistem Aktif</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-maroon-900" />
+                  <span className="text-xs font-medium text-gray-700">Proses Otomatis</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Current Thesis Status */}
+      {tugasAkhir ? (
+        <div className="group relative overflow-hidden bg-gradient-to-br from-white to-emerald-50/30 rounded-xl border border-emerald-100 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all duration-300">
+          {/* Decorative gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 via-emerald-500/5 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          
+          <div className="relative p-6">
+            <div className="flex justify-between items-start gap-4">
+              <div className="flex-1 space-y-4">
+                {/* Header with Status */}
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-emerald-500/20 rounded-lg blur-md"></div>
+                      <div className="relative bg-gradient-to-br from-emerald-600 to-emerald-700 p-2.5 rounded-lg shadow-md group-hover:scale-105 transition-transform duration-300">
+                        <CheckCircle2 className="h-5 w-5 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h2 className="text-lg font-bold text-gray-800">
+                        Tugas Akhir Anda Saat Ini
+                      </h2>
+                      <div className="transition-transform duration-300 group-hover:scale-105">
+                        {getStatusChip(tugasAkhir.status)}
+                      </div>
+                    </div>
+                    <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-emerald-100">
+                      <p className="text-sm text-gray-800 leading-normal font-medium">
+                        {tugasAkhir.judul}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+              {/* Supervisors Section */}
+              {tugasAkhir.peranDosenTa.length > 0 && (
+                <div className="bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 border border-gray-200 shadow-sm">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="bg-maroon-900/10 p-1.5 rounded-lg">
+                      <Users className="h-4 w-4 text-maroon-900" />
+                    </div>
+                    <h3 className="font-semibold text-gray-800 text-sm">
+                      Dosen Pembimbing
+                    </h3>
+                  </div>
+                  <div className="space-y-2">
+                    {tugasAkhir.peranDosenTa.map((peran, idx) => (
+                      <div 
+                        key={idx} 
+                        className="group/item flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-gradient-to-r hover:from-maroon-50 hover:to-white border border-gray-100 hover:border-maroon-200 hover:shadow-sm transition-all duration-300"
+                      >
+                        <div className="relative flex-shrink-0">
+                          <div className="absolute inset-0 bg-maroon-900/20 rounded-full blur-sm opacity-0 group-hover/item:opacity-100 transition-opacity duration-300"></div>
+                          <div className="relative w-9 h-9 bg-gradient-to-br from-maroon-900 to-maroon-800 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm group-hover/item:scale-110 transition-transform duration-300">
+                            {peran.dosen.user.name.charAt(0)}
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm text-gray-800 group-hover/item:text-maroon-900 transition-colors duration-300 truncate">
+                            {peran.dosen.user.name}
+                          </p>
+                          <p className="text-xs text-gray-500 group-hover/item:text-gray-600 transition-colors duration-300">
+                            {peran.peran}
+                          </p>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <div className="w-7 h-7 bg-emerald-100 rounded-lg flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity duration-300">
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              </div>
+
+              {/* Delete Button */}
+              {tugasAkhir.status === 'DIAJUKAN' && (
+              <div className="flex-shrink-0">
+                <button
+                  onClick={handleDeleteTugasAkhir}
+                  className="group/btn relative px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg active:scale-95 transition-all duration-200 flex items-center gap-2 overflow-hidden text-sm"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-700 to-red-800 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                  <Trash2 size={16} className="relative z-10 group-hover/btn:rotate-12 transition-transform duration-300" />
+                  <span className="relative z-10">Hapus</span>
+                </button>
+              </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div id="similarity-form">
+            <SimilarityForm initialTitle={selectedTitle} onSuccess={refetch} />
+          </div>
+
+          <RecommendedTopics onSelectTitle={handleSelectRecommendedTitle} />
+        </>
+      )}
+
+      <SubmittedTitlesTable />
+    </div>
+  );
 }

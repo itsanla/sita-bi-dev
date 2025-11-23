@@ -11,7 +11,10 @@ interface PaginatedResult<T> {
   totalPages: number;
 }
 
-export function paginate<T>(data: T[], options: PaginationOptions): PaginatedResult<T> {
+export function paginate<T>(
+  data: T[],
+  options: PaginationOptions,
+): PaginatedResult<T> {
   const page = options.page ?? 1;
   const limit = options.limit ?? 50; // Default limit to 50
 

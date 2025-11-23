@@ -1,0 +1,399 @@
+import { PrismaClient, StatusTugasAkhir, StatusBimbingan } from '@repo/db';
+
+interface DashboardStats {
+  tugasAkhir: {
+    total: number;
+    disetujui: number;
+    pending: number;
+    ditolak: number;
+  };
+  bimbingan: {
+    total: number;
+    bulanIni: number;
+    rataRata: number;
+  };
+  sidang: {
+    status: string;
+    tanggal: string | null;
+  };
+  progress: {
+    percentage: number;
+    tahap: string;
+  };
+}
+
+interface Activity {
+  id: string;
+  type: 'bimbingan' | 'pengajuan' | 'approval' | 'rejection' | 'perubahan_status';
+  title: string;
+  description: string;
+  createdAt: Date;
+}
+
+interface Schedule {
+  id: string;
+  title: string;
+  type: 'bimbingan' | 'sidang';
+  date: Date;
+  time: string;
+  location: string;
+  with: string;
+  status: 'upcoming' | 'today' | 'completed';
+}
+
+export class DashboardService {
+  private prisma: PrismaClient;
+
+  constructor() {
+    this.prisma = new PrismaClient();
+  }
+
+  /**
+   * Get comprehensive dashboard statistics for mahasiswa
+   */
+  async getMahasiswaStats(userId: number): Promise<DashboardStats> {
+    // Get mahasiswa profile
+    const mahasiswa = await this.prisma.mahasiswa.findUnique({
+      where: { user_id: userId },
+      include: {
+        tugasAkhir: {
+          include: {
+            bimbinganTa: true,
+            pendaftaranSidang: {
+              include: {
+                sidang: {
+                  include: {
+                    jadwalSidang: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!mahasiswa) {
+      throw new Error('Profil mahasiswa tidak ditemukan.');
+    }
+
+    // Calculate Tugas Akhir stats for ALL mahasiswa in the system
+    const allTugasAkhir = await this.prisma.tugasAkhir.findMany({
+      select: {
+        status: true,
+      },
+    });
+
+    const tugasAkhirStats = {
+      total: allTugasAkhir.length,
+      disetujui: allTugasAkhir.filter(
+        (ta) => ta.status === StatusTugasAkhir.DISETUJUI || ta.status === StatusTugasAkhir.BIMBINGAN
+      ).length,
+      pending: allTugasAkhir.filter((ta) => ta.status === StatusTugasAkhir.DIAJUKAN).length,
+      ditolak: allTugasAkhir.filter((ta) => ta.status === StatusTugasAkhir.DITOLAK).length,
+    };
+
+    // Calculate bimbingan stats
+    const bimbinganList = mahasiswa.tugasAkhir?.bimbinganTa || [];
+    const selesaiBimbingan = bimbinganList.filter(
+      (b) => b.status_bimbingan === StatusBimbingan.selesai,
+    );
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const bulanIni = selesaiBimbingan.filter((b) => {
+      const bimbDate = new Date(b.created_at);
+      return (
+        bimbDate.getMonth() === currentMonth && bimbDate.getFullYear() === currentYear
+      );
+    }).length;
+
+    const bimbinganStats = {
+      total: selesaiBimbingan.length,
+      bulanIni,
+      rataRata: selesaiBimbingan.length > 0 ? Math.round(selesaiBimbingan.length / 4) : 0, // Assuming 4 months average
+    };
+
+    // Get sidang info
+    const pendaftaranSidang = mahasiswa.tugasAkhir?.pendaftaranSidang?.[0];
+    const jadwalSidang = pendaftaranSidang?.sidang?.jadwalSidang?.[0];
+
+    const sidangInfo = {
+      status: pendaftaranSidang
+        ? pendaftaranSidang.status_verifikasi === 'disetujui'
+          ? 'Terdaftar'
+          : 'Menunggu Verifikasi'
+        : 'Belum Daftar',
+      tanggal: jadwalSidang?.tanggal?.toISOString() || null,
+    };
+
+    // Calculate progress
+    const progress = this.calculateProgress(mahasiswa.tugasAkhir?.status);
+
+    return {
+      tugasAkhir: tugasAkhirStats,
+      bimbingan: bimbinganStats,
+      sidang: sidangInfo,
+      progress,
+    };
+  }
+
+  /**
+   * Get recent activities for mahasiswa
+   */
+  async getMahasiswaActivities(userId: number, limit = 10): Promise<Activity[]> {
+    const mahasiswa = await this.prisma.mahasiswa.findUnique({
+      where: { user_id: userId },
+    });
+
+    if (!mahasiswa) {
+      throw new Error('Profil mahasiswa tidak ditemukan.');
+    }
+
+    const activities: Activity[] = [];
+
+    // Get Tugas Akhir activities
+    const tugasAkhir = await this.prisma.tugasAkhir.findFirst({
+      where: { mahasiswa_id: mahasiswa.id },
+      include: {
+        approver: true,
+        rejecter: true,
+      },
+    });
+
+    if (tugasAkhir) {
+      // Pengajuan
+      if (tugasAkhir.tanggal_pengajuan) {
+        activities.push({
+          id: `ta-${tugasAkhir.id}-pengajuan`,
+          type: 'pengajuan',
+          title: 'Judul Diajukan',
+          description: `Judul "${tugasAkhir.judul}" telah diajukan`,
+          createdAt: tugasAkhir.tanggal_pengajuan,
+        });
+      }
+
+      // Approval
+      if (tugasAkhir.status === StatusTugasAkhir.DISETUJUI && tugasAkhir.approver) {
+        activities.push({
+          id: `ta-${tugasAkhir.id}-approval`,
+          type: 'approval',
+          title: 'Judul Disetujui',
+          description: `Judul "${tugasAkhir.judul}" telah disetujui oleh ${tugasAkhir.approver.name}`,
+          createdAt: tugasAkhir.updated_at,
+        });
+      }
+
+      // Rejection
+      if (tugasAkhir.status === StatusTugasAkhir.DITOLAK && tugasAkhir.rejecter) {
+        activities.push({
+          id: `ta-${tugasAkhir.id}-rejection`,
+          type: 'rejection',
+          title: 'Judul Ditolak',
+          description:
+            tugasAkhir.alasan_penolakan || 'Judul ditolak, revisi diperlukan',
+          createdAt: tugasAkhir.updated_at,
+        });
+      }
+    }
+
+    // Get bimbingan activities
+    const bimbingan = await this.prisma.bimbinganTA.findMany({
+      where: {
+        tugasAkhir: {
+          mahasiswa_id: mahasiswa.id,
+        },
+        status_bimbingan: StatusBimbingan.selesai,
+      },
+      include: {
+        dosen: {
+          include: {
+            user: true,
+          },
+        },
+      },
+      orderBy: {
+        created_at: 'desc',
+      },
+      take: 5,
+    });
+
+    bimbingan.forEach((b) => {
+      activities.push({
+        id: `bimbingan-${b.id}`,
+        type: 'bimbingan',
+        title: 'Bimbingan Selesai',
+        description: `Sesi bimbingan ${b.peran} dengan ${b.dosen.user.name}`,
+        createdAt: b.created_at,
+      });
+    });
+
+    // Sort by date and limit
+    return activities.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).slice(0, limit);
+  }
+
+  /**
+   * Get upcoming schedule for mahasiswa
+   */
+  async getMahasiswaSchedule(userId: number, limit = 5): Promise<Schedule[]> {
+    const mahasiswa = await this.prisma.mahasiswa.findUnique({
+      where: { user_id: userId },
+    });
+
+    if (!mahasiswa) {
+      throw new Error('Profil mahasiswa tidak ditemukan.');
+    }
+
+    const schedules: Schedule[] = [];
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    // Get bimbingan schedule
+    const bimbinganSchedule = await this.prisma.bimbinganTA.findMany({
+      where: {
+        tugasAkhir: {
+          mahasiswa_id: mahasiswa.id,
+        },
+        status_bimbingan: {
+          in: [StatusBimbingan.dijadwalkan, StatusBimbingan.diajukan],
+        },
+        tanggal_bimbingan: {
+          gte: today,
+        },
+      },
+      include: {
+        dosen: {
+          include: {
+            user: true,
+          },
+        },
+      },
+      orderBy: {
+        tanggal_bimbingan: 'asc',
+      },
+      take: limit,
+    });
+
+    bimbinganSchedule.forEach((b) => {
+      if (b.tanggal_bimbingan && b.jam_bimbingan) {
+        const scheduleDate = new Date(b.tanggal_bimbingan);
+        const isToday =
+          scheduleDate.getFullYear() === today.getFullYear() &&
+          scheduleDate.getMonth() === today.getMonth() &&
+          scheduleDate.getDate() === today.getDate();
+
+        schedules.push({
+          id: `bimbingan-${b.id}`,
+          title: `Bimbingan ${b.peran}`,
+          type: 'bimbingan',
+          date: scheduleDate,
+          time: b.jam_bimbingan,
+          location: 'Ruang Dosen', // Default, could be customized
+          with: b.dosen.user.name,
+          status: isToday ? 'today' : 'upcoming',
+        });
+      }
+    });
+
+    // Get sidang schedule
+    const sidangSchedule = await this.prisma.jadwalSidang.findMany({
+      where: {
+        sidang: {
+          tugasAkhir: {
+            mahasiswa_id: mahasiswa.id,
+          },
+        },
+        tanggal: {
+          gte: today,
+        },
+      },
+      include: {
+        sidang: {
+          include: {
+            tugasAkhir: true,
+          },
+        },
+        ruangan: true,
+      },
+      orderBy: {
+        tanggal: 'asc',
+      },
+      take: limit,
+    });
+
+    sidangSchedule.forEach((s) => {
+      const scheduleDate = new Date(s.tanggal);
+      const isToday =
+        scheduleDate.getFullYear() === today.getFullYear() &&
+        scheduleDate.getMonth() === today.getMonth() &&
+        scheduleDate.getDate() === today.getDate();
+
+      schedules.push({
+        id: `sidang-${s.id}`,
+        title: `Sidang ${s.sidang.jenis_sidang}`,
+        type: 'sidang',
+        date: scheduleDate,
+        time: `${s.waktu_mulai} - ${s.waktu_selesai}`,
+        location: s.ruangan.nama_ruangan,
+        with: 'Tim Penguji',
+        status: isToday ? 'today' : 'upcoming',
+      });
+    });
+
+    // Sort by date
+    return schedules.sort((a, b) => a.date.getTime() - b.date.getTime()).slice(0, limit);
+  }
+
+  /**
+   * Get system-wide statistics
+   */
+  async getSystemStats(): Promise<{
+    totalDosen: number;
+    totalMahasiswa: number;
+    totalJudulTA: number;
+  }> {
+    const [totalDosen, totalMahasiswa, totalJudulTA] = await Promise.all([
+      this.prisma.dosen.count(),
+      this.prisma.mahasiswa.count(),
+      this.prisma.tugasAkhir.count(),
+    ]);
+
+    return {
+      totalDosen,
+      totalMahasiswa,
+      totalJudulTA,
+    };
+  }
+
+  /**
+   * Calculate progress percentage based on status
+   */
+  private calculateProgress(
+    status: StatusTugasAkhir | undefined,
+  ): { percentage: number; tahap: string } {
+    if (!status) {
+      return { percentage: 0, tahap: 'Belum Mengajukan' };
+    }
+
+    const progressMap: Record<StatusTugasAkhir, { percentage: number; tahap: string }> = {
+      [StatusTugasAkhir.DRAFT]: { percentage: 10, tahap: 'Draft' },
+      [StatusTugasAkhir.DIAJUKAN]: { percentage: 25, tahap: 'Pengajuan' },
+      [StatusTugasAkhir.DISETUJUI]: { percentage: 40, tahap: 'Disetujui' },
+      [StatusTugasAkhir.BIMBINGAN]: { percentage: 60, tahap: 'Bimbingan' },
+      [StatusTugasAkhir.REVISI]: { percentage: 55, tahap: 'Revisi' },
+      [StatusTugasAkhir.MENUNGGU_PEMBATALAN]: {
+        percentage: 30,
+        tahap: 'Menunggu Pembatalan',
+      },
+      [StatusTugasAkhir.DIBATALKAN]: { percentage: 0, tahap: 'Dibatalkan' },
+      [StatusTugasAkhir.LULUS_TANPA_REVISI]: { percentage: 100, tahap: 'Lulus' },
+      [StatusTugasAkhir.LULUS_DENGAN_REVISI]: { percentage: 90, tahap: 'Lulus dengan Revisi' },
+      [StatusTugasAkhir.SELESAI]: { percentage: 100, tahap: 'Selesai' },
+      [StatusTugasAkhir.DITOLAK]: { percentage: 20, tahap: 'Ditolak' },
+      [StatusTugasAkhir.GAGAL]: { percentage: 0, tahap: 'Gagal' },
+    };
+
+    return progressMap[status] || { percentage: 0, tahap: 'Unknown' };
+  }
+}

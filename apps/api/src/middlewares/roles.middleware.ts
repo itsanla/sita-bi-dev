@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { Role } from '../types/roles';
+import type { Request, Response, NextFunction } from 'express';
+import type { Role } from '@repo/types';
 
 export const authorizeRoles = (allowedRoles: Role[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -9,7 +9,9 @@ export const authorizeRoles = (allowedRoles: Role[]) => {
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      res.status(403).json({ message: 'Forbidden: Insufficient role permissions' });
+      res
+        .status(403)
+        .json({ message: 'Forbidden: Insufficient role permissions' });
       return;
     }
 

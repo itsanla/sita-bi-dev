@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 //================================================================================
@@ -32,6 +32,16 @@ enum StatusTugasAkhir {
   SELESAI
   DITOLAK
   GAGAL
+}
+
+enum PengajuanStatus {
+  MENUNGGU_PERSETUJUAN_DOSEN
+  MENUNGGU_PERSETUJUAN_MAHASISWA
+  DIBATALKAN_MAHASISWA
+  DIBATALKAN_DOSEN
+  DITOLAK
+  DISETUJUI
+  KEDALUWARSA
 }
 
 enum PeranDosen {
@@ -98,7 +108,6 @@ enum TipeDokumenSidang {
   BEBAS_JURUSAN
 }
 
-
 //================================================================================
 //  MODEL INTI (User, Roles, Dosen, Mahasiswa)
 //================================================================================
@@ -108,6 +117,7 @@ model User {
   id                Int       @id @default(autoincrement())
   name              String
   email             String    @unique
+  phone_number      String    @unique
   email_verified_at DateTime?
   password          String
   photo             String?
@@ -116,19 +126,19 @@ model User {
   updated_at        DateTime  @updatedAt
 
   // Relasi Profil & Hak Akses
-  mahasiswa           Mahasiswa?   // Profil jika user adalah mahasiswa
-  dosen               Dosen?       // Profil jika user adalah dosen
-  roles               Role[]       // Peran yang dimiliki user
+  mahasiswa Mahasiswa? // Profil jika user adalah mahasiswa
+  dosen     Dosen? // Profil jika user adalah dosen
+  roles     Role[] // Peran yang dimiliki user
 
   // Relasi Kepemilikan Data
-  logs                Log[]
-  pengumumanDibuat    Pengumuman[]
-  tawaranTopikDibuat  TawaranTopik[]
-  taDisetujui         TugasAkhir[]   @relation("Approver")
-  taDitolak           TugasAkhir[]   @relation("Rejecter")
-  notifikasi          NotifikasiTA[]
-  emailTokens         EmailVerificationToken[]
-  catatanBimbingan    CatatanBimbingan[] // Catatan yang dibuat oleh user ini
+  logs               Log[]
+  pengumumanDibuat   Pengumuman[]
+  tawaranTopikDibuat TawaranTopik[]
+  taDisetujui        TugasAkhir[]             @relation("Approver")
+  taDitolak          TugasAkhir[]             @relation("Rejecter")
+  notifikasi         NotifikasiTA[]
+  emailTokens        EmailVerificationToken[]
+  catatanBimbingan   CatatanBimbingan[] // Catatan yang dibuat oleh user ini
 
   @@map("users")
 }
@@ -163,7 +173,6 @@ model Mahasiswa {
   user_id    Int      @unique
   nim        String   @unique
   prodi      Prodi
-  angkatan   String
   kelas      String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -173,6 +182,7 @@ model Mahasiswa {
   tugasAkhir             TugasAkhir?
   historyTopik           HistoryTopikMahasiswa[]
   historyPerubahanJadwal HistoryPerubahanJadwal[]
+  PengajuanBimbingan     PengajuanBimbingan[]
 
   @@map("mahasiswa")
 }
@@ -186,16 +196,16 @@ model Dosen {
   updated_at DateTime @updatedAt
 
   // Relasi
-  user              User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  peranDosenTa      PeranDosenTa[]
-  bimbingan         BimbinganTA[]
-  nilaiSidang       NilaiSidang[]
-  dokumenValidasiP1 DokumenTa[]    @relation("ValidatorP1")
-  dokumenValidasiP2 DokumenTa[]    @relation("ValidatorP2")
+  user               User                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  peranDosenTa       PeranDosenTa[]
+  bimbingan          BimbinganTA[]
+  nilaiSidang        NilaiSidang[]
+  dokumenValidasiP1  DokumenTa[]          @relation("ValidatorP1")
+  dokumenValidasiP2  DokumenTa[]          @relation("ValidatorP2")
+  PengajuanBimbingan PengajuanBimbingan[]
 
   @@map("dosen")
 }
-
 
 //================================================================================
 //  MODEL TUGAS AKHIR & ALURNYA
@@ -219,12 +229,12 @@ model TawaranTopik {
 }
 
 model HistoryTopikMahasiswa {
-  id               Int          @id @default(autoincrement())
+  id               Int      @id @default(autoincrement())
   mahasiswa_id     Int
   tawaran_topik_id Int
   status           String
-  created_at       DateTime     @default(now())
-  updated_at       DateTime     @updatedAt
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
 
   mahasiswa    Mahasiswa    @relation(fields: [mahasiswa_id], references: [id])
   tawaranTopik TawaranTopik @relation(fields: [tawaran_topik_id], references: [id])
@@ -233,17 +243,17 @@ model HistoryTopikMahasiswa {
 }
 
 model TugasAkhir {
-  id                Int                 @id @default(autoincrement())
-  mahasiswa_id      Int                 @unique
+  id                Int              @id @default(autoincrement())
+  mahasiswa_id      Int              @unique
   tawaran_topik_id  Int?
   judul             String
-  status            StatusTugasAkhir    @default(DRAFT)
+  status            StatusTugasAkhir @default(DRAFT)
   tanggal_pengajuan DateTime?
   disetujui_oleh    Int?
   ditolak_oleh      Int?
   alasan_penolakan  String?
-  created_at        DateTime            @default(now())
-  updated_at        DateTime            @updatedAt
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
 
   mahasiswa         Mahasiswa           @relation(fields: [mahasiswa_id], references: [id])
   tawaranTopik      TawaranTopik?       @relation(fields: [tawaran_topik_id], references: [id])
@@ -274,13 +284,12 @@ model PeranDosenTa {
   @@map("peran_dosen_ta")
 }
 
-
 //================================================================================
 //  MODEL BIMBINGAN
 //================================================================================
 
 model BimbinganTA {
-  id                Int           @id @default(autoincrement())
+  id                Int             @id @default(autoincrement())
   tugas_akhir_id    Int
   dosen_id          Int
   peran             String
@@ -288,25 +297,25 @@ model BimbinganTA {
   tanggal_bimbingan DateTime?
   jam_bimbingan     String?
   status_bimbingan  StatusBimbingan
-  created_at        DateTime      @default(now())
-  updated_at        DateTime      @updatedAt
+  created_at        DateTime        @default(now())
+  updated_at        DateTime        @updatedAt
 
-  tugasAkhir         TugasAkhir                 @relation(fields: [tugas_akhir_id], references: [id], onDelete: Cascade)
-  dosen              Dosen                      @relation(fields: [dosen_id], references: [id])
-  catatan            CatatanBimbingan[]
-  historyPerubahan   HistoryPerubahanJadwal[]
+  tugasAkhir       TugasAkhir               @relation(fields: [tugas_akhir_id], references: [id], onDelete: Cascade)
+  dosen            Dosen                    @relation(fields: [dosen_id], references: [id])
+  catatan          CatatanBimbingan[]
+  historyPerubahan HistoryPerubahanJadwal[]
 
   @@map("bimbingan_ta")
 }
 
 model CatatanBimbingan {
-  id              Int       @id @default(autoincrement())
+  id              Int      @id @default(autoincrement())
   bimbingan_ta_id Int
   author_id       Int
   catatan         String
   author_type     String // "Mahasiswa" atau "Dosen"
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
   bimbinganTa BimbinganTA @relation(fields: [bimbingan_ta_id], references: [id], onDelete: Cascade)
   author      User        @relation(fields: [author_id], references: [id])
@@ -315,7 +324,7 @@ model CatatanBimbingan {
 }
 
 model HistoryPerubahanJadwal {
-  id               Int         @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   bimbingan_ta_id  Int
   mahasiswa_id     Int
   tanggal_lama     DateTime?
@@ -324,8 +333,8 @@ model HistoryPerubahanJadwal {
   jam_baru         String?
   alasan_perubahan String?
   status           String
-  created_at       DateTime    @default(now())
-  updated_at       DateTime    @updatedAt
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
 
   bimbingan BimbinganTA @relation(fields: [bimbingan_ta_id], references: [id], onDelete: Cascade)
   mahasiswa Mahasiswa   @relation(fields: [mahasiswa_id], references: [id])
@@ -333,24 +342,39 @@ model HistoryPerubahanJadwal {
   @@map("history_perubahan_jadwal")
 }
 
+model PengajuanBimbingan {
+  id              Int             @id @default(autoincrement())
+  mahasiswa_id    Int
+  dosen_id        Int
+  diinisiasi_oleh String
+  status          PengajuanStatus @default(MENUNGGU_PERSETUJUAN_DOSEN)
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+
+  mahasiswa Mahasiswa @relation(fields: [mahasiswa_id], references: [id], onDelete: Cascade)
+  dosen     Dosen     @relation(fields: [dosen_id], references: [id], onDelete: Cascade)
+
+  @@unique([mahasiswa_id, dosen_id])
+  @@map("pengajuan_bimbingan")
+}
 
 //================================================================================
 //  MODEL SIDANG & PENDAFTARAN
 //================================================================================
 
 model PendaftaranSidang {
-  id                    Int                @id @default(autoincrement())
-  tugas_akhir_id        Int
-  status_verifikasi     StatusVerifikasi   @default(menunggu_verifikasi)
-  status_pembimbing_1   StatusPersetujuan  @default(menunggu)
-  status_pembimbing_2   StatusPersetujuan  @default(menunggu)
-  catatan_admin         String?
-  catatan_pembimbing_1  String?
-  catatan_pembimbing_2  String?
-  created_at            DateTime           @default(now())
-  updated_at            DateTime           @updatedAt
+  id                   Int               @id @default(autoincrement())
+  tugas_akhir_id       Int
+  status_verifikasi    StatusVerifikasi  @default(menunggu_verifikasi)
+  status_pembimbing_1  StatusPersetujuan @default(menunggu)
+  status_pembimbing_2  StatusPersetujuan @default(menunggu)
+  catatan_admin        String?
+  catatan_pembimbing_1 String?
+  catatan_pembimbing_2 String?
+  created_at           DateTime          @default(now())
+  updated_at           DateTime          @updatedAt
 
-  tugasAkhir TugasAkhir               @relation(fields: [tugas_akhir_id], references: [id])
+  tugasAkhir TugasAkhir              @relation(fields: [tugas_akhir_id], references: [id])
   sidang     Sidang?
   files      PendaftaranSidangFile[]
 
@@ -371,15 +395,15 @@ model PendaftaranSidangFile {
 }
 
 model Sidang {
-  id                    Int              @id @default(autoincrement())
+  id                    Int         @id @default(autoincrement())
   tugas_akhir_id        Int
-  pendaftaran_sidang_id Int?             @unique
+  pendaftaran_sidang_id Int?        @unique
   jenis_sidang          JenisSidang
   status_hasil          HasilSidang @default(menunggu_penjadwalan)
-  is_active             Boolean          @default(true)
+  is_active             Boolean     @default(true)
   deleted_at            DateTime?
-  created_at            DateTime         @default(now())
-  updated_at            DateTime         @updatedAt
+  created_at            DateTime    @default(now())
+  updated_at            DateTime    @updatedAt
 
   tugasAkhir        TugasAkhir         @relation(fields: [tugas_akhir_id], references: [id])
   pendaftaranSidang PendaftaranSidang? @relation(fields: [pendaftaran_sidang_id], references: [id])
@@ -434,7 +458,6 @@ model NilaiSidang {
   @@map("nilai_sidang")
 }
 
-
 //================================================================================
 //  MODEL UTILITAS (Dokumen, Log, dll)
 //================================================================================
@@ -476,14 +499,14 @@ model Pengumuman {
 }
 
 model Log {
-  id          Int      @id @default(autoincrement())
-  user_id     Int?
-  action      String
-  ip_address  String?
-  user_agent  String?
-  url         String?
-  method      String?
-  created_at  DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  user_id    Int?
+  action     String
+  ip_address String?
+  user_agent String?
+  url        String?
+  method     String?
+  created_at DateTime @default(now())
 
   user User? @relation(fields: [user_id], references: [id])
 

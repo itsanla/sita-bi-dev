@@ -1,150 +1,173 @@
-"use client";
+'use client';
 
-import { useEffect, useState, FormEvent } from "react";
-import api from "@/lib/api";
+import React, { useState, useEffect } from 'react';
+import request from '@/lib/api';
+import { CheckCircle, XCircle, Search, Loader, Info } from 'lucide-react';
 
-// --- Type Definitions ---
-interface TugasAkhir {
+// --- Interfaces ---
+interface Submission {
   id: number;
   judul: string;
-  mahasiswa: {
-    user: { name: string; };
-    nim: string;
-  };
   tanggal_pengajuan: string;
-}
-
-interface KemiripanResult {
-  similarTo: string;
-  score: number;
-}
-
-// --- Modal Components ---
-const RejectModal = ({ isOpen, onClose, onSubmit }: { isOpen: boolean; onClose: () => void; onSubmit: (alasan: string) => void; }) => {
-  const [alasan, setAlasan] = useState("");
-  if (!isOpen) return null;
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    onSubmit(alasan);
+  mahasiswa: {
+    nim: string;
+    user: {
+      name: string;
+    };
   };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-        <h3 className="text-lg font-bold mb-4">Alasan Penolakan</h3>
-        <textarea value={alasan} onChange={e => setAlasan(e.target.value)} required className="w-full p-2 border rounded-md" rows={4}></textarea>
-        <div className="flex justify-end gap-4 mt-4">
-          <button type="button" onClick={onClose} className="bg-gray-200 py-2 px-4 rounded-lg">Batal</button>
-          <button type="submit" className="bg-red-600 text-white py-2 px-4 rounded-lg">Tolak</button>
-        </div>
-      </form>
-    </div>
-  );
-};
-
-const KemiripanModal = ({ isOpen, onClose, result }: { isOpen: boolean; onClose: () => void; result: KemiripanResult[] | null; }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg">
-        <h3 className="text-lg font-bold mb-4">Hasil Pengecekan Kemiripan</h3>
-        {result ? (
-          <ul className="list-disc list-inside">
-            {result.map((r, i) => <li key={i}>Dokumen mirip dengan <strong>{r.similarTo}</strong> (skor: {r.score.toFixed(2)})</li>)}
-          </ul>
-        ) : <p>Tidak ditemukan kemiripan signifikan atau data tidak tersedia.</p>}
-        <div className="flex justify-end mt-4">
-          <button onClick={onClose} className="bg-gray-200 py-2 px-4 rounded-lg">Tutup</button>
-        </div>
-      </div>
-    </div>
-  );
-};
+}
 
 // --- Main Page Component ---
-export default function ValidasiTaPage() {
-  const [tas, setTas] = useState<TugasAkhir[]>([]);
+export default function ValidasiTAPage() {
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedTA, setSelectedTA] = useState<TugasAkhir | null>(null);
-  const [isRejectModalOpen, setRejectModalOpen] = useState(false);
-  const [isKemiripanModalOpen, setKemiripanModalOpen] = useState(false);
-  const [kemiripanResult, setKemiripanResult] = useState<KemiripanResult[] | null>(null);
+  const [error, setError] = useState('');
 
   const fetchData = async () => {
-    setLoading(true);
     try {
-      const response = await api<{ data: { data: TugasAkhir[] } }>("/tugas-akhir/validasi");
-      setTas(response.data.data || []);
-    } catch (err) { setError("Gagal memuat data."); } 
-    finally { setLoading(false); }
+      setLoading(true);
+      setError('');
+      const response = await request<{ data: { data: Submission[] } }>(
+        '/tugas-akhir/validasi',
+      );
+      setSubmissions(response.data.data || []);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to fetch submissions');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleApprove = async (id: number) => {
-    if (!window.confirm("Apakah Anda yakin ingin menyetujui tugas akhir ini?")) return;
+    if (!confirm('Are you sure you want to approve this submission?')) return;
     try {
-      await api(`/tugas-akhir/${id}/approve`, { method: 'PATCH' });
+      await request(`/tugas-akhir/${id}/approve`, { method: 'PATCH' });
+      alert('Submission approved!');
       fetchData();
-    } catch (err) { alert("Gagal menyetujui."); }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      }
+    }
   };
 
-  const handleReject = async (alasan: string) => {
-    if (!selectedTA) return;
+  const handleReject = async (id: number) => {
+    const reason = prompt('Please provide a reason for rejection:');
+    if (!reason) return;
     try {
-      await api(`/tugas-akhir/${selectedTA.id}/reject`, { method: 'PATCH', body: { alasan_penolakan: alasan } });
-      setRejectModalOpen(false);
+      await request(`/tugas-akhir/${id}/reject`, {
+        method: 'PATCH',
+        body: JSON.stringify({ alasan_penolakan: reason }),
+      });
+      alert('Submission rejected!');
       fetchData();
-    } catch (err) { alert("Gagal menolak."); }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(`Error: ${err.message}`);
+      }
+    }
   };
 
-  const handleCekKemiripan = async (id: number) => {
-    try {
-      const response = await api<{ data: { data: KemiripanResult[] } }>(`/tugas-akhir/${id}/cek-kemiripan`, { method: 'POST' });
-      setKemiripanResult(response.data.data);
-      setKemiripanModalOpen(true);
-    } catch (err) { alert("Gagal mengecek kemiripan."); }
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-10">
+        <Loader className="animate-spin text-maroon-700" size={32} />
+        <span className="ml-4 text-lg text-gray-600">
+          Loading submissions...
+        </span>
+      </div>
+    );
+  }
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-500 p-4">{error}</div>;
+  if (error) {
+    return (
+      <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md">
+        <p className="font-bold">Error</p>
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Validasi Pengajuan Tugas Akhir</h1>
-      <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
-        <table className="w-full text-sm text-left text-gray-500">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-            <tr>
-              <th className="py-3 px-6">Mahasiswa</th>
-              <th className="py-3 px-6">Judul</th>
-              <th className="py-3 px-6">Tanggal Pengajuan</th>
-              <th className="py-3 px-6">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tas.length > 0 ? tas.map((ta) => (
-              <tr key={ta.id} className="bg-white border-b">
-                <td className="py-4 px-6 font-medium">{ta.mahasiswa.user.name} ({ta.mahasiswa.nim})</td>
-                <td className="py-4 px-6">{ta.judul}</td>
-                <td className="py-4 px-6">{new Date(ta.tanggal_pengajuan).toLocaleDateString('id-ID')}</td>
-                <td className="py-4 px-6 flex gap-2">
-                  <button onClick={() => handleApprove(ta.id)} className="font-medium text-green-600 hover:underline">Setujui</button>
-                  <button onClick={() => { setSelectedTA(ta); setRejectModalOpen(true); }} className="font-medium text-red-600 hover:underline">Tolak</button>
-                  <button onClick={() => handleCekKemiripan(ta.id)} className="font-medium text-blue-600 hover:underline">Cek Kemiripan</button>
-                </td>
-              </tr>
-            )) : (
-              <tr><td colSpan={4} className="py-4 px-6 text-center">Tidak ada pengajuan yang perlu divalidasi.</td></tr>
-            )}
-          </tbody>
-        </table>
+    <div className="container mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">
+          Validasi Tugas Akhir
+        </h1>
       </div>
-      <RejectModal isOpen={isRejectModalOpen} onClose={() => setRejectModalOpen(false)} onSubmit={handleReject} />
-      <KemiripanModal isOpen={isKemiripanModalOpen} onClose={() => setKemiripanModalOpen(false)} result={kemiripanResult} />
+
+      <div className="mb-6 flex items-center">
+        <div className="relative w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Cari berdasarkan judul atau nama mahasiswa..."
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-800"
+          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        {submissions.length > 0 ? (
+          submissions.map((submission) => (
+            <div
+              key={submission.id}
+              className="bg-white shadow-md rounded-lg p-6 border-l-4 border-red-800"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800 mb-2">
+                    {submission.judul}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Oleh:{' '}
+                    <span className="font-semibold">
+                      {submission.mahasiswa.user.name}
+                    </span>{' '}
+                    ({submission.mahasiswa.nim})
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Tanggal Pengajuan:{' '}
+                    {new Date(
+                      submission.tanggal_pengajuan,
+                    ).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-3 ml-4 flex-shrink-0">
+                  <button
+                    onClick={() => handleApprove(submission.id)}
+                    className="flex items-center justify-center w-10 h-10 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors duration-200 shadow-sm"
+                    title="Approve"
+                  >
+                    <CheckCircle className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={() => handleReject(submission.id)}
+                    className="flex items-center justify-center w-10 h-10 bg-red-700 text-white rounded-full hover:bg-red-800 transition-colors duration-200 shadow-sm"
+                    title="Reject"
+                  >
+                    <XCircle className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="text-center text-gray-500 bg-white p-12 rounded-lg shadow-md">
+            <Info size={48} className="mx-auto mb-4 text-gray-400" />
+            <h2 className="text-xl font-semibold">Tidak Ada Pengajuan</h2>
+            <p className="mt-1">
+              Saat ini tidak ada pengajuan tugas akhir yang memerlukan validasi.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

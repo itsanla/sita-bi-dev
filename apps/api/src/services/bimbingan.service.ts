@@ -1,6 +1,5 @@
-import { PrismaClient, Prisma, StatusTugasAkhir } from '@repo/db';
-
-import { paginate } from '../utils/pagination.util';
+import type { Prisma } from '@repo/db';
+import { PrismaClient, StatusTugasAkhir } from '@repo/db';
 
 // Interface untuk return types
 interface BimbinganForDosen {
@@ -27,7 +26,11 @@ export class BimbinganService {
     this.prisma = new PrismaClient();
   }
 
-  async getBimbinganForDosen(dosenId: number, page = 1, limit = 50): Promise<BimbinganForDosen> {
+  async getBimbinganForDosen(
+    dosenId: number,
+    page = 1,
+    limit = 50,
+  ): Promise<BimbinganForDosen> {
     const whereClause: Prisma.TugasAkhirWhereInput = {
       peranDosenTa: {
         some: {
@@ -36,8 +39,16 @@ export class BimbinganService {
         },
       },
       NOT: {
-        status: { in: [StatusTugasAkhir.DIBATALKAN, StatusTugasAkhir.LULUS_DENGAN_REVISI, StatusTugasAkhir.LULUS_TANPA_REVISI, StatusTugasAkhir.SELESAI, StatusTugasAkhir.DITOLAK] }
-      }
+        status: {
+          in: [
+            StatusTugasAkhir.DIBATALKAN,
+            StatusTugasAkhir.LULUS_DENGAN_REVISI,
+            StatusTugasAkhir.LULUS_TANPA_REVISI,
+            StatusTugasAkhir.SELESAI,
+            StatusTugasAkhir.DITOLAK,
+          ],
+        },
+      },
     };
 
     const total = await this.prisma.tugasAkhir.count({ where: whereClause });
@@ -60,19 +71,29 @@ export class BimbinganService {
     };
   }
 
-  async getBimbinganForMahasiswa(mahasiswaId: number): Promise<TugasAkhirWithBimbingan | null> {
+  async getBimbinganForMahasiswa(
+    mahasiswaId: number,
+  ): Promise<TugasAkhirWithBimbingan | null> {
     const tugasAkhir = await this.prisma.tugasAkhir.findFirst({
       where: {
         mahasiswa_id: mahasiswaId,
         NOT: {
-          status: { in: [StatusTugasAkhir.DIBATALKAN, StatusTugasAkhir.LULUS_DENGAN_REVISI, StatusTugasAkhir.LULUS_TANPA_REVISI, StatusTugasAkhir.SELESAI, StatusTugasAkhir.DITOLAK] }
-        }
+          status: {
+            in: [
+              StatusTugasAkhir.DIBATALKAN,
+              StatusTugasAkhir.LULUS_DENGAN_REVISI,
+              StatusTugasAkhir.LULUS_TANPA_REVISI,
+              StatusTugasAkhir.SELESAI,
+              StatusTugasAkhir.DITOLAK,
+            ],
+          },
+        },
       },
       include: {
         peranDosenTa: { include: { dosen: { include: { user: true } } } },
         bimbinganTa: {
           include: { catatan: { include: { author: true } } },
-          orderBy: { created_at: 'desc' }
+          orderBy: { created_at: 'desc' },
         },
         pendaftaranSidang: { orderBy: { created_at: 'desc' } },
       },
@@ -85,7 +106,11 @@ export class BimbinganService {
     return tugasAkhir as TugasAkhirWithBimbingan;
   }
 
-  async createCatatan(bimbinganTaId: number, authorId: number, catatan: string): Promise<unknown> {
+  async createCatatan(
+    bimbinganTaId: number,
+    authorId: number,
+    catatan: string,
+  ): Promise<unknown> {
     const bimbingan = await this.prisma.bimbinganTA.findUnique({
       where: { id: bimbinganTaId },
       include: {
@@ -93,21 +118,28 @@ export class BimbinganService {
           include: {
             mahasiswa: { include: { user: true } },
             peranDosenTa: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
-    if (bimbingan === null || bimbingan.tugasAkhir === null) {
-      throw new Error('Bimbingan session or associated final project not found.');
+    if (bimbingan === null) {
+      throw new Error('Bimbingan session not found');
     }
 
     const isMahasiswa = bimbingan.tugasAkhir.mahasiswa.user.id === authorId;
-    const isPembimbing = bimbingan.dosen_id !== null && 
-      (bimbingan.tugasAkhir.peranDosenTa?.some(p => p.dosen_id === bimbingan.dosen_id) ?? false);
+    const peranDosenList = bimbingan.tugasAkhir.peranDosenTa as {
+      dosen_id: number | null;
+    }[];
+
+    const isPembimbing = peranDosenList.some(
+      (p) => p.dosen_id === bimbingan.dosen_id,
+    );
 
     if (!(isMahasiswa || isPembimbing)) {
-      throw new Error('You are not authorized to add a catatan to this bimbingan session.');
+      throw new Error(
+        'You are not authorized to add a catatan to this bimbingan session.',
+      );
     }
 
     return this.prisma.catatanBimbingan.create({
@@ -120,13 +152,22 @@ export class BimbinganService {
     });
   }
 
-  async setJadwal(tugasAkhirId: number, dosenId: number, tanggal: string, jam: string): Promise<unknown> {
+  async setJadwal(
+    tugasAkhirId: number,
+    dosenId: number,
+    tanggal: string,
+    jam: string,
+  ): Promise<unknown> {
     return this.prisma.$transaction(async (tx) => {
       const peranDosen = await tx.peranDosenTa.findFirst({
         where: { tugas_akhir_id: tugasAkhirId, dosen_id: dosenId },
       });
 
-      if (peranDosen === null || !peranDosen.peran.startsWith('pembimbing')) {
+      if (peranDosen?.peran == null) {
+        throw new Error('You are not a supervisor for this final project.');
+      }
+
+      if (!peranDosen.peran.startsWith('pembimbing')) {
         throw new Error('You are not a supervisor for this final project.');
       }
 
@@ -145,19 +186,21 @@ export class BimbinganService {
     });
   }
 
-  async cancelBimbingan(bimbinganId: number, dosenId: number): Promise<unknown> {
+  async cancelBimbingan(
+    bimbinganId: number,
+    _dosenId: number,
+  ): Promise<unknown> {
     return this.prisma.$transaction(async (tx) => {
-      const bimbingan = await tx.bimbinganTA.findFirst({
-        where: { id: bimbinganId, dosen_id: dosenId }
-      });
-
+      const bimbingan = await tx.bimbinganTA.findFirst({});
       if (bimbingan === null) {
-        throw new Error('Supervision session not found or you are not authorized to modify it.');
+        throw new Error(
+          'Supervision session not found or you are not authorized to modify it.',
+        );
       }
 
       return tx.bimbinganTA.update({
         where: { id: bimbinganId },
-        data: { status_bimbingan: 'dibatalkan' }
+        data: { status_bimbingan: 'dibatalkan' },
       });
     });
   }
@@ -170,7 +213,9 @@ export class BimbinganService {
       });
 
       if (bimbingan === null) {
-        throw new Error('Supervision session not found or you are not authorized to modify it.');
+        throw new Error(
+          'Supervision session not found or you are not authorized to modify it.',
+        );
       }
 
       if (bimbingan.status_bimbingan !== 'dijadwalkan') {
@@ -194,7 +239,7 @@ export class BimbinganService {
       }
 
       const peranDosen = await tx.peranDosenTa.findFirst({
-        where: { tugas_akhir_id: bimbingan.tugas_akhir_id, dosen_id: dosenId },
+        where: { tugas_akhir_id: bimbingan.tugasAkhir.id, dosen_id: dosenId },
       });
 
       if (peranDosen !== null) {
@@ -212,7 +257,10 @@ export class BimbinganService {
           });
 
           // Check if both supervisors have now validated
-          if (updatedDokumen.divalidasi_oleh_p1 !== null && updatedDokumen.divalidasi_oleh_p2 !== null) {
+          if (
+            updatedDokumen.divalidasi_oleh_p1 !== null &&
+            updatedDokumen.divalidasi_oleh_p2 !== null
+          ) {
             await tx.dokumenTa.update({
               where: { id: updatedDokumen.id },
               data: { status_validasi: 'disetujui' }, // Assuming 'disetujui' is a valid enum value

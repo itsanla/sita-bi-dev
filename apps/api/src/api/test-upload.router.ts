@@ -1,69 +1,94 @@
-import { Router } from 'express';
+import { Router, type Request, type Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import multer from 'multer';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import multerS3 from 'multer-s3';
-import path from 'path';
+import * as path from 'path';
+import {
+  uploadConfig,
+  getUploadPath,
+  generateFileName,
+  getFileUrl,
+  getRelativePath,
+} from '../utils/upload.config';
 
 const router: Router = Router();
 
-// --- Konfigurasi S3 ---
-const s3 = new S3Client({
-  region: process.env.AWS_REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+// Define a type for the local file object
+interface LocalFile extends Express.Multer.File {
+  path: string;
+}
+
+// --- Konfigurasi Local Storage ---
+const localStorage = multer.diskStorage({
+  destination: function (_req, _file, cb) {
+    const uploadPath = getUploadPath('test-uploads');
+    cb(null, uploadPath);
+  },
+  filename: function (_req, file, cb) {
+    const fileName = generateFileName(file.originalname, 'test-upload');
+    cb(null, fileName);
   },
 });
 
 const testUpload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: process.env.AWS_S3_BUCKET_NAME!,
-    contentType: multerS3.AUTO_CONTENT_TYPE, // FIX: Set Content-Type otomatis
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: function (req, file, cb) {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      cb(null, 'test-upload-' + uniqueSuffix + path.extname(file.originalname));
-    },
-  }),
-  limits: { fileSize: 1024 * 1024 * 5 }, // 5MB
+  storage: localStorage,
+  limits: { fileSize: uploadConfig.maxFileSize },
+  fileFilter: function (_req, file, cb) {
+    // Filter file types
+    const allowedTypes = new RegExp(
+      uploadConfig.allowedFileTypes.join('|'),
+      'i',
+    );
+    const extname = allowedTypes.test(
+      path.extname(file.originalname).toLowerCase().slice(1),
+    );
+    const mimetype = allowedTypes.test(file.mimetype.split('/')[1] ?? '');
+
+    if (mimetype && extname) {
+      cb(null, true);
+      return;
+    } else {
+      const allowedTypesStr = uploadConfig.allowedFileTypes.join(', ');
+      cb(
+        new Error(
+          `File type not allowed. Only ${allowedTypesStr} files are allowed.`,
+        ),
+      );
+    }
+  },
 });
-// --- End of Konfigurasi S3 ---
+// --- End of Konfigurasi Local Storage ---
 
 router.post(
   '/',
   testUpload.single('file'),
-  asyncHandler(async (req, res) => {
-    if (!req.file) {
-      res.status(400).json({ status: 'gagal', message: 'Tidak ada file yang diunggah.' });
+  asyncHandler((req: Request, res: Response): void => {
+    if (req.file == null) {
+      res
+        .status(400)
+        .json({ status: 'gagal', message: 'Tidak ada file yang diunggah.' });
       return;
     }
 
-    // --- FIX: Buat Pre-signed URL ---
-    const uploadedFile = req.file as any;
-
-    const getCommand = new GetObjectCommand({
-        Bucket: uploadedFile.bucket,
-        Key: uploadedFile.key,
-    });
-
-    // URL berlaku selama 15 menit (900 detik)
-    const signedUrl = await getSignedUrl(s3, getCommand, { expiresIn: 900 });
+    const uploadedFile = req.file as LocalFile;
+    const relativePath = getRelativePath(uploadedFile.path);
+    const fileUrl = getFileUrl(relativePath);
 
     res.status(200).json({
       status: 'sukses',
-      message: 'File berhasil diunggah! Gunakan signedUrl untuk mengakses.',
+      message: 'File berhasil diunggah!',
       data: {
-        signedUrl: signedUrl, // URL sementara untuk akses
-        originalUrl: uploadedFile.location, // URL asli (privat)
-        ...uploadedFile,
+        fileUrl: fileUrl,
+        downloadUrl: `/api/files/download${relativePath}`,
+        infoUrl: `/api/files/info${relativePath}`,
+        filePath: uploadedFile.path,
+        relativePath: relativePath,
+        filename: uploadedFile.filename,
+        originalName: uploadedFile.originalname,
+        size: uploadedFile.size,
+        mimetype: uploadedFile.mimetype,
       },
     });
-  })
+  }),
 );
 
 export default router;

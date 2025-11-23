@@ -1,8 +1,13 @@
-import { PrismaClient, Prisma, User, Prodi } from '@repo/db';
-import { paginate } from '../utils/pagination.util';
+import type { User } from '@repo/db';
+import { PrismaClient, Prisma } from '@repo/db';
 import * as bcrypt from 'bcrypt';
-import { CreateDosenDto, UpdateDosenDto, UpdateMahasiswaDto } from '../dto/users.dto';
-import { Role } from '../types/roles';
+import type {
+  CreateDosenDto,
+  UpdateDosenDto,
+  UpdateMahasiswaDto,
+  CreateMahasiswaDto,
+} from '../dto/users.dto';
+import { Role } from '@repo/types';
 
 export class UsersService {
   private prisma: PrismaClient;
@@ -11,30 +16,41 @@ export class UsersService {
     this.prisma = new PrismaClient();
   }
 
-  async findOneByEmail(email: string): Promise<Prisma.UserGetPayload<{ include: { roles: true } }> | null> {
-    return this.prisma.user.findUnique({ where: { email }, include: { roles: true } });
+  async findOneByEmail(
+    email: string,
+  ): Promise<Prisma.UserGetPayload<{ include: { roles: true } }> | null> {
+    return this.prisma.user.findUnique({
+      where: { email },
+      include: { roles: true },
+    });
   }
 
-  async findUserById(id: number): Promise<Prisma.UserGetPayload<{ include: { roles: true, mahasiswa: true, dosen: true } }> | null> {
-    return this.prisma.user.findUnique({ where: { id }, include: { roles: true, mahasiswa: true, dosen: true } });
+  async findUserById(id: number): Promise<Prisma.UserGetPayload<{
+    include: { roles: true; mahasiswa: true; dosen: true };
+  }> | null> {
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: { roles: true, mahasiswa: true, dosen: true },
+    });
   }
 
-  async createMahasiswa(data: Prisma.UserCreateInput, profileData: { nim: string, prodi: Prodi, kelas: string, angkatan: string }): Promise<User> {
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+  async createMahasiswa(dto: CreateMahasiswaDto): Promise<User> {
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
 
     return this.prisma.user.create({
       data: {
-        ...data,
+        name: dto.name,
+        email: dto.email,
         password: hashedPassword,
+        phone_number: dto.phone_number ?? '', // Default empty string jika tidak ada
         roles: {
           connect: { name: Role.mahasiswa },
         },
         mahasiswa: {
           create: {
-            nim: profileData.nim,
-            prodi: profileData.prodi,
-            angkatan: profileData.angkatan,
-            kelas: profileData.kelas,
+            nim: dto.nim,
+            prodi: dto.prodi,
+            kelas: dto.kelas,
           },
         },
       },
@@ -51,9 +67,9 @@ export class UsersService {
     const rolesToConnect = [{ name: Role.dosen }];
 
     // Tambahkan peran lain dari DTO jika ada dan valid
-    if (dto.roles) {
+    if (dto.roles != null) {
       const validRoles = [Role.kajur, Role.kaprodi_d3, Role.kaprodi_d4];
-      dto.roles.forEach(roleName => {
+      dto.roles.forEach((roleName) => {
         if (roleName !== Role.dosen && validRoles.includes(roleName)) {
           rolesToConnect.push({ name: roleName });
         }
@@ -65,6 +81,7 @@ export class UsersService {
         name: dto.name,
         email: dto.email,
         password: hashedPassword,
+        phone_number: dto.phone_number ?? '', // Default empty string jika tidak ada
         roles: {
           connect: rolesToConnect,
         },
@@ -86,10 +103,11 @@ export class UsersService {
 
     if (dto.name != null) userData.name = dto.name;
     if (dto.email != null) userData.email = dto.email;
-    if (dto.password != null) userData.password = await bcrypt.hash(dto.password, 10);
+    if (dto.password != null)
+      userData.password = await bcrypt.hash(dto.password, 10);
     if (dto.roles != null) {
       userData.roles = {
-        set: dto.roles.map(roleName => ({ name: roleName }))
+        set: dto.roles.map((roleName) => ({ name: roleName })),
       };
     }
     if (dto.nidn != null) {
@@ -111,11 +129,12 @@ export class UsersService {
 
     if (dto.name != null) userData.name = dto.name;
     if (dto.email != null) userData.email = dto.email;
-    if (dto.password != null) userData.password = await bcrypt.hash(dto.password, 10);
-    
+    if (dto.password != null)
+      userData.password = await bcrypt.hash(dto.password, 10);
+
     if (dto.nim != null) mahasiswaData.nim = dto.nim;
     if (dto.prodi != null) mahasiswaData.prodi = dto.prodi;
-    if (dto.angkatan != null) mahasiswaData.angkatan = dto.angkatan;
+    // angkatan field sudah tidak dipakai
     if (dto.kelas != null) mahasiswaData.kelas = dto.kelas;
 
     if (Object.keys(mahasiswaData).length > 0) {
@@ -148,7 +167,7 @@ export class UsersService {
             select: {
               nim: true,
               prodi: true,
-              angkatan: true,
+              // angkatan field sudah tidak dipakai
               kelas: true,
             },
           },
@@ -159,8 +178,8 @@ export class UsersService {
           },
         },
         orderBy: {
-          id: 'asc'
-        }
+          id: 'asc',
+        },
       }),
       this.prisma.user.count({ where: { mahasiswa: { isNot: null } } }),
     ]);
@@ -171,6 +190,66 @@ export class UsersService {
       page,
       limit,
       totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async findAllMahasiswaTanpaPembimbing(
+    page = 1,
+    limit = 50,
+  ): Promise<{
+    data: {
+      id: number;
+      user: { id: number; name: string; email: string };
+      nim: string;
+      prodi: string;
+      kelas: string;
+    }[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  }> {
+    const offset = (page - 1) * limit;
+
+    // Cari mahasiswa yang belum punya tugas akhir dengan pembimbing
+    const mahasiswaQuery = this.prisma.mahasiswa.findMany({
+      where: {
+        tugasAkhir: {
+          is: null,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+      skip: offset,
+      take: limit,
+      orderBy: { created_at: 'desc' },
+    });
+
+    const countQuery = this.prisma.mahasiswa.count({
+      where: {
+        tugasAkhir: {
+          is: null,
+        },
+      },
+    });
+
+    const [mahasiswa, total] = await Promise.all([mahasiswaQuery, countQuery]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: mahasiswa, // Type assertion karena Prisma return type include semua field
+      page,
+      limit,
+      total,
+      totalPages,
     };
   }
 
@@ -199,20 +278,14 @@ export class UsersService {
           },
         },
         orderBy: {
-          id: 'asc'
-        }
+          id: 'asc',
+        },
       }),
       this.prisma.user.count({ where: { dosen: { isNot: null } } }),
     ]);
 
-    const data = users.map(user => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      nidn: user.dosen?.nidn,
-      roles: user.roles.map(r => r.name)
-    }));
-    
+    const data = users; // Return the nested structure directly
+
     return {
       data: data,
       total,
@@ -224,10 +297,23 @@ export class UsersService {
 
   async deleteUser(id: number): Promise<User> {
     const user = await this.findUserById(id);
-    if (!user) {
+    if (user === null) {
       throw new Error(`User with ID ${id} not found`);
     }
-    return this.prisma.user.delete({ where: { id } });
+    try {
+      return await this.prisma.user.delete({ where: { id } });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        // Foreign key constraint violation
+        if (e.code === 'P2003') {
+          throw new Error(
+            'Cannot delete this user. They are linked to other records (e.g., announcements, thesis topics). Please reassign or delete those records first.',
+          );
+        }
+      }
+      // Re-throw other errors
+      throw e;
+    }
   }
 
   async updateUser(id: number, data: Prisma.UserUpdateInput): Promise<User> {

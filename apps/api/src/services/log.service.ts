@@ -1,5 +1,4 @@
 import { PrismaClient } from '@repo/db';
-import { paginate } from '../utils/pagination.util';
 
 export class LogService {
   private prisma: PrismaClient;

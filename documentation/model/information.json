@@ -1,0 +1,774 @@
+{
+  "teamMembers": [
+    {
+      "name": "Erland Agsya Agustian",
+      "role": "Frontend Developer",
+      "id": "2311083007",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s"
+    },
+    {
+      "name": "Nabil Achmad Khoir",
+      "role": "Project Manager",
+      "id": "2311082032",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s"
+    },
+    {
+      "name": "Kasih Ananda Nardi",
+      "role": "Sistem Analis",
+      "id": "2311081021",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s"
+    },
+    {
+      "name": "Gilang Dwi Yuwana",
+      "role": "Backend Developer",
+      "id": "2311081016",
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s"
+    }
+  ],
+  "nextGenDeveloper": {
+    "name": "Anla Harpanda",
+    "role": "Full-Stack Developer",
+    "id": "2311083015",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvPh9hd-Nonod-jOedev2EWsldcuYjabXayQ&s"
+  },
+  "menuItems": [
+    {
+      "id": "team",
+      "label": "Tim Pengembang",
+      "iconName": "Users"
+    },
+    {
+      "id": "introduction",
+      "label": "Pengenalan",
+      "iconName": "BookOpen",
+      "children": [
+        {
+          "id": "intro-overview",
+          "label": "Tentang SITA-BI"
+        },
+        {
+          "id": "intro-architecture",
+          "label": "Arsitektur Sistem"
+        },
+        {
+          "id": "intro-requirements",
+          "label": "Persyaratan Sistem"
+        }
+      ]
+    },
+    {
+      "id": "getting-started",
+      "label": "Memulai",
+      "iconName": "Home",
+      "children": [
+        {
+          "id": "gs-registration",
+          "label": "Registrasi Akun"
+        },
+        {
+          "id": "gs-login",
+          "label": "Login & Autentikasi"
+        },
+        {
+          "id": "gs-dashboard",
+          "label": "Navigasi Dashboard"
+        }
+      ]
+    },
+    {
+      "id": "mahasiswa",
+      "label": "Panduan Mahasiswa",
+      "iconName": "GraduationCap",
+      "children": [
+        {
+          "id": "mhs-topik",
+          "label": "Memilih Topik TA"
+        },
+        {
+          "id": "mhs-bimbingan",
+          "label": "Sistem Bimbingan"
+        },
+        {
+          "id": "mhs-sidang",
+          "label": "Jadwal Sidang"
+        },
+        {
+          "id": "mhs-pengumuman",
+          "label": "Pengumuman"
+        }
+      ]
+    },
+    {
+      "id": "dosen",
+      "label": "Panduan Dosen",
+      "iconName": "UserCheck",
+      "children": [
+        {
+          "id": "dsn-topik",
+          "label": "Kelola Tawaran Topik"
+        },
+        {
+          "id": "dsn-bimbingan",
+          "label": "Bimbingan Mahasiswa"
+        },
+        {
+          "id": "dsn-penilaian",
+          "label": "Penilaian Sidang"
+        },
+        {
+          "id": "dsn-approval",
+          "label": "Persetujuan"
+        }
+      ]
+    },
+    {
+      "id": "admin",
+      "label": "Panduan Admin",
+      "iconName": "Shield",
+      "children": [
+        {
+          "id": "adm-users",
+          "label": "Manajemen User"
+        },
+        {
+          "id": "adm-jadwal",
+          "label": "Pengaturan Jadwal"
+        },
+        {
+          "id": "adm-pengumuman",
+          "label": "Kelola Pengumuman"
+        },
+        {
+          "id": "adm-laporan",
+          "label": "Laporan Sistem"
+        }
+      ]
+    },
+    {
+      "id": "features",
+      "label": "Fitur & Modul",
+      "iconName": "Layout"
+    },
+    {
+      "id": "technology",
+      "label": "Teknologi",
+      "iconName": "Zap"
+    }
+  ],
+  "sections": {
+    "team": {
+      "title": "Pengembang",
+      "subTitle": "Evolusi tim pengembang sistem SITA-BI",
+      "phases": [
+        {
+          "period": "Maret - Juli 2025",
+          "team": "Team 7 PBL 2025",
+          "description": "Tim foundational yang membangun SITA-BI",
+          "members": [
+            {
+              "name": "Erland Agsya Agustian",
+              "role": "Frontend Developer",
+              "id": "2311083007",
+              "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s"
+            },
+            {
+              "name": "Nabil Achmad Khoir",
+              "role": "Project Manager",
+              "id": "2311082032",
+              "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s"
+            },
+            {
+              "name": "Kasih Ananda Nardi",
+              "role": "Sistem Analis",
+              "id": "2311081021",
+              "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s"
+            },
+            {
+              "name": "Gilang Dwi Yuwana",
+              "role": "Backend Developer",
+              "id": "2311081016",
+              "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYB48qcI4RmLRUfQqoGwJb6GIM7SqYE9rcBg&s"
+            }
+          ]
+        },
+        {
+          "period": "Agustus - Desember 2025",
+          "team": "Project IT 2025",
+          "description": "Evolusi dan enhancement sistem",
+          "members": [
+            {
+              "name": "Anla Harpanda",
+              "role": "Full-Stack Developer",
+              "id": "2311083015",
+              "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvPh9hd-Nonod-jOedev2EWsldcuYjabXayQ&s"
+            }
+          ]
+        }
+      ]
+    },
+    "introduction": {
+      "title": "Pengenalan",
+      "subSections": {
+        "intro-overview": {
+          "title": "Tentang SITA-BI",
+          "description": [
+            "SITA-BI (Sistem Informasi Tugas Akhir - Business Intelligence) adalah platform digital komprehensif yang dirancang khusus untuk mengelola seluruh siklus proses tugas akhir mahasiswa secara terintegrasi, efisien, dan terorganisir dengan baik.",
+            "Sistem ini menghubungkan tiga stakeholder utama: mahasiswa, dosen pembimbing, dan administrator/koordinator program studi dalam satu ekosistem digital yang mudah diakses, user-friendly, dan dapat digunakan kapan saja, di mana saja."
+          ],
+          "tujuanUtama": [
+            "Mempermudah koordinasi antara mahasiswa dan dosen pembimbing",
+            "Meningkatkan transparansi proses tugas akhir",
+            "Mempercepat proses administrasi dan approval",
+            "Mengurangi penggunaan dokumen fisik (paperless)",
+            "Menyediakan tracking progress tugas akhir secara real-time"
+          ],
+          "stats": [
+            {
+              "iconName": "Users",
+              "value": "500+ Mahasiswa",
+              "description": "Pengguna aktif sistem"
+            },
+            {
+              "iconName": "UserCheck",
+              "value": "50+ Dosen",
+              "description": "Pembimbing terdaftar"
+            },
+            {
+              "iconName": "CheckCircle",
+              "value": "100% Digital",
+              "description": "Proses paperless"
+            }
+          ]
+        },
+        "intro-architecture": {
+          "title": "Arsitektur Sistem",
+          "description": "SITA-BI dibangun dengan arsitektur monorepo menggunakan Turborepo untuk manajemen multi-package yang efisien dan skalabel. Sistem ini terdiri dari dua aplikasi utama:",
+          "frontend": [
+            "Next.js 15 dengan App Router untuk routing modern",
+            "React 18 dengan Server Components untuk performance optimal",
+            "TypeScript untuk type safety",
+            "Tailwind CSS untuk styling yang responsive"
+          ],
+          "backend": [
+            "Express.js framework untuk backend yang efisien",
+            "SQLite database untuk penyimpanan data",
+            "Prisma ORM untuk database management",
+            "Passport.js + JWT untuk autentikasi"
+          ],
+          "komunikasi": "Frontend dan backend berkomunikasi melalui RESTful API dengan format JSON. Sistem menggunakan HTTP-only cookies untuk session management dan Bearer token untuk autentikasi API requests. AI Chatbot (SitaBot) terintegrasi dengan Google Gemini API untuk memberikan respons cerdas kepada pengguna."
+        },
+        "intro-requirements": {
+          "title": "Persyaratan Sistem",
+          "description": "Untuk menggunakan SITA-BI dengan optimal, pastikan perangkat Anda memenuhi persyaratan berikut:",
+          "browserDidukung": [
+            "Google Chrome (versi 90+)",
+            "Mozilla Firefox (versi 88+)",
+            "Microsoft Edge (versi 90+)",
+            "Safari (versi 14+)"
+          ],
+          "spesifikasiMinimum": [
+            "Koneksi Internet: Minimum 1 Mbps (Disarankan 5 Mbps+)",
+            "Resolusi Layar: Minimum 1280x720 px (Responsif untuk mobile)",
+            "JavaScript: Harus diaktifkan di browser",
+            "Cookies: Harus diizinkan untuk autentikasi"
+          ]
+        }
+      }
+    },
+    "getting-started": {
+      "title": "Memulai dengan SITA-BI",
+      "subSections": {
+        "gs-registration": {
+          "title": "Registrasi Akun",
+          "description": "Untuk menggunakan SITA-BI, Anda perlu membuat akun terlebih dahulu. Berikut langkah-langkahnya:",
+          "langkah": [
+            {
+              "step": 1,
+              "title": "Akses Halaman Registrasi",
+              "content": "Buka http://localhost:3001/register atau klik tombol \"Daftar\" di halaman login"
+            },
+            {
+              "step": 2,
+              "title": "Isi Form Registrasi",
+              "content": "Lengkapi informasi berikut dengan benar:",
+              "details": [
+                "Nama Lengkap: Sesuai identitas resmi",
+                "Email: Gunakan email institusi (@student.edu atau @staff.edu)",
+                "NIM/NIP: Nomor induk mahasiswa atau pegawai",
+                "Password: Minimal 8 karakter, kombinasi huruf dan angka",
+                "Role: Pilih Mahasiswa/Dosen/Admin sesuai status Anda"
+              ]
+            },
+            {
+              "step": 3,
+              "title": "Verifikasi Email/OTP",
+              "content": "Cek email Anda untuk kode verifikasi OTP. Masukkan kode 6 digit yang diterima untuk mengaktifkan akun Anda. Kode berlaku selama 10 menit."
+            },
+            {
+              "step": 4,
+              "title": "Akun Aktif",
+              "content": "Setelah verifikasi berhasil, akun Anda aktif dan siap digunakan. Silakan login dengan email dan password yang telah didaftarkan."
+            }
+          ],
+          "penting": "Pastikan email yang digunakan aktif dan dapat menerima email. Cek folder spam jika tidak menemukan email verifikasi di inbox."
+        },
+        "gs-login": {
+          "title": "Login & Autentikasi",
+          "description": "Setelah akun terverifikasi, Anda dapat login ke sistem SITA-BI:",
+          "loginNormal": [
+            "1. Buka halaman login di /login",
+            "2. Masukkan email dan password Anda",
+            "3. Klik tombol \"Login\"",
+            "4. Sistem akan redirect ke dashboard"
+          ],
+          "lupaPassword": [
+            "1. Klik \"Lupa Password?\" di halaman login",
+            "2. Masukkan email terdaftar",
+            "3. Cek email untuk link reset password",
+            "4. Buat password baru dan login kembali"
+          ],
+          "keamananAkun": [
+            "Session Management: Sesi login otomatis expire setelah 24 jam tidak aktif",
+            "JWT Token: Sistem menggunakan JWT untuk autentikasi yang aman",
+            "Password Encryption: Password di-hash dengan bcrypt sebelum disimpan",
+            "Multi-Device: Anda bisa login di multiple device secara bersamaan"
+          ]
+        },
+        "gs-dashboard": {
+          "title": "Navigasi Dashboard",
+          "description": "Dashboard SITA-BI dirancang intuitif dan mudah digunakan. Berikut komponen utama dashboard:",
+          "komponen": {
+            "sidebarNavigation": {
+              "description": "Menu navigasi di sisi kiri layar yang berisi semua fitur yang dapat Anda akses sesuai role:",
+              "menu": [
+                "Dashboard: Ringkasan informasi dan statistik",
+                "Tugas Akhir: Manajemen topik dan progress TA",
+                "Bimbingan: Konsultasi dengan dosen",
+                "Jadwal Sidang: Lihat dan kelola jadwal",
+                "Pengumuman: Informasi dan notifikasi",
+                "Profile: Kelola data pribadi"
+              ]
+            },
+            "notificationCenter": {
+              "description": "Icon bell di header menampilkan notifikasi real-time untuk:",
+              "items": [
+                "Approval atau reject dari dosen",
+                "Pengumuman baru dari admin",
+                "Reminder jadwal sidang",
+                "Update status tugas akhir"
+              ]
+            },
+            "contentArea": "Area utama yang menampilkan konten halaman yang sedang aktif. Setiap halaman memiliki breadcrumb navigation di bagian atas untuk memudahkan orientasi."
+          }
+        }
+      }
+    },
+    "mahasiswa": {
+      "title": "Panduan untuk Mahasiswa",
+      "subSections": {
+        "mhs-topik": {
+          "title": "Memilih Topik Tugas Akhir",
+          "description": "Salah satu fitur utama SITA-BI adalah sistem pemilihan topik tugas akhir yang transparan dan efisien.",
+          "langkah": [
+            {
+              "step": 1,
+              "title": "Akses Menu Tawaran Topik",
+              "content": "Login ke dashboard → Klik \"Tugas Akhir\" di sidebar → Tab \"Tawaran Topik\""
+            },
+            {
+              "step": 2,
+              "title": "Browse Topik yang Tersedia",
+              "content": "Lihat daftar topik dari berbagai dosen. Setiap topik menampilkan:",
+              "details": [
+                "Judul dan deskripsi topik",
+                "Nama dosen pembimbing",
+                "Kuota tersedia",
+                "Persyaratan (jika ada)",
+                "Status (Tersedia/Penuh)"
+              ]
+            },
+            {
+              "step": 3,
+              "title": "Filter dan Search",
+              "content": "Gunakan fitur filter berdasarkan kategori, dosen, atau keyword untuk menemukan topik yang sesuai minat Anda"
+            },
+            {
+              "step": 4,
+              "title": "Daftar Topik",
+              "content": "Klik tombol \"Daftar\" pada topik pilihan → Lengkapi form pengajuan → Submit"
+            },
+            {
+              "step": 5,
+              "title": "Tunggu Approval",
+              "content": "Dosen akan mereview pengajuan Anda. Status akan berubah menjadi \"Disetujui\" atau \"Ditolak\". Anda akan mendapat notifikasi email dan in-app."
+            }
+          ],
+          "tips": [
+            "Baca deskripsi topik dengan teliti sebelum mendaftar",
+            "Konsultasi dengan senior atau dosen wali jika ragu",
+            "Daftar topik cadangan jika topik pertama tidak disetujui",
+            "Pertimbangkan ketersediaan waktu dosen pembimbing"
+          ]
+        },
+        "mhs-bimbingan": {
+          "title": "Sistem Bimbingan",
+          "description": "Setelah topik disetujui, Anda dapat memulai proses bimbingan dengan dosen pembimbing secara online.",
+          "jadwalkanBimbingan": [
+            "Pilih tanggal dan jam yang tersedia",
+            "Tentukan topik yang akan didiskusikan",
+            "Upload dokumen/file pendukung (opsional)",
+            "Submit dan tunggu konfirmasi dosen"
+          ],
+          "riwayatBimbingan": [
+            "Tanggal dan waktu bimbingan",
+            "Materi yang dibahas",
+            "Feedback dari dosen",
+            "File yang di-upload",
+            "Progress dan target selanjutnya"
+          ],
+          "uploadDokumen": {
+            "description": "Anda dapat meng-upload berbagai dokumen untuk direview dosen:",
+            "types": [
+              "Proposal TA: Draft proposal untuk direview",
+              "BAB Laporan: Progress penulisan per bab",
+              "Source Code: Implementasi aplikasi/sistem",
+              "Testing Results: Hasil uji coba/testing",
+              "Presentasi: Slide untuk persiapan sidang"
+            ],
+            "note": "Format yang didukung: PDF, DOC, DOCX, PPT, PPTX, ZIP (Max: 10MB per file)"
+          }
+        },
+        "mhs-sidang": {
+          "title": "Jadwal Sidang",
+          "description": "Sistem akan secara otomatis mengatur jadwal sidang tugas akhir Anda setelah memenuhi persyaratan.",
+          "informasiJadwal": {
+            "detail": [
+              "Tanggal dan waktu sidang",
+              "Ruangan (online/offline)",
+              "Link meeting (jika online)"
+            ],
+            "timPenguji": [
+              "Dosen pembimbing",
+              "Dosen penguji 1",
+              "Dosen penguji 2"
+            ]
+          },
+          "persiapanSidang": [
+            "Upload dokumen final (laporan, source code, dll)",
+            "Siapkan presentasi PowerPoint (15-20 menit)",
+            "Test demo aplikasi/sistem yang dikembangkan",
+            "Persiapan mental dan latihan presentasi",
+            "Pastikan koneksi internet stabil (untuk sidang online)"
+          ],
+          "penting": "Hadir 15 menit lebih awal dari jadwal. Keterlambatan dapat menyebabkan pembatalan sidang dan perlu reschedule."
+        },
+        "mhs-pengumuman": {
+          "title": "Pengumuman",
+          "description": "Halaman pengumuman menampilkan informasi penting dari program studi dan dosen pembimbing.",
+          "jenisPengumuman": [
+            "Jadwal pendaftaran TA",
+            "Deadline pengumpulan dokumen",
+            "Perubahan jadwal sidang",
+            "Seminar proposal/hasil",
+            "Informasi beasiswa/kompetisi",
+            "Pengumuman umum prodi"
+          ],
+          "notifikasi": [
+            "In-App: Bell icon di header",
+            "Email: Ke alamat email terdaftar",
+            "Dashboard: Widget pengumuman terbaru"
+          ],
+          "note": "Pastikan notifikasi email aktif di settings profile"
+        }
+      }
+    },
+    "dosen": {
+      "title": "Panduan untuk Dosen",
+      "subSections": {
+        "dsn-topik": {
+          "title": "Kelola Tawaran Topik",
+          "description": "Sebagai dosen pembimbing, Anda dapat menawarkan topik tugas akhir untuk mahasiswa.",
+          "membuatTopikBaru": [
+            "1. Dashboard Dosen → Menu \"Tawaran Topik\" → Tombol \"Buat Topik Baru\"",
+            "2. Isi form dengan informasi lengkap: Judul topik yang jelas dan spesifik, Deskripsi detail (latar belakang, tujuan, scope), Kategori/bidang (Web Dev, Mobile, AI/ML, IoT, dll), Persyaratan mahasiswa (jika ada), Kuota mahasiswa (default: 1), Teknologi/tools yang akan digunakan",
+            "3. Klik \"Publish\" untuk mempublikasikan topik ke mahasiswa"
+          ],
+          "editHapusTopik": [
+            "Edit: Update informasi topik kapan saja",
+            "Tutup: Menutup pendaftaran lebih awal",
+            "Hapus: Menghapus topik yang belum ada pendaftar"
+          ],
+          "reviewPendaftar": [
+            "Lihat profil dan transkrip mahasiswa",
+            "Approve atau reject pendaftaran",
+            "Berikan catatan/alasan reject"
+          ]
+        },
+        "dsn-bimbingan": {
+          "title": "Bimbingan Mahasiswa",
+          "description": "Kelola proses bimbingan mahasiswa bimbingan Anda secara efisien.",
+          "dashboardBimbingan": [
+            "Daftar mahasiswa bimbingan aktif",
+            "Status progress masing-masing mahasiswa",
+            "Jadwal konsultasi yang akan datang",
+            "Riwayat bimbingan",
+            "Dokumen yang di-upload mahasiswa",
+            "Request bimbingan baru (pending)",
+            "Catatan dan feedback",
+            "Target milestone"
+          ],
+          "prosesBimbingan": [
+            "1. Approve Jadwal Bimbingan: Review request bimbingan dari mahasiswa → Approve atau reschedule jika tidak sesuai",
+            "2. Conduct Bimbingan: Lakukan sesi konsultasi sesuai jadwal → Diskusikan progress dan hambatan",
+            "3. Berikan Feedback: Catat hasil diskusi → Berikan feedback konstruktif → Tentukan target selanjutnya",
+            "4. Review Dokumen: Download dan review dokumen yang di-upload → Berikan komentar dan revisi",
+            "5. Update Status: Update progress status (Proposal, Pengerjaan, Testing, Finishing, Siap Sidang)"
+          ]
+        },
+        "dsn-penilaian": {
+          "title": "Penilaian Sidang",
+          "description": "Sistem penilaian sidang tugas akhir yang terstruktur dan transparan.",
+          "komponenPenilaian": [
+            {
+              "aspek": "Presentasi",
+              "bobot": "25%",
+              "keterangan": "Penyampaian, sistematika, penguasaan materi"
+            },
+            {
+              "aspek": "Laporan",
+              "bobot": "30%",
+              "keterangan": "Kelengkapan, sistematika, tata bahasa"
+            },
+            {
+              "aspek": "Implementasi",
+              "bobot": "30%",
+              "keterangan": "Fungsionalitas, kualitas code, kompleksitas"
+            },
+            {
+              "aspek": "Tanya Jawab",
+              "bobot": "15%",
+              "keterangan": "Kemampuan menjawab, argumentasi, solusi"
+            }
+          ],
+          "inputNilai": [
+            "1. Akses menu \"Penilaian Sidang\"",
+            "2. Pilih mahasiswa yang baru saja sidang",
+            "3. Input nilai untuk setiap komponen (0-100)",
+            "4. Berikan catatan dan saran perbaikan",
+            "5. Tentukan status: Lulus atau Lulus dengan Revisi",
+            "6. Submit nilai (nilai final akan dihitung otomatis)"
+          ]
+        },
+        "dsn-approval": {
+          "title": "Persetujuan",
+          "description": "Kelola berbagai persetujuan terkait tugas akhir mahasiswa bimbingan.",
+          "jenisApproval": [
+            "Approval proposal tugas akhir",
+            "Persetujuan judul final",
+            "Approval untuk sidang",
+            "Persetujuan revisi pasca sidang",
+            "Sign-off untuk kelulusan"
+          ],
+          "prosesApproval": [
+            "1. Notifikasi request approval",
+            "2. Review dokumen mahasiswa",
+            "3. Approve/Reject dengan catatan",
+            "4. Mahasiswa mendapat notifikasi hasil"
+          ]
+        }
+      }
+    },
+    "admin": {
+      "title": "Panduan untuk Admin/Koordinator",
+      "subSections": {
+        "adm-users": {
+          "title": "Manajemen User",
+          "description": "Admin memiliki akses penuh untuk mengelola seluruh user dalam sistem.",
+          "fitur": [
+            "View All Users: Lihat daftar semua mahasiswa, dosen, dan admin",
+            "Create User: Tambah user baru dengan role tertentu",
+            "Edit User: Update informasi user (nama, email, role, dll)",
+            "Deactivate/Activate: Nonaktifkan atau aktifkan akun user",
+            "Reset Password: Reset password user yang lupa",
+            "Filter & Search: Cari user berdasarkan nama, NIM, role, dll"
+          ],
+          "bestPractice": "Lakukan backup data user secara berkala. Jangan hapus user yang masih memiliki tugas akhir aktif untuk menjaga integritas data."
+        },
+        "adm-jadwal": {
+          "title": "Pengaturan Jadwal Sidang",
+          "description": "Sistem penjadwalan sidang otomatis dengan kemampuan manual override.",
+          "penjadwalanOtomotis": [
+            "Ketersediaan dosen pembimbing dan penguji",
+            "Ketersediaan ruangan",
+            "Konflik jadwal mengajar dosen",
+            "Distribusi merata antar hari",
+            "Priority mahasiswa (by tanggal pengajuan)"
+          ],
+          "manualScheduling": [
+            "1. Pilih mahasiswa yang siap sidang",
+            "2. Tentukan tanggal dan waktu",
+            "3. Assign dosen penguji (2-3 dosen)",
+            "4. Pilih ruangan (fisik atau meeting room online)",
+            "5. Konfirmasi dan kirim notifikasi ke semua pihak"
+          ],
+          "rescheduleCancel": [
+            "Reschedule ke tanggal/waktu lain",
+            "Ganti dosen penguji jika berhalangan",
+            "Ganti ruangan jika tidak tersedia",
+            "Cancel sidang dan buat jadwal baru"
+          ],
+          "note": "Semua perubahan akan otomatis mengirim notifikasi ke pihak terkait"
+        },
+        "adm-pengumuman": {
+          "title": "Kelola Pengumuman",
+          "description": "Buat dan kelola pengumuman untuk mahasiswa dan dosen.",
+          "buatPengumuman": [
+            "1. Klik \"Buat Pengumuman Baru\"",
+            "2. Isi judul yang menarik perhatian",
+            "3. Tulis konten lengkap (support rich text)",
+            "4. Pilih kategori (Info, Urgent, Event, dll)",
+            "5. Tentukan target audience (All, Mahasiswa, Dosen)",
+            "6. Set tanggal publikasi dan expiry",
+            "7. Publish atau Save as Draft"
+          ],
+          "fitur": [
+            "Priority Level: Normal, Important, Urgent",
+            "Auto Notification: Email + In-app",
+            "Attachments: Upload file pendukung",
+            "Scheduled Publish: Terbitkan di waktu tertentu",
+            "Analytics: Lihat berapa yang sudah baca",
+            "Edit/Delete: Update atau hapus pengumuman"
+          ]
+        },
+        "adm-laporan": {
+          "title": "Laporan & Analytics",
+          "description": "Generate berbagai laporan untuk monitoring dan evaluasi sistem.",
+          "jenisLaporan": {
+            "statistikUmum": [
+              "Total mahasiswa aktif TA",
+              "Distribusi topik per dosen",
+              "Progress status mahasiswa",
+              "Tingkat kelulusan"
+            ],
+            "laporanPeriode": [
+              "Laporan bulanan/semester",
+              "Jumlah sidang per bulan",
+              "Rata-rata durasi pengerjaan TA",
+              "Dosen paling produktif"
+            ],
+            "exportData": [
+              "Export ke Excel/CSV",
+              "Generate PDF report",
+              "Custom date range",
+              "Filter by prodi/angkatan"
+            ],
+            "kpiMonitoring": [
+              "Rata-rata waktu approval",
+              "Response time dosen",
+              "Tingkat kepuasan mahasiswa",
+              "System uptime"
+            ]
+          }
+        }
+      }
+    },
+    "features": {
+      "title": "Fitur & Modul Unggulan",
+      "description": "SITA-BI dilengkapi dengan berbagai fitur modern untuk pengalaman pengguna yang optimal.",
+      "fitur": [
+        {
+          "name": "AI Chatbot (SitaBot)",
+          "iconName": "Code",
+          "description": "Asisten virtual berbasis Google Gemini AI yang siap membantu 24/7.",
+          "details": [
+            "Menjawab pertanyaan seputar TA",
+            "Panduan penggunaan sistem",
+            "Informasi jadwal dan deadline",
+            "Tips & best practices"
+          ]
+        },
+        {
+          "name": "Real-time Notifications",
+          "iconName": "Bell",
+          "description": "Notifikasi instant melalui multiple channel.",
+          "details": [
+            "In-app notifications",
+            "Email notifications",
+            "Push notifications (coming soon)",
+            "SMS alerts untuk jadwal penting"
+          ]
+        },
+        {
+          "name": "Document Management",
+          "iconName": "FileText",
+          "description": "Kelola semua dokumen TA dalam satu tempat.",
+          "details": [
+            "Upload & download dokumen",
+            "Version control",
+            "Preview online",
+            "Secure cloud storage"
+          ]
+        },
+        {
+          "name": "Smart Scheduling",
+          "iconName": "Calendar",
+          "description": "Penjadwalan cerdas dengan algoritma optimasi.",
+          "details": [
+            "Auto scheduling sidang",
+            "Conflict detection",
+            "Calendar integration",
+            "Reminder otomatis"
+          ]
+        }
+      ]
+    },
+    "technology": {
+      "title": "Teknologi & Stack",
+      "description": "SITA-BI dibangun dengan teknologi modern dan best practices industry standard.",
+      "stacks": {
+        "frontend": [
+          "Next.js 15: React framework with SSR & SSG",
+          "TypeScript: Type-safe development",
+          "Tailwind CSS: Utility-first CSS framework",
+          "Lucide Icons: Beautiful icon library"
+        ],
+        "backend": [
+          "Express.js: Fast & minimalist Node.js framework",
+          "SQLite: Lightweight relational database",
+          "Prisma ORM: Type-safe database client",
+          "Passport.js + JWT: Authentication & authorization"
+        ],
+        "devOpsTools": [
+          "Turborepo: Monorepo build system",
+          "pnpm: Fast package manager",
+          "ESLint & Prettier: Code quality tools",
+          "Google Gemini AI: AI chatbot integration"
+        ]
+      },
+      "whyTheseTechnologies": {
+        "performance": "Next.js SSR/SSG ensures fast page loads. SQLite provides quick read/write operations with zero configuration.",
+        "security": "Passport.js with JWT authentication, bcrypt password hashing, dan session management melindungi data pengguna.",
+        "scalability": "Monorepo architecture dengan Turborepo memudahkan scaling dan deployment aplikasi secara modular.",
+        "maintainability": "TypeScript 100% ensures type safety. Clean architecture dengan service layer makes code easy to maintain."
+      }
+    }
+  },
+  "footer": {
+    "cta": {
+      "title": "Butuh Bantuan?",
+      "description": "SitaBot AI Assistant siap membantu Anda 24/7!",
+      "links": [
+        {
+          "href": "/",
+          "label": "Kembali ke Beranda"
+        },
+        {
+          "href": "/login",
+          "label": "Login Sekarang"
+        }
+      ]
+    },
+    "copyright": "© 2024 SITA-BI - Sistem Informasi Tugas Akhir Bahasa Inggris",
+    "version": "Version 1.0.0 | Last Updated: November 2024"
+  }
+}
