@@ -139,6 +139,7 @@ model User {
   notifikasi         NotifikasiTA[]
   emailTokens        EmailVerificationToken[]
   catatanBimbingan   CatatanBimbingan[] // Catatan yang dibuat oleh user ini
+  files              File[] // File yang diunggah oleh user ini
 
   @@map("users")
 }
@@ -536,4 +537,24 @@ model NotifikasiTA {
   tugasAkhir TugasAkhir @relation(fields: [tugas_akhir_id], references: [id])
 
   @@map("notifikasi_ta")
+}
+
+//================================================================================
+//  MODEL FILE MANAGEMENT
+//================================================================================
+
+model File {
+  id            Int      @id @default(autoincrement())
+  original_name String
+  filename      String   @unique
+  path          String
+  mime_type     String
+  size          Int
+  uploaded_by   Int?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  uploader      User?    @relation(fields: [uploaded_by], references: [id])
+
+  @@map("files")
 }
