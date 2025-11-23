@@ -158,11 +158,11 @@ export function useChatLogic() {
         });
       } else {
         console.error('Fetch error:', error);
-        setMessages(prev => {
-          // const allButLast = prev.slice(0, -1); // Removed unused variable
+        setMessages((prev) => {
+          const allButLast = prev.slice(0, -1);
           const last = prev[prev.length - 1];
           if (last && last.role === 'assistant' && last.content.trim() === '') {
-            return prev.slice(0, -1);
+             return allButLast;
           }
           return prev;
         });

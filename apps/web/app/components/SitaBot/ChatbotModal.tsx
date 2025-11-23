@@ -44,9 +44,9 @@ export default function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
   if (!isOpen) return null;
 
   const handleSendClick = () => {
-    const fakeEvent = { preventDefault: () => {} };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    handleSubmit(fakeEvent as any);
+    const fakeEvent: any = { preventDefault: () => {} };
+    handleSubmit(fakeEvent);
   };
 
   const handleClose = () => {
