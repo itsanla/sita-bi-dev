@@ -14,7 +14,10 @@ interface ProgressTimelineProps {
   loading: boolean;
 }
 
-export default function ProgressTimeline({ stats, loading }: ProgressTimelineProps) {
+export default function ProgressTimeline({
+  stats,
+  loading,
+}: ProgressTimelineProps) {
   if (loading) {
     return (
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -37,9 +40,20 @@ export default function ProgressTimeline({ stats, loading }: ProgressTimelinePro
   const timeline: TimelineItem[] = [
     {
       title: 'Pengajuan Judul',
-      description: stats?.tugasAkhir?.disetujui > 0 ? 'Judul tugas akhir telah disetujui' : 'Belum mengajukan judul',
-      status: stats?.tugasAkhir?.disetujui > 0 ? 'completed' : stats?.tugasAkhir?.pending > 0 ? 'current' : 'upcoming',
-      date: stats?.tugasAkhir?.disetujui > 0 || stats?.tugasAkhir?.pending > 0 ? 'Telah diajukan' : undefined,
+      description:
+        stats?.tugasAkhir?.disetujui > 0
+          ? 'Judul tugas akhir telah disetujui'
+          : 'Belum mengajukan judul',
+      status:
+        stats?.tugasAkhir?.disetujui > 0
+          ? 'completed'
+          : stats?.tugasAkhir?.pending > 0
+            ? 'current'
+            : 'upcoming',
+      date:
+        stats?.tugasAkhir?.disetujui > 0 || stats?.tugasAkhir?.pending > 0
+          ? 'Telah diajukan'
+          : undefined,
     },
     {
       title: 'Bimbingan',
@@ -49,8 +63,16 @@ export default function ProgressTimeline({ stats, loading }: ProgressTimelinePro
     },
     {
       title: 'Pendaftaran Sidang',
-      description: stats?.sidang?.status === 'Terdaftar' ? 'Terdaftar untuk sidang' : 'Menunggu kelengkapan berkas',
-      status: stats?.sidang?.status === 'Terdaftar' ? 'completed' : stats?.bimbingan?.total > 5 ? 'current' : 'upcoming',
+      description:
+        stats?.sidang?.status === 'Terdaftar'
+          ? 'Terdaftar untuk sidang'
+          : 'Menunggu kelengkapan berkas',
+      status:
+        stats?.sidang?.status === 'Terdaftar'
+          ? 'completed'
+          : stats?.bimbingan?.total > 5
+            ? 'current'
+            : 'upcoming',
     },
     {
       title: 'Sidang Tugas Akhir',
@@ -106,8 +128,8 @@ export default function ProgressTimeline({ stats, loading }: ProgressTimelinePro
                     item.status === 'completed'
                       ? 'text-gray-900'
                       : item.status === 'current'
-                      ? 'text-blue-900'
-                      : 'text-gray-500'
+                        ? 'text-blue-900'
+                        : 'text-gray-500'
                   } group-hover:text-blue-600 transition-colors duration-300`}
                 >
                   {item.title}
@@ -130,7 +152,9 @@ export default function ProgressTimeline({ stats, loading }: ProgressTimelinePro
           <span className="text-sm font-medium text-gray-600">
             Progress Keseluruhan
           </span>
-          <span className="text-sm font-bold text-blue-600">{stats?.progress?.percentage || 0}%</span>
+          <span className="text-sm font-bold text-blue-600">
+            {stats?.progress?.percentage || 0}%
+          </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
           <div

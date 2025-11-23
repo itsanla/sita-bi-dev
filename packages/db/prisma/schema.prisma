@@ -96,6 +96,19 @@ enum AudiensPengumuman {
   mahasiswa
 }
 
+enum PrioritasPengumuman {
+  RENDAH
+  MENENGAH
+  TINGGI
+}
+
+enum KategoriPengumuman {
+  AKADEMIK
+  ADMINISTRASI
+  KEMAHASISWAAN
+  LAINNYA
+}
+
 enum TipeDokumenBimbingan {
   bimbingan
 }
@@ -133,6 +146,7 @@ model User {
   // Relasi Kepemilikan Data
   logs               Log[]
   pengumumanDibuat   Pengumuman[]
+  pengumumanDibaca   PengumumanPembaca[]
   tawaranTopikDibuat TawaranTopik[]
   taDisetujui        TugasAkhir[]             @relation("Approver")
   taDitolak          TugasAkhir[]             @relation("Rejecter")
@@ -489,13 +503,49 @@ model Pengumuman {
   dibuat_oleh    Int
   audiens        AudiensPengumuman
   tanggal_dibuat DateTime
+
+  // Fitur Lanjutan: Penjadwalan & Status
+  is_published   Boolean           @default(false)
+  scheduled_at   DateTime?
+  prioritas      PrioritasPengumuman @default(MENENGAH)
+  kategori       KategoriPengumuman  @default(LAINNYA)
+  berakhir_pada  DateTime?
+
   deleted_at     DateTime?
   created_at     DateTime          @default(now())
   updated_at     DateTime          @updatedAt
 
-  pembuat User @relation(fields: [dibuat_oleh], references: [id])
+  pembuat   User                 @relation(fields: [dibuat_oleh], references: [id])
+  lampiran  PengumumanLampiran[]
+  pembaca   PengumumanPembaca[]
 
   @@map("pengumuman")
+}
+
+model PengumumanLampiran {
+  id            Int      @id @default(autoincrement())
+  pengumuman_id Int
+  file_path     String
+  file_name     String?
+  file_type     String?
+  created_at    DateTime @default(now())
+
+  pengumuman    Pengumuman @relation(fields: [pengumuman_id], references: [id], onDelete: Cascade)
+
+  @@map("pengumuman_lampiran")
+}
+
+model PengumumanPembaca {
+  id            Int      @id @default(autoincrement())
+  pengumuman_id Int
+  user_id       Int
+  read_at       DateTime @default(now())
+
+  pengumuman    Pengumuman @relation(fields: [pengumuman_id], references: [id], onDelete: Cascade)
+  user          User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([pengumuman_id, user_id])
+  @@map("pengumuman_pembaca")
 }
 
 model Log {

@@ -22,19 +22,23 @@ export default function MahasiswaDashboardPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const userId = localStorage.getItem('userId') || localStorage.getItem('token');
-        
+        const userId =
+          localStorage.getItem('userId') || localStorage.getItem('token');
+
         if (!userId) {
           setLoading(false);
           return;
         }
 
-        const response = await fetch('http://localhost:3002/api/dashboard/mahasiswa/stats', {
-          headers: {
-            'x-user-id': userId,
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          'http://localhost:3002/api/dashboard/mahasiswa/stats',
+          {
+            headers: {
+              'x-user-id': userId,
+              'Content-Type': 'application/json',
+            },
           },
-        });
+        );
 
         if (response.ok) {
           const result = await response.json();
