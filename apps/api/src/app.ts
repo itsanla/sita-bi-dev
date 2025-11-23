@@ -25,6 +25,7 @@ import authRouter from './api/auth.router';
 import whatsappRouter from './api/whatsapp.router'; // WhatsApp router
 import geminiRouter from './api/gemini.router'; // Gemini AI chatbot router
 import dashboardRouter from './api/dashboard.router'; // Dashboard router
+import notificationRouter from './api/notification.router';
 import { errorHandler } from './middlewares/error.middleware';
 import { getUploadPath, getMonorepoRoot } from './utils/upload.config';
 import { whatsappService } from './services/whatsapp.service'; // WhatsApp service
@@ -102,6 +103,7 @@ app.use('/api/sidang', sidangRouter);
 app.use('/api/whatsapp', whatsappRouter); // WhatsApp routes
 app.use('/api/gemini', geminiRouter); // Gemini AI chatbot routes
 app.use('/api/dashboard', dashboardRouter); // Dashboard routes
+app.use('/api/notifications', notificationRouter);
 
 // Error Handling Middleware
 app.use(errorHandler);

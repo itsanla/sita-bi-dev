@@ -21,6 +21,7 @@ export interface MahasiswaProfile {
 export interface CustomUser {
   id: number;
   email: string;
+  phone_number: string; // Added phone_number
   role: Role;
   dosen?: DosenProfile | null;
   mahasiswa?: MahasiswaProfile | null;

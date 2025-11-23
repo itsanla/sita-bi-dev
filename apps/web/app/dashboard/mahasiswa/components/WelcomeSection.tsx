@@ -79,7 +79,7 @@ export default function WelcomeSection() {
         <div className="flex flex-wrap gap-2 mt-4">
           <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1 text-xs font-medium text-white hover:bg-white/20 transition-all duration-300 cursor-pointer">
             <span className="w-1.5 h-1.5 bg-blue-300 rounded-full"></span>
-            NIM: {user?.username || '-'}
+            NIM: {user?.mahasiswa?.nim || '-'}
           </span>
           <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1 text-xs font-medium text-white hover:bg-white/20 transition-all duration-300 cursor-pointer">
             <span className="w-1.5 h-1.5 bg-green-300 rounded-full"></span>

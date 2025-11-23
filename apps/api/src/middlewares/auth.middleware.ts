@@ -54,6 +54,7 @@ export const authMiddleware = async (
     req.user = {
       id: user.id,
       email: user.email,
+      phone_number: user.phone_number, // Added this field
       role: userRole.name as Role,
       dosen:
         user.dosen != null
@@ -83,3 +84,6 @@ export const insecureAuthMiddleware = authMiddleware;
 
 // Export as authenticate for consistency with other parts of the codebase
 export const authenticate = authMiddleware;
+
+// Export as authenticateJWT to match other files usage
+export const authenticateJWT = authMiddleware;

@@ -96,6 +96,11 @@ enum AudiensPengumuman {
   mahasiswa
 }
 
+enum NotificationChannel {
+  EMAIL
+  WHATSAPP
+}
+
 enum TipeDokumenBimbingan {
   bimbingan
 }
@@ -137,6 +142,7 @@ model User {
   taDisetujui        TugasAkhir[]             @relation("Approver")
   taDitolak          TugasAkhir[]             @relation("Rejecter")
   notifikasi         NotifikasiTA[]
+  notificationHistory NotificationHistory[]
   emailTokens        EmailVerificationToken[]
   catatanBimbingan   CatatanBimbingan[] // Catatan yang dibuat oleh user ini
 
@@ -536,4 +542,20 @@ model NotifikasiTA {
   tugasAkhir TugasAkhir @relation(fields: [tugas_akhir_id], references: [id])
 
   @@map("notifikasi_ta")
+}
+
+model NotificationHistory {
+  id          Int                 @id @default(autoincrement())
+  user_id     Int
+  channel     NotificationChannel
+  recipient   String
+  subject     String?
+  message     String
+  status      String // SENT, FAILED
+  error       String?
+  sent_at     DateTime            @default(now())
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("notification_history")
 }

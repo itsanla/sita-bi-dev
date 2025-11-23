@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Search, FileCheck, AlertTriangle, CheckCircle, Sparkles, Send } from 'lucide-react';
-import Button from '@/app/components/ui/Button';
 import { useSimilarityCheck, useSubmitTitle } from '@/hooks/useTugasAkhir';
 
 interface SimilarityFormProps {

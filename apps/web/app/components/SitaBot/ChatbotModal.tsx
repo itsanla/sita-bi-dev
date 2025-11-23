@@ -38,13 +38,15 @@ export default function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
       
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleSendClick = () => {
     const fakeEvent = { preventDefault: () => {} };
-    handleSubmit(fakeEvent);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    handleSubmit(fakeEvent as any);
   };
 
   const handleClose = () => {
