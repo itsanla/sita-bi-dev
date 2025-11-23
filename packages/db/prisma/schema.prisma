@@ -14,6 +14,13 @@ datasource db {
 //  ENUMS
 //================================================================================
 
+enum LogLevel {
+  INFO
+  WARN
+  ERROR
+  DEBUG
+}
+
 enum Prodi {
   D3
   D4
@@ -506,6 +513,10 @@ model Log {
   user_agent String?
   url        String?
   method     String?
+  details    String?
+  module     String?
+  entity_id  Int?
+  level      LogLevel @default(INFO)
   created_at DateTime @default(now())
 
   user User? @relation(fields: [user_id], references: [id])

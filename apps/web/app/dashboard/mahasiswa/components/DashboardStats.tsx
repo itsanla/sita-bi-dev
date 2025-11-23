@@ -35,7 +35,10 @@ interface DashboardStatsProps {
   loading: boolean;
 }
 
-export default function DashboardStats({ stats, loading }: DashboardStatsProps) {
+export default function DashboardStats({
+  stats,
+  loading,
+}: DashboardStatsProps) {
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -73,13 +76,20 @@ export default function DashboardStats({ stats, loading }: DashboardStatsProps) 
       gradient: 'from-emerald-500 to-green-500',
       iconBg: 'bg-emerald-50',
       iconColor: 'text-emerald-600',
-      trend: stats.bimbingan.bulanIni > 0 ? `+${Math.round((stats.bimbingan.bulanIni / stats.bimbingan.total) * 100)}%` : '',
+      trend:
+        stats.bimbingan.bulanIni > 0
+          ? `+${Math.round((stats.bimbingan.bulanIni / stats.bimbingan.total) * 100)}%`
+          : '',
     },
     {
       title: 'Status Sidang',
       value: stats.sidang.status,
-      subtitle: stats.sidang.tanggal 
-        ? new Date(stats.sidang.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+      subtitle: stats.sidang.tanggal
+        ? new Date(stats.sidang.tanggal).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })
         : 'Belum dijadwalkan',
       icon: Calendar,
       gradient: 'from-purple-500 to-pink-500',

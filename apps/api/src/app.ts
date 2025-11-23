@@ -5,6 +5,7 @@ import contohPrismaRouter from './api/contoh-prisma.router';
 import bimbinganRouter from './api/bimbingan.router';
 import jadwalSidangRouter from './api/jadwal-sidang.router';
 import laporanRouter from './api/laporan.router';
+import reportRouter from './api/report.router';
 import logRouter from './api/log.router';
 import pendaftaranSidangRouter from './api/pendaftaran-sidang.router';
 import pengumumanRouter from './api/pengumuman.router';
@@ -26,6 +27,7 @@ import whatsappRouter from './api/whatsapp.router'; // WhatsApp router
 import geminiRouter from './api/gemini.router'; // Gemini AI chatbot router
 import dashboardRouter from './api/dashboard.router'; // Dashboard router
 import { errorHandler } from './middlewares/error.middleware';
+import { activityLogger } from './middlewares/logger.middleware';
 import { getUploadPath, getMonorepoRoot } from './utils/upload.config';
 import { whatsappService } from './services/whatsapp.service'; // WhatsApp service
 
@@ -33,6 +35,7 @@ const app: express.Express = express();
 
 // Global Middlewares
 app.use(express.json());
+app.use(activityLogger);
 
 // Explicit CORS configuration
 const corsOptions = {
@@ -85,6 +88,7 @@ app.use('/api/contoh-prisma', contohPrismaRouter);
 app.use('/api/bimbingan', bimbinganRouter);
 app.use('/api/jadwal-sidang', jadwalSidangRouter);
 app.use('/api/laporan', laporanRouter);
+app.use('/api/reports', reportRouter);
 app.use('/api/logs', logRouter);
 app.use('/api/pendaftaran-sidang', pendaftaranSidangRouter);
 app.use('/api/pengumuman', pengumumanRouter);

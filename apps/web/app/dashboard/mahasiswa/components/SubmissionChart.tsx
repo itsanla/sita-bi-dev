@@ -8,7 +8,10 @@ interface SubmissionChartProps {
   loading: boolean;
 }
 
-export default function SubmissionChart({ stats, loading }: SubmissionChartProps) {
+export default function SubmissionChart({
+  stats,
+  loading,
+}: SubmissionChartProps) {
   if (loading) {
     return (
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -34,7 +37,8 @@ export default function SubmissionChart({ stats, loading }: SubmissionChartProps
   };
 
   const total = data.disetujui + data.pending + data.ditolak;
-  const approvalRate = total > 0 ? ((data.disetujui / total) * 100).toFixed(0) : 0;
+  const approvalRate =
+    total > 0 ? ((data.disetujui / total) * 100).toFixed(0) : 0;
 
   const chartData = [
     {
@@ -116,8 +120,8 @@ export default function SubmissionChart({ stats, loading }: SubmissionChartProps
                       item.color === 'bg-green-500'
                         ? '#10b981'
                         : item.color === 'bg-amber-500'
-                        ? '#f59e0b'
-                        : '#ef4444'
+                          ? '#f59e0b'
+                          : '#ef4444'
                     }
                     strokeWidth="20"
                     strokeDasharray={strokeDasharray}

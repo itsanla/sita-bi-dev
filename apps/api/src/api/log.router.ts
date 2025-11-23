@@ -13,7 +13,7 @@ const logService = new LogService();
 
 router.get(
   '/',
-  asyncHandler(authMiddleware),
+  authMiddleware,
   authorizeRoles([Role.admin]),
   asyncHandler(async (req, res): Promise<void> => {
     const page =
@@ -24,7 +24,14 @@ router.get(
       req.query['limit'] != null
         ? parseInt(req.query['limit'] as string)
         : undefined;
-    const logs = await logService.findAll(page, limit);
+
+    const filters = {
+      module: req.query['module'],
+      user_id: req.query['user_id'],
+      entity_id: req.query['entity_id'],
+    };
+
+    const logs = await logService.findAll(page, limit, filters);
     res.status(200).json({ status: 'sukses', data: logs });
   }),
 );
