@@ -12,6 +12,8 @@ import {
   XCircle,
   BookOpen,
   MessageSquare,
+  History,
+  Calendar,
 } from 'lucide-react';
 
 // --- Interfaces ---
@@ -22,12 +24,29 @@ interface Catatan {
   created_at: string;
 }
 
+interface Lampiran {
+  id: number;
+  file_path: string;
+  original_name: string;
+  created_at: string;
+  uploader: { name: string };
+}
+
+interface HistoryPerubahan {
+  id: number;
+  status: string;
+  alasan_perubahan: string | null;
+  created_at: string;
+}
+
 interface BimbinganSession {
   id: number;
   status_bimbingan: string;
   tanggal_bimbingan: string;
   jam_bimbingan: string;
   catatan: Catatan[];
+  lampiran: Lampiran[];
+  historyPerubahan: HistoryPerubahan[];
 }
 
 interface TugasAkhir {
@@ -78,33 +97,45 @@ function ScheduleForm({
       onSubmit={handleSubmit}
       className="p-4 bg-gray-50 rounded-lg border border-gray-200 mt-4"
     >
-      <h4 className="font-semibold text-gray-800 mb-2">Jadwalkan Sesi Baru</h4>
-      <div className="flex flex-wrap items-center gap-4">
-        <input
-          type="date"
-          value={tanggal}
-          onChange={(e) => setTanggal(e.target.value)}
-          className="input-styling"
-          required
-        />
-        <input
-          type="time"
-          value={jam}
-          onChange={(e) => setJam(e.target.value)}
-          className="input-styling"
-          required
-        />
+      <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+        <CalendarPlus size={18} className="text-red-600" />
+        Jadwalkan Sesi Baru
+      </h4>
+      <div className="flex flex-wrap items-end gap-4">
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">
+            Tanggal
+          </label>
+          <input
+            type="date"
+            value={tanggal}
+            onChange={(e) => setTanggal(e.target.value)}
+            className="px-3 py-2 border rounded-md text-sm"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">
+            Waktu
+          </label>
+          <input
+            type="time"
+            value={jam}
+            onChange={(e) => setJam(e.target.value)}
+            className="px-3 py-2 border rounded-md text-sm"
+            required
+          />
+        </div>
         <button
           type="submit"
           disabled={submitting}
-          className="btn-primary inline-flex items-center"
+          className="px-4 py-2 bg-red-700 text-white rounded-md text-sm hover:bg-red-800 disabled:bg-gray-400 flex items-center"
         >
           {submitting ? (
             <Loader className="animate-spin mr-2" size={16} />
           ) : (
-            <CalendarPlus size={16} className="mr-2" />
+            'Simpan Jadwal'
           )}
-          Atur Jadwal
         </button>
       </div>
     </form>
@@ -146,10 +177,14 @@ function AddNoteForm({
         value={catatan}
         onChange={(e) => setCatatan(e.target.value)}
         placeholder="Tambah catatan..."
-        className="input-styling flex-grow"
+        className="flex-grow px-3 py-2 border rounded-md text-sm"
         required
       />
-      <button type="submit" disabled={submitting} className="btn-secondary p-2">
+      <button
+        type="submit"
+        disabled={submitting}
+        className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
+      >
         {submitting ? (
           <Loader className="animate-spin" size={16} />
         ) : (
@@ -228,7 +263,7 @@ export default function DosenBimbinganPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-20">
       <h1 className="text-3xl font-bold text-gray-800">Mahasiswa Bimbingan</h1>
 
       {supervisedStudents.length === 0 ? (
@@ -242,99 +277,206 @@ export default function DosenBimbinganPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {supervisedStudents.map((ta) => (
             <div key={ta.id} className="bg-white p-6 rounded-2xl shadow-lg">
-              <div className="mb-4">
+              <div className="mb-6 border-b pb-4">
                 <h2 className="text-2xl font-bold text-gray-900">
                   {ta.mahasiswa.user.name}
                 </h2>
-                <p className="text-md text-gray-600">{ta.judul}</p>
-                <p className="text-sm font-medium text-gray-500 mt-1">
-                  Status TA:{' '}
-                  <span className="font-bold text-maroon-800">{ta.status}</span>
-                </p>
+                <p className="text-md text-gray-600 mt-1">{ta.judul}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-sm font-medium text-gray-500">
+                    Status TA:
+                  </span>
+                  <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">
+                    {ta.status}
+                  </span>
+                </div>
               </div>
 
               <ScheduleForm tugasAkhirId={ta.id} onActionSuccess={fetchData} />
 
-              <div className="mt-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
-                  <BookOpen size={20} className="mr-2" /> Sesi Bimbingan
+              <div className="mt-8">
+                <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                  <BookOpen size={20} className="mr-2 text-gray-500" /> Riwayat
+                  Sesi Bimbingan
                 </h4>
+
                 {ta.bimbinganTa.length > 0 ? (
                   <div className="space-y-4">
                     {ta.bimbinganTa.map((session) => (
                       <div
                         key={session.id}
-                        className="bg-gray-50 p-4 rounded-lg border"
+                        className={`rounded-lg border overflow-hidden ${
+                          session.status_bimbingan === 'selesai'
+                            ? 'border-green-200 bg-green-50/30'
+                            : session.status_bimbingan === 'dibatalkan'
+                              ? 'border-red-200 bg-red-50/30'
+                              : 'border-blue-200 bg-white'
+                        }`}
                       >
-                        <div className="flex justify-between items-center mb-2">
-                          <p className="font-semibold text-gray-800">
-                            Sesi ID: {session.id}
-                          </p>
+                        {/* Session Header */}
+                        <div
+                          className={`px-4 py-3 flex justify-between items-center border-b ${
+                            session.status_bimbingan === 'selesai'
+                              ? 'bg-green-50'
+                              : session.status_bimbingan === 'dibatalkan'
+                                ? 'bg-red-50'
+                                : 'bg-blue-50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`p-1.5 rounded-full ${
+                                session.status_bimbingan === 'selesai'
+                                  ? 'bg-green-200 text-green-700'
+                                  : session.status_bimbingan === 'dibatalkan'
+                                    ? 'bg-red-200 text-red-700'
+                                    : 'bg-blue-200 text-blue-700'
+                              }`}
+                            >
+                              <Calendar size={16} />
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-gray-800">
+                                {new Date(
+                                  session.tanggal_bimbingan,
+                                ).toLocaleDateString('id-ID')}{' '}
+                                • {session.jam_bimbingan || '-'}
+                              </p>
+                            </div>
+                          </div>
                           <span
-                            className={`px-3 py-1 text-xs font-bold rounded-full ${session.status_bimbingan === 'DIJADWALKAN' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}
+                            className={`text-xs font-bold uppercase px-2 py-1 rounded ${
+                              session.status_bimbingan === 'selesai'
+                                ? 'bg-green-200 text-green-800'
+                                : session.status_bimbingan === 'dibatalkan'
+                                  ? 'bg-red-200 text-red-800'
+                                  : 'bg-blue-200 text-blue-800'
+                            }`}
                           >
                             {session.status_bimbingan}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600">
-                          Jadwal:{' '}
-                          {new Date(session.tanggal_bimbingan).toLocaleString()}
-                        </p>
 
-                        <div className="flex items-center gap-2 mt-3">
-                          <button
-                            onClick={() =>
-                              handleSessionAction(session.id, 'selesaikan')
-                            }
-                            className="btn-sm-success"
-                          >
-                            <CheckCircle size={14} className="mr-1" />{' '}
-                            Selesaikan
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleSessionAction(session.id, 'cancel')
-                            }
-                            className="btn-sm-danger"
-                          >
-                            <XCircle size={14} className="mr-1" /> Batalkan
-                          </button>
-                        </div>
-
-                        <div className="mt-4 pt-3 border-t">
-                          <h5 className="text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                            <MessageSquare size={16} className="mr-2" /> Catatan
-                          </h5>
-                          <div className="space-y-2">
-                            {session.catatan.map((c) => (
-                              <div
-                                key={c.id}
-                                className="text-sm text-gray-800 bg-white p-2 rounded-md shadow-sm"
+                        <div className="p-4">
+                          {/* Actions for Scheduled Sessions */}
+                          {session.status_bimbingan === 'dijadwalkan' && (
+                            <div className="flex items-center gap-3 mb-4 pb-4 border-b">
+                              <button
+                                onClick={() =>
+                                  handleSessionAction(session.id, 'selesaikan')
+                                }
+                                className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 transition-colors"
                               >
-                                <strong>{c.author.name}:</strong> {c.catatan}
+                                <CheckCircle size={14} />
+                                Tandai Selesai
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleSessionAction(session.id, 'cancel')
+                                }
+                                className="flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 transition-colors"
+                              >
+                                <XCircle size={14} />
+                                Batalkan Sesi
+                              </button>
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Catatan Section */}
+                            <div>
+                              <h5 className="text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-1">
+                                <MessageSquare size={12} /> Diskusi & Catatan
+                              </h5>
+                              <div className="bg-gray-50 rounded border p-3 max-h-40 overflow-y-auto space-y-2">
+                                {session.catatan.map((c) => (
+                                  <div key={c.id} className="text-sm">
+                                    <span className="font-bold text-gray-800 text-xs">
+                                      {c.author.name}:{' '}
+                                    </span>
+                                    <span className="text-gray-600">
+                                      {c.catatan}
+                                    </span>
+                                  </div>
+                                ))}
+                                {session.catatan.length === 0 && (
+                                  <p className="text-xs text-gray-400 italic">
+                                    Belum ada catatan.
+                                  </p>
+                                )}
                               </div>
-                            ))}
-                            {session.catatan.length === 0 && (
-                              <p className="text-xs text-gray-500">
-                                Belum ada catatan.
-                              </p>
-                            )}
+                              <AddNoteForm
+                                sessionId={session.id}
+                                onActionSuccess={fetchData}
+                              />
+                            </div>
+
+                            {/* Lampiran & History Section */}
+                            <div className="space-y-4">
+                              <div>
+                                <h5 className="text-xs font-bold text-gray-500 uppercase mb-2">
+                                  Lampiran
+                                </h5>
+                                {session.lampiran &&
+                                session.lampiran.length > 0 ? (
+                                  <ul className="space-y-1">
+                                    {session.lampiran.map((f) => (
+                                      <li
+                                        key={f.id}
+                                        className="text-xs text-blue-600 underline truncate"
+                                      >
+                                        {f.original_name}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <p className="text-xs text-gray-400 italic">
+                                    Tidak ada lampiran.
+                                  </p>
+                                )}
+                              </div>
+
+                              {session.historyPerubahan &&
+                                session.historyPerubahan.length > 0 && (
+                                  <div>
+                                    <h5 className="text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-1">
+                                      <History size={12} /> Log Aktivitas
+                                    </h5>
+                                    <div className="space-y-1">
+                                      {session.historyPerubahan
+                                        .slice(0, 3)
+                                        .map((h) => (
+                                          <p
+                                            key={h.id}
+                                            className="text-[10px] text-gray-500"
+                                          >
+                                            <span className="font-semibold">
+                                              {h.status}
+                                            </span>{' '}
+                                            -{' '}
+                                            {new Date(
+                                              h.created_at,
+                                            ).toLocaleDateString()}
+                                          </p>
+                                        ))}
+                                    </div>
+                                  </div>
+                                )}
+                            </div>
                           </div>
-                          <AddNoteForm
-                            sessionId={session.id}
-                            onActionSuccess={fetchData}
-                          />
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg">
-                    Belum ada sesi bimbingan yang dijadwalkan.
-                  </p>
+                  <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed">
+                    <p className="text-gray-500 text-sm">
+                      Belum ada sesi bimbingan. Jadwalkan sesi baru di atas.
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
@@ -344,6 +486,3 @@ export default function DosenBimbinganPage() {
     </div>
   );
 }
-
-// You would typically add these classes to your tailwind.config.js or a global CSS file.
-// For now, this comment serves as a reference for the class names used.

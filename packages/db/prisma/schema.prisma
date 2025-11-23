@@ -122,8 +122,6 @@ model User {
   password          String
   photo             String?
   remember_token    String?
-  failed_login_attempts Int      @default(0)
-  lockout_until     DateTime?
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
 
@@ -140,8 +138,8 @@ model User {
   taDitolak          TugasAkhir[]             @relation("Rejecter")
   notifikasi         NotifikasiTA[]
   emailTokens        EmailVerificationToken[]
-  passwordResetTokens PasswordResetToken[]
   catatanBimbingan   CatatanBimbingan[] // Catatan yang dibuat oleh user ini
+  lampiranBimbingan  LampiranBimbingan[]
 
   @@map("users")
 }
@@ -307,6 +305,7 @@ model BimbinganTA {
   dosen            Dosen                    @relation(fields: [dosen_id], references: [id])
   catatan          CatatanBimbingan[]
   historyPerubahan HistoryPerubahanJadwal[]
+  lampiran         LampiranBimbingan[]
 
   @@map("bimbingan_ta")
 }
@@ -526,16 +525,6 @@ model EmailVerificationToken {
   @@map("email_verification_tokens")
 }
 
-model PasswordResetToken {
-  email      String   @unique
-  token      String   @unique
-  created_at DateTime @default(now())
-
-  user User @relation(fields: [email], references: [email])
-
-  @@map("password_reset_tokens")
-}
-
 model NotifikasiTA {
   id             Int      @id @default(autoincrement())
   user_id        Int
@@ -549,4 +538,18 @@ model NotifikasiTA {
   tugasAkhir TugasAkhir @relation(fields: [tugas_akhir_id], references: [id])
 
   @@map("notifikasi_ta")
+}
+
+model LampiranBimbingan {
+  id              Int      @id @default(autoincrement())
+  bimbingan_ta_id Int
+  file_path       String
+  original_name   String
+  uploaded_by     Int
+  created_at      DateTime @default(now())
+
+  bimbingan BimbinganTA @relation(fields: [bimbingan_ta_id], references: [id], onDelete: Cascade)
+  uploader  User        @relation(fields: [uploaded_by], references: [id])
+
+  @@map("lampiran_bimbingan")
 }

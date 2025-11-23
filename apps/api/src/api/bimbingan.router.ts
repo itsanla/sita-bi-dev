@@ -6,9 +6,30 @@ import { authorizeRoles } from '../middlewares/roles.middleware';
 import { validate } from '../middlewares/validation.middleware';
 import { Role } from '@repo/types';
 import { createCatatanSchema, setJadwalSchema } from '../dto/bimbingan.dto';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 const router: Router = Router();
 const bimbinganService = new BimbinganService();
+
+// Configure Multer for file uploads
+const uploadDir = path.join(process.cwd(), 'uploads/bimbingan');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (_req, file, cb) => {
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage: storage });
 
 // Apply JWT Auth and Roles Guard globally for this router
 router.use(asyncHandler(insecureAuthMiddleware));
@@ -179,6 +200,42 @@ router.post(
     res.status(200).json({
       status: 'sukses',
       message: 'Sesi bimbingan telah diselesaikan.',
+      data: result,
+    });
+  }),
+);
+
+router.post(
+  '/sesi/:id/upload',
+  authorizeRoles([Role.dosen, Role.mahasiswa]),
+  upload.single('file'),
+  asyncHandler(async (req, res): Promise<void> => {
+    const { id } = req.params;
+    if (id == null || req.file === undefined) {
+      res
+        .status(400)
+        .json({ status: 'gagal', message: 'ID Sesi dan file diperlukan' });
+      return;
+    }
+
+    const userId = req.user?.id;
+    if (userId === undefined) {
+      res.status(401).json({
+        status: 'gagal',
+        message: 'Akses ditolak: ID pengguna tidak ditemukan.',
+      });
+      return;
+    }
+
+    const result = await bimbinganService.uploadLampiran(
+      parseInt(id, 10),
+      userId,
+      req.file.path,
+      req.file.originalname,
+    );
+
+    res.status(201).json({
+      status: 'sukses',
       data: result,
     });
   }),
