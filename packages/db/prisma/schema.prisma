@@ -139,6 +139,7 @@ model User {
   notifikasi         NotifikasiTA[]
   emailTokens        EmailVerificationToken[]
   catatanBimbingan   CatatanBimbingan[] // Catatan yang dibuat oleh user ini
+  historyPenugasan   HistoryPenugasanDosen[] @relation("AdminAssigner")
 
   @@map("users")
 }
@@ -203,6 +204,7 @@ model Dosen {
   dokumenValidasiP1  DokumenTa[]          @relation("ValidatorP1")
   dokumenValidasiP2  DokumenTa[]          @relation("ValidatorP2")
   PengajuanBimbingan PengajuanBimbingan[]
+  historyPenugasanDosen HistoryPenugasanDosen[]
 
   @@map("dosen")
 }
@@ -265,6 +267,7 @@ model TugasAkhir {
   sidang            Sidang[]
   pendaftaranSidang PendaftaranSidang[]
   notifikasi        NotifikasiTA[]
+  historyPenugasanDosen HistoryPenugasanDosen[]
 
   @@map("tugas_akhir")
 }
@@ -536,4 +539,20 @@ model NotifikasiTA {
   tugasAkhir TugasAkhir @relation(fields: [tugas_akhir_id], references: [id])
 
   @@map("notifikasi_ta")
+}
+
+model HistoryPenugasanDosen {
+  id              Int      @id @default(autoincrement())
+  tugas_akhir_id  Int
+  admin_id        Int
+  dosen_id        Int
+  peran           String   // "pembimbing1", "penguji1", etc.
+  action          String   // "ASSIGN", "UNASSIGN", "REPLACE"
+  created_at      DateTime @default(now())
+
+  tugasAkhir      TugasAkhir @relation(fields: [tugas_akhir_id], references: [id], onDelete: Cascade)
+  admin           User       @relation("AdminAssigner", fields: [admin_id], references: [id])
+  dosen           Dosen      @relation(fields: [dosen_id], references: [id])
+
+  @@map("history_penugasan_dosen")
 }

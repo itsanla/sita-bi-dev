@@ -36,9 +36,9 @@ class WhatsAppService {
   private readonly sessionDir: string;
 
   constructor() {
-    // Simpan session di directory monorepo root
-    const monorepoRoot = path.resolve(__dirname, '../../../../../');
-    this.sessionDir = path.join(monorepoRoot, '.wwebjs_auth');
+    // Simpan session di directory dalam project, bukan di root system
+    // Menggunakan process.cwd() yang biasanya adalah apps/api saat dijalankan via pnpm dev
+    this.sessionDir = path.join(process.cwd(), '.wwebjs_auth');
 
     // Ensure session directory exists
     if (!fs.existsSync(this.sessionDir)) {

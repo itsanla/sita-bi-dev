@@ -1,17 +1,35 @@
 import { Router, type Request, type Response } from 'express';
 import asyncHandler from 'express-async-handler';
-import { PenugasanService } from '../services/penugasan.service';
+import { assignPengujiSchema, PenugasanService } from '../services/penugasan.service';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { authorizeRoles } from '../middlewares/roles.middleware';
 import { validate } from '../middlewares/validation.middleware';
 import { Role } from '@repo/types';
 import { assignPembimbingSchema } from '../dto/penugasan.dto';
 
+// Extended Request interface to include user
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    role: string;
+  };
+}
+
 const router: Router = Router();
 const penugasanService = new PenugasanService();
 
 // Apply JWT Auth and Roles Guard globally for this router
 // router.use(authMiddleware);
+
+router.get(
+  '/dosen-load',
+  asyncHandler(authMiddleware),
+  authorizeRoles([Role.admin, Role.kajur]),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const loadData = await penugasanService.getDosenLoad();
+    res.status(200).json({ status: 'sukses', data: loadData });
+  }),
+);
 
 router.get(
   '/unassigned',
@@ -37,7 +55,7 @@ router.post(
   asyncHandler(authMiddleware),
   authorizeRoles([Role.admin, Role.kajur]),
   validate(assignPembimbingSchema),
-  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const { tugasAkhirId } = req.params;
     if (tugasAkhirId == null) {
       res
@@ -45,12 +63,49 @@ router.post(
         .json({ status: 'gagal', message: 'ID Tugas Akhir diperlukan' });
       return;
     }
+
+    // Admin ID from token
+    if (!req.user?.id) {
+      res.status(401).json({ status: 'gagal', message: 'Unauthorized' });
+      return;
+    }
+    const adminId = req.user.id;
+
     const assignedPembimbing = await penugasanService.assignPembimbing(
       parseInt(tugasAkhirId, 10),
       req.body,
+      adminId
     );
     res.status(200).json({ status: 'sukses', data: assignedPembimbing });
   }),
 );
+
+router.post(
+  '/:tugasAkhirId/assign-penguji',
+  asyncHandler(authMiddleware),
+  authorizeRoles([Role.admin, Role.kajur]),
+  validate(assignPengujiSchema),
+  asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    const { tugasAkhirId } = req.params;
+    if (tugasAkhirId == null) {
+      res.status(400).json({ status: 'gagal', message: 'ID Tugas Akhir diperlukan' });
+      return;
+    }
+
+    if (!req.user?.id) {
+      res.status(401).json({ status: 'gagal', message: 'Unauthorized' });
+      return;
+    }
+    const adminId = req.user.id;
+
+    const assigned = await penugasanService.assignPenguji(
+      parseInt(tugasAkhirId, 10),
+      req.body,
+      adminId
+    );
+    res.status(200).json({ status: 'sukses', data: assigned });
+  }),
+);
+
 
 export default router;
