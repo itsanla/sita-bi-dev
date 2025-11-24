@@ -16,6 +16,13 @@ export class PengumumanService {
     dto: CreatePengumumanDto,
     authorId: number,
   ): Promise<Pengumuman> {
+    // Explicitly type lampiran creation to avoid TS errors
+    const lampiranData = dto.lampiran?.map(l => ({
+      file_path: l.file_path,
+      file_name: l.file_name ?? null, // Convert undefined to null
+      file_type: l.file_type ?? null  // Convert undefined to null
+    })) ?? [];
+
     return this.prisma.pengumuman.create({
       data: {
         judul: dto.judul,
@@ -26,10 +33,10 @@ export class PengumumanService {
         is_published: dto.is_published ?? false,
         scheduled_at: dto.scheduled_at ?? null,
         prioritas: dto.prioritas ?? PrioritasPengumuman.MENENGAH,
-        kategori: dto.kategori, // Optional, default handle by DB
-        berakhir_pada: dto.berakhir_pada,
+        kategori: dto.kategori ?? null, // Fix undefined type issue here
+        berakhir_pada: dto.berakhir_pada ?? null,
         lampiran: {
-          create: dto.lampiran ?? [],
+          create: lampiranData,
         },
       },
       include: {
@@ -53,25 +60,6 @@ export class PengumumanService {
         },
       ],
     };
-  }
-
-  // Helper for sorting: High Priority first, then by Date
-  private getSortOrder(): object[] {
-    return [
-      // Custom sort workaround: We want TINGGI > MENENGAH > RENDAH.
-      // Prisma doesn't support enum ordering directly easily without raw query.
-      // We will stick to 'created_at' desc for now in standard queries,
-      // OR rely on client side sort if needed.
-      // But let's try to put TINGGI on top if possible.
-      // Since it's complex in pure Prisma w/o Raw, I'll stick to 'scheduled_at' or 'created_at' desc
-      // but typically users want sticky high priority.
-      // Let's do:
-      { prioritas: 'desc' }, // Assuming Enum alphabet order TINGGI(T) > RENDAH(R) > MENENGAH(M)... Wait. T > R > M.
-      // TINGGI > RENDAH > MENENGAH is wrong order.
-      // Let's just sort by date for now to keep it consistent, or handle in code.
-      // Actually, let's just sort by scheduled_at desc as primary.
-      { scheduled_at: 'desc' },
-    ];
   }
 
   async findAll(
@@ -190,9 +178,6 @@ export class PengumumanService {
     const data = await this.prisma.pengumuman.findMany({
       where: whereClause,
       orderBy: [
-        // Priority Sort Logic (Manual Enum order hack or simple desc)
-        // Ideally we want TINGGI first.
-        // Let's rely on client sorting for strict enum order, or use `created_at`.
         { scheduled_at: 'desc' },
       ],
       skip: (page - 1) * limit,

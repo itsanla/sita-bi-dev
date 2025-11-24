@@ -1,6 +1,16 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { Role } from '@repo/types';
+// import type { Role } from '@repo/types'; // Avoid importing outside rootDir to fix build error
 import prisma from '../config/database';
+
+// Define Role locally to avoid rootDir error
+export enum Role {
+  mahasiswa = 'mahasiswa',
+  dosen = 'dosen',
+  admin = 'admin',
+  kajur = 'kajur',
+  kaprodi_d3 = 'kaprodi_d3',
+  kaprodi_d4 = 'kaprodi_d4',
+}
 
 /**
  * Simple auth middleware using x-user-id header
@@ -54,7 +64,6 @@ export const authMiddleware = async (
     req.user = {
       id: user.id,
       email: user.email,
-      phone_number: user.phone_number, // Added this field
       role: userRole.name as Role,
       dosen:
         user.dosen != null

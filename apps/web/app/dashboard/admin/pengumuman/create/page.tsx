@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import api from '@/lib/api';
+import request from '@/lib/api'; // Gunakan request, bukan default export 'api' karena api.ts export default function request
 import { useRouter } from 'next/navigation';
 
 export default function CreatePengumumanPage() {
@@ -29,7 +29,11 @@ export default function CreatePengumumanPage() {
           ? new Date(formData.berakhir_pada).toISOString()
           : null,
       };
-      await api.post('/pengumuman', payload);
+      // Ganti api.post dengan request
+      await request('/pengumuman', {
+        method: 'POST',
+        body: payload,
+      });
       router.push('/dashboard/admin/pengumuman');
     } catch (err) {
       alert('Gagal membuat pengumuman');

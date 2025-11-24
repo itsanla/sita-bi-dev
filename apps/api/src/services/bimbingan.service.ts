@@ -37,8 +37,8 @@ export class BimbinganService {
         data: {
           user_id: userId,
           action,
-          url,
-          method,
+          url: url ?? null, // Fix undefined
+          method: method ?? null, // Fix undefined
           ip_address: '127.0.0.1', // Placeholder
           user_agent: 'System', // Placeholder
         },

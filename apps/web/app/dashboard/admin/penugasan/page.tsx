@@ -13,11 +13,7 @@ interface TugasAkhir {
   };
 }
 
-interface Dosen {
-  id: number;
-  name: string;
-  // We only need id and name for the select options
-}
+// Removed unused Dosen interface
 
 interface DosenLoad {
     id: number;
@@ -88,6 +84,7 @@ export default function PenugasanPage() {
     setIsSubmitting(true);
     try {
       const endpoint = assignType === 'pembimbing' ? 'assign' : 'assign-penguji';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const body: any = {};
       if (assignType === 'pembimbing') {
           body.pembimbing1Id = Number(dosen1Id);
@@ -113,12 +110,7 @@ export default function PenugasanPage() {
     }
   };
 
-  // Helper to get load badge color
-  const getLoadBadgeColor = (count: number) => {
-      if (count >= 10) return 'text-red-600 font-bold';
-      if (count >= 5) return 'text-yellow-600 font-semibold';
-      return 'text-green-600';
-  }
+  // Removed unused getLoadBadgeColor
 
   const renderDosenOption = (d: DosenLoad) => {
       return (

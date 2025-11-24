@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import api from '@/lib/api';
+import request from '@/lib/api'; // Use request instead of api
 import { useRouter } from 'next/navigation';
 
 type Lampiran = {
@@ -55,7 +55,7 @@ export default function ViewPengumumanPage() {
 
     const fetchPengumuman = async () => {
       try {
-        const response = await api<{ data: { data: Pengumuman[] } }>(endpoint);
+        const response = await request<{ data: { data: Pengumuman[] } }>(endpoint);
         setPengumuman(response.data.data || []);
       } catch {
         setError('Gagal memuat pengumuman.');
@@ -69,7 +69,7 @@ export default function ViewPengumumanPage() {
 
   const markAsRead = async (id: number) => {
     try {
-      await api.post(`/pengumuman/${id}/read`);
+      await request(`/pengumuman/${id}/read`, { method: 'POST' });
       setPengumuman((prev) =>
         prev.map((p) => {
           if (p.id === id) {

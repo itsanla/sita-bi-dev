@@ -24,7 +24,7 @@ export const activityLogger = (
 
     logService
       .create({
-        user_id: userId,
+        user_id: userId ?? undefined, // Pass undefined if not present, handled in service
         action: `${req.method} ${req.url}`,
         method: req.method,
         url: req.originalUrl,

@@ -3,8 +3,30 @@ import {
   PeranDosen,
   StatusPersetujuan,
   StatusVerifikasi,
+  type JadwalSidang,
+  type Ruangan,
+  type Sidang,
+  type TugasAkhir,
+  type Mahasiswa,
+  type User,
+  type PeranDosenTa,
+  type Dosen,
+  Prisma
 } from '@repo/db';
 import type { CreateJadwalDto } from '../dto/jadwal-sidang.dto';
+
+// Type alias for the complex include structure to help TS
+type SidangWithRelations = Sidang & {
+  tugasAkhir: TugasAkhir & {
+    mahasiswa: Mahasiswa & { user: User };
+    peranDosenTa: (PeranDosenTa & { dosen: Dosen & { user: User } })[];
+  };
+};
+
+type JadwalWithRelations = JadwalSidang & {
+  ruangan: Ruangan;
+  sidang: SidangWithRelations;
+};
 
 export class JadwalSidangService {
   private prisma: PrismaClient;
@@ -68,19 +90,25 @@ export class JadwalSidangService {
   ): Promise<{ hasConflict: boolean; messages: string[] }> {
     const conflicts: string[] = [];
 
+    // Build dynamic where clause for conflicting room
+    const roomWhere: Prisma.JadwalSidangWhereInput = {
+      ruangan_id: ruanganId,
+      tanggal: tanggal,
+      OR: [
+        {
+          waktu_mulai: { lt: waktuSelesai },
+          waktu_selesai: { gt: waktuMulai },
+        },
+      ],
+    };
+
+    if (ignoreSidangId !== undefined) {
+      roomWhere.sidang_id = { not: ignoreSidangId };
+    }
+
     // 1. Cek Konflik Ruangan
     const conflictingRoom = await this.prisma.jadwalSidang.findFirst({
-      where: {
-        ruangan_id: ruanganId,
-        tanggal: tanggal,
-        sidang_id: ignoreSidangId !== undefined ? { not: ignoreSidangId } : undefined,
-        OR: [
-          {
-            waktu_mulai: { lt: waktuSelesai },
-            waktu_selesai: { gt: waktuMulai },
-          },
-        ],
-      },
+      where: roomWhere,
       include: {
         ruangan: true,
         sidang: { include: { tugasAkhir: { include: { mahasiswa: { include: { user: true } } } } } }
@@ -88,24 +116,32 @@ export class JadwalSidangService {
     });
 
     if (conflictingRoom !== null) {
-      const mhsName = conflictingRoom.sidang.tugasAkhir.mahasiswa.user.name;
+      // Cast to unknown first to avoid TS errors due to complex include types inferred
+      const roomData = conflictingRoom as unknown as JadwalWithRelations;
+      const mhsName = roomData.sidang.tugasAkhir.mahasiswa.user.name;
       conflicts.push(
-        `Ruangan ${conflictingRoom.ruangan.nama_ruangan} bentrok dengan sidang mahasiswa ${mhsName} (${conflictingRoom.waktu_mulai} - ${conflictingRoom.waktu_selesai}).`,
+        `Ruangan ${roomData.ruangan.nama_ruangan} bentrok dengan sidang mahasiswa ${mhsName} (${roomData.waktu_mulai} - ${roomData.waktu_selesai}).`,
       );
+    }
+
+    // Build dynamic where clause for potential conflicting schedules (same time)
+    const scheduleWhere: Prisma.JadwalSidangWhereInput = {
+      tanggal: tanggal,
+      OR: [
+        {
+          waktu_mulai: { lt: waktuSelesai },
+          waktu_selesai: { gt: waktuMulai },
+        },
+      ],
+    };
+
+    if (ignoreSidangId !== undefined) {
+      scheduleWhere.sidang_id = { not: ignoreSidangId };
     }
 
     // 2. Cek Konflik Dosen (Sebagai Penguji atau Pembimbing di Sidang Lain)
     const potentialConflictingJadwals = await this.prisma.jadwalSidang.findMany({
-      where: {
-        tanggal: tanggal,
-        sidang_id: ignoreSidangId !== undefined ? { not: ignoreSidangId } : undefined,
-        OR: [
-          {
-            waktu_mulai: { lt: waktuSelesai },
-            waktu_selesai: { gt: waktuMulai },
-          },
-        ],
-      },
+      where: scheduleWhere,
       include: {
         sidang: {
           include: {
@@ -126,16 +162,18 @@ export class JadwalSidangService {
     });
 
     for (const jadwal of potentialConflictingJadwals) {
-      const dosenDiJadwalLain = jadwal.sidang.tugasAkhir.peranDosenTa.map((pd: { dosen_id: number }) => pd.dosen_id);
+      // Cast safely
+      const jadwalData = jadwal as unknown as { sidang: SidangWithRelations };
+      const dosenDiJadwalLain = jadwalData.sidang.tugasAkhir.peranDosenTa.map((pd) => pd.dosen_id);
       const intersection = dosenIds.filter(id => dosenDiJadwalLain.includes(id));
 
       if (intersection.length > 0) {
-        const bentrokDosenDetails = jadwal.sidang.tugasAkhir.peranDosenTa
-          .filter((pd: { dosen_id: number }) => intersection.includes(pd.dosen_id))
-          .map((pd: { dosen: { user: { name: string } } }) => pd.dosen.user.name);
+        const bentrokDosenDetails = jadwalData.sidang.tugasAkhir.peranDosenTa
+          .filter((pd) => intersection.includes(pd.dosen_id))
+          .map((pd) => pd.dosen.user.name);
 
         conflicts.push(
-          `Dosen berikut memiliki jadwal sidang lain pada waktu bersamaan: ${bentrokDosenDetails.join(', ')} (Sidang TA ID: ${jadwal.sidang.tugas_akhir_id}).`
+          `Dosen berikut memiliki jadwal sidang lain pada waktu bersamaan: ${bentrokDosenDetails.join(', ')} (Sidang TA ID: ${jadwalData.sidang.tugas_akhir_id}).`
         );
       }
     }
@@ -234,7 +272,7 @@ export class JadwalSidangService {
       await prisma.historyPerubahanSidang.create({
         data: {
           sidang_id: sidang.id,
-          user_id: userId ?? undefined,
+          user_id: userId ?? null,
           perubahan: JSON.stringify({
             action: 'CREATE_SCHEDULE',
             tanggal: tanggal,

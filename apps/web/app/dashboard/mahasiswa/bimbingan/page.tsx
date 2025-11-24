@@ -11,17 +11,18 @@ import {
   FileText,
   Clock,
   Upload,
+  User as UserIcon, // Import User icon as UserIcon
 } from 'lucide-react';
 
 // --- Interfaces ---
-interface User {
+interface UserData {
   id: number;
   name: string;
 }
 
 interface Dosen {
   id: number;
-  user: User;
+  user: UserData;
 }
 
 interface Lampiran {
@@ -29,14 +30,14 @@ interface Lampiran {
   file_path: string;
   original_name: string;
   created_at: string;
-  uploader: User;
+  uploader: UserData;
 }
 
 interface Catatan {
   id: number;
   catatan: string;
   created_at: string;
-  author: User;
+  author: UserData;
 }
 
 interface HistoryPerubahan {
@@ -245,7 +246,7 @@ export default function BimbinganPage() {
                     className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-lg border"
                   >
                     <div className="bg-red-100 p-2 rounded-full text-red-700">
-                      <User size={16} />
+                      <UserIcon size={16} />
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 uppercase font-bold">

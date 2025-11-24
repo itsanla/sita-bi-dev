@@ -9,7 +9,7 @@ import {
   Sparkles,
   Send,
 } from 'lucide-react';
-import Button from '@/app/components/ui/Button';
+// import Button from '@/app/components/ui/Button'; // Removed unused import
 import { useSimilarityCheck, useSubmitTitle } from '@/hooks/useTugasAkhir';
 
 interface SimilarityFormProps {
@@ -134,7 +134,7 @@ export default function SimilarityForm({
             disabled={isChecking || !judulMandiri.trim()}
             className="group/btn relative w-full bg-gradient-to-r from-[#123053] to-[#0d1f36] text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 overflow-hidden text-sm"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0d1f36] to-[#081423] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-0d1f36] to-[#081423] opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
             <div className="relative flex items-center justify-center gap-2">
               <Search
                 className={`h-4 w-4 ${isChecking ? 'animate-spin' : 'group-hover/btn:scale-110 transition-transform duration-300'}`}

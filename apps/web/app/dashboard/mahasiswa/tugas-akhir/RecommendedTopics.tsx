@@ -6,9 +6,7 @@ import {
   User,
   Users2,
   Sparkles,
-  TrendingUp,
 } from 'lucide-react';
-import Card from '@/app/components/ui/Card';
 import { useRecommendedTopics } from '@/hooks/useTugasAkhir';
 import SkeletonCard from '@/app/components/loading/SkeletonCard';
 

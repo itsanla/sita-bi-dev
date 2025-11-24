@@ -1,4 +1,4 @@
-import type { TugasAkhir } from '@repo/db';
+import type { TugasAkhir } from '@repo/db'; // Import type explicitly
 import { PrismaClient, StatusTugasAkhir } from '@repo/db';
 import type { CreateTugasAkhirDto } from '../dto/tugas-akhir.dto';
 import { calculateSimilarities } from '../utils/similarity';
@@ -29,8 +29,8 @@ export class TugasAkhirService {
         data: {
           user_id: userId,
           action,
-          url,
-          method,
+          url: url ?? null,
+          method: method ?? null,
           ip_address: '127.0.0.1', // Placeholder
           user_agent: 'System', // Placeholder
         },
@@ -114,7 +114,7 @@ export class TugasAkhirService {
       throw new Error('Profil mahasiswa tidak ditemukan.');
     }
 
-    return this.prisma.tugasAkhir.findFirst({
+    const result = await this.prisma.tugasAkhir.findFirst({
       where: {
         mahasiswa_id: mahasiswa.id,
         NOT: {
@@ -152,6 +152,8 @@ export class TugasAkhirService {
         tanggal_pengajuan: 'desc',
       },
     });
+
+    return result as TugasAkhir | null;
   }
 
   async deleteMyTa(userId: number): Promise<TugasAkhir> {
@@ -198,12 +200,7 @@ export class TugasAkhirService {
     });
   }
 
-  /**
-   * Approve tugas akhir by pembimbing
-   * Only pembimbing can approve their student's TA
-   */
   async approve(tugasAkhirId: number, approverId: number): Promise<TugasAkhir> {
-    // Check if tugas akhir exists
     const tugasAkhir = await this.prisma.tugasAkhir.findUnique({
       where: { id: tugasAkhirId },
       include: {
@@ -219,14 +216,12 @@ export class TugasAkhirService {
       throw new Error('Tugas Akhir tidak ditemukan.');
     }
 
-    // Check if already approved or not in DIAJUKAN status
     if (tugasAkhir.status !== StatusTugasAkhir.DIAJUKAN) {
       throw new Error(
         `Tugas Akhir dengan status "${tugasAkhir.status}" tidak dapat disetujui.`,
       );
     }
 
-    // Get dosen from approver userId
     const dosen = await this.prisma.dosen.findUnique({
       where: { user_id: approverId },
     });
@@ -235,7 +230,6 @@ export class TugasAkhirService {
       throw new Error('Profil dosen tidak ditemukan.');
     }
 
-    // Check if this dosen is pembimbing1 or pembimbing2
     const isPembimbing = tugasAkhir.peranDosenTa.some(
       (peran) =>
         peran.dosen_id === dosen.id &&
@@ -248,7 +242,6 @@ export class TugasAkhirService {
       );
     }
 
-    // Approve the tugas akhir
     const approved = await this.prisma.tugasAkhir.update({
       where: { id: tugasAkhirId },
       data: {
@@ -273,15 +266,11 @@ export class TugasAkhirService {
     return approved;
   }
 
-  /**
-   * Reject tugas akhir by pembimbing
-   */
   async reject(
     tugasAkhirId: number,
     rejecterId: number,
     alasanPenolakan: string,
   ): Promise<TugasAkhir> {
-    // Check if tugas akhir exists
     const tugasAkhir = await this.prisma.tugasAkhir.findUnique({
       where: { id: tugasAkhirId },
       include: {
@@ -297,14 +286,12 @@ export class TugasAkhirService {
       throw new Error('Tugas Akhir tidak ditemukan.');
     }
 
-    // Check if in DIAJUKAN status
     if (tugasAkhir.status !== StatusTugasAkhir.DIAJUKAN) {
       throw new Error(
         `Tugas Akhir dengan status "${tugasAkhir.status}" tidak dapat ditolak.`,
       );
     }
 
-    // Get dosen from rejecter userId
     const dosen = await this.prisma.dosen.findUnique({
       where: { user_id: rejecterId },
     });
@@ -313,7 +300,6 @@ export class TugasAkhirService {
       throw new Error('Profil dosen tidak ditemukan.');
     }
 
-    // Check if this dosen is pembimbing
     const isPembimbing = tugasAkhir.peranDosenTa.some(
       (peran) =>
         peran.dosen_id === dosen.id &&
@@ -326,7 +312,6 @@ export class TugasAkhirService {
       );
     }
 
-    // Reject the tugas akhir
     const rejected = await this.prisma.tugasAkhir.update({
       where: { id: tugasAkhirId },
       data: {
@@ -352,9 +337,6 @@ export class TugasAkhirService {
     return rejected;
   }
 
-  /**
-   * Get all pending tugas akhir for dosen to approve/reject
-   */
   async getPendingForDosen(dosenId: number): Promise<TugasAkhir[]> {
     const dosen = await this.prisma.dosen.findUnique({
       where: { user_id: dosenId },

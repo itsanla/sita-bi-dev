@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import api from '@/lib/api';
+import request from '@/lib/api'; // Use named import request
 import Link from 'next/link';
 
 type Pengumuman = {
@@ -26,7 +26,7 @@ export default function AdminPengumumanPage() {
 
   const fetchPengumuman = async () => {
     try {
-      const response = await api<{ data: { data: Pengumuman[] } }>(
+      const response = await request<{ data: { data: Pengumuman[] } }>(
         '/pengumuman/all?limit=100',
       );
       setPengumuman(response.data.data);
@@ -40,7 +40,7 @@ export default function AdminPengumumanPage() {
   const handleDelete = async (id: number) => {
     if (!confirm('Hapus pengumuman ini?')) return;
     try {
-      await api.delete(`/pengumuman/${id}`);
+      await request(`/pengumuman/${id}`, { method: 'DELETE' });
       fetchPengumuman();
     } catch (err) {
       alert('Gagal menghapus');

@@ -2,15 +2,15 @@ import { PrismaClient } from '@repo/db';
 import type { Log, LogLevel } from '@repo/db';
 
 interface CreateLogDto {
-  user_id?: number;
+  user_id?: number | undefined | null; // Loosen type
   action: string;
-  ip_address?: string;
-  user_agent?: string;
-  url?: string;
-  method?: string;
-  details?: string;
-  module?: string;
-  entity_id?: number;
+  ip_address?: string | undefined | null;
+  user_agent?: string | undefined | null;
+  url?: string | undefined | null;
+  method?: string | undefined | null;
+  details?: string | undefined | null;
+  module?: string | undefined | null;
+  entity_id?: number | undefined | null;
   level?: LogLevel;
 }
 
@@ -31,7 +31,15 @@ export class LogService {
   async create(data: CreateLogDto): Promise<Log> {
     return this.prisma.log.create({
       data: {
-        ...data,
+        user_id: data.user_id ?? null,
+        action: data.action,
+        ip_address: data.ip_address ?? null,
+        user_agent: data.user_agent ?? null,
+        url: data.url ?? null,
+        method: data.method ?? null,
+        details: data.details ?? null,
+        module: data.module ?? null,
+        entity_id: data.entity_id ?? null,
         level: data.level ?? 'INFO',
       },
     });
@@ -47,12 +55,10 @@ export class LogService {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {};
-    if (filters.module !== undefined) where.module = filters.module;
-    if (filters.level !== undefined) where.level = filters.level;
-    if (filters.user_id !== undefined)
-      where.user_id = parseInt(filters.user_id);
-    if (filters.entity_id !== undefined)
-      where.entity_id = parseInt(filters.entity_id);
+    if (filters.module) where.module = filters.module;
+    if (filters.level) where.level = filters.level;
+    if (filters.user_id) where.user_id = parseInt(filters.user_id);
+    if (filters.entity_id) where.entity_id = parseInt(filters.entity_id);
 
     const [logs, total] = await this.prisma.$transaction([
       this.prisma.log.findMany({
