@@ -28,11 +28,18 @@ router.get(
         ? parseInt(req.query['limit'] as string)
         : undefined;
 
-    const filters = {
-      module: req.query['module'],
-      user_id: req.query['user_id'],
-      entity_id: req.query['entity_id'],
-    };
+    // Ensure filters are strings and respect exactOptionalPropertyTypes
+    const filters: { module?: string; user_id?: string; entity_id?: string } = {};
+
+    if (typeof req.query['module'] === 'string') {
+      filters.module = req.query['module'];
+    }
+    if (typeof req.query['user_id'] === 'string') {
+      filters.user_id = req.query['user_id'];
+    }
+    if (typeof req.query['entity_id'] === 'string') {
+      filters.entity_id = req.query['entity_id'];
+    }
 
     const logs = await logService.findAll(page, limit, filters);
     res.status(200).json({ status: 'sukses', data: logs });
@@ -58,7 +65,11 @@ router.get(
       req.query['limit'] != null
         ? parseInt(req.query['limit'] as string)
         : undefined;
-    const logs = await logService.findByUserId(userId, page, limit);
+    // Reuse findAll with user_id filter
+    const filters = {
+        user_id: userId.toString(),
+    };
+    const logs = await logService.findAll(page, limit, filters);
     res.status(200).json({ status: 'sukses', data: logs });
   }),
 );

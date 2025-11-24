@@ -22,7 +22,12 @@ router.post(
       ip: req.ip,
       userAgent: req.headers['user-agent'],
     };
-    const result = await authService.login(req.body, meta);
+    // Build meta object carefully to respect exactOptionalPropertyTypes
+    const sanitizedMeta: { ip?: string; userAgent?: string } = {};
+    if (meta.ip) sanitizedMeta.ip = meta.ip;
+    if (meta.userAgent) sanitizedMeta.userAgent = meta.userAgent;
+
+    const result = await authService.login(req.body, sanitizedMeta);
     res.status(200).json({ status: 'sukses', data: result });
   }),
 );

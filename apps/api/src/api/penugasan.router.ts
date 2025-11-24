@@ -7,14 +7,6 @@ import { validate } from '../middlewares/validation.middleware';
 import { Role } from '@repo/types';
 import { assignPembimbingSchema } from '../dto/penugasan.dto';
 
-// Extended Request interface to include user
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: number;
-    role: string;
-  };
-}
-
 const router: Router = Router();
 const penugasanService = new PenugasanService();
 
@@ -55,7 +47,7 @@ router.post(
   asyncHandler(authMiddleware),
   authorizeRoles([Role.admin, Role.kajur]),
   validate(assignPembimbingSchema),
-  asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { tugasAkhirId } = req.params;
     if (tugasAkhirId == null) {
       res
@@ -85,7 +77,7 @@ router.post(
   asyncHandler(authMiddleware),
   authorizeRoles([Role.admin, Role.kajur]),
   validate(assignPengujiSchema),
-  asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { tugasAkhirId } = req.params;
     if (tugasAkhirId == null) {
       res.status(400).json({ status: 'gagal', message: 'ID Tugas Akhir diperlukan' });

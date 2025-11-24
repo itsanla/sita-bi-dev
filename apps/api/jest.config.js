@@ -5,4 +5,5 @@ module.exports = {
   moduleNameMapper: {
     '^@repo/db$': '<rootDir>/../../packages/db/src',
   },
+  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
 };

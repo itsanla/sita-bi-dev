@@ -67,6 +67,8 @@ describe('PengumumanService', () => {
         is_published: true,
         prioritas: PrioritasPengumuman.TINGGI,
         kategori: KategoriPengumuman.AKADEMIK,
+        scheduled_at: null,
+        berakhir_pada: null,
       };
       const authorId = 1;
       const expectedResult = {
@@ -93,7 +95,7 @@ describe('PengumumanService', () => {
           scheduled_at: null,
           prioritas: 'TINGGI',
           kategori: 'AKADEMIK',
-          berakhir_pada: undefined,
+          berakhir_pada: null,
           lampiran: { create: [] },
         },
         include: { lampiran: true },

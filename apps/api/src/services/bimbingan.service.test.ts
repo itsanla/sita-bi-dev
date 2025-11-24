@@ -3,7 +3,8 @@ import { BimbinganService } from './bimbingan.service';
 
 // Mock @repo/db
 jest.mock('@repo/db', () => {
-  const mPrisma = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mPrisma: any = {
     bimbinganTA: {
       findMany: jest.fn(),
       create: jest.fn(),
@@ -72,7 +73,7 @@ describe('BimbinganService - Smart Scheduling', () => {
 
   describe('suggestAvailableSlots', () => {
     it('should return available slots excluding busy times', async () => {
-        // Mock busy at 08:00 - 09:00
+      // Mock busy at 08:00 - 09:00
       prisma.bimbinganTA.findMany.mockResolvedValue([
         { jam_bimbingan: '08:00' },
       ]);
@@ -80,7 +81,12 @@ describe('BimbinganService - Smart Scheduling', () => {
 
       const slots = await service.suggestAvailableSlots(1, '2023-01-01');
 
-      // Should include 09:00 but not 08:00
+      // The logic returns slots every 60 minutes starting from 08:00
+      // If 08:00 is busy (until 09:00), the first available slot should be 09:00
+
+      // Debug: log the slots if test fails
+      // console.log(slots);
+
       expect(slots).not.toContain('08:00');
       expect(slots).toContain('09:00');
     });

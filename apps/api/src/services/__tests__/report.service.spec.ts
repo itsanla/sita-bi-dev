@@ -18,9 +18,14 @@ describe('ReportService', () => {
   let prisma: any;
 
   beforeEach(() => {
+    // Create a fresh instance of PrismaClient mock
+    const { PrismaClient } = require('@repo/db');
+    const mockPrisma = new PrismaClient();
+
     service = new ReportService();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    prisma = (service as any).prisma;
+    // Inject the mock into the service
+    (service as any).prisma = mockPrisma;
+    prisma = mockPrisma;
     jest.clearAllMocks();
   });
 
@@ -56,9 +61,9 @@ describe('ReportService', () => {
       const result = await service.getLecturerWorkload();
 
       expect(result).toHaveLength(1);
-      expect(result[0].name).toBe('Dr. Test');
-      expect(result[0].roles).toHaveLength(1);
-      expect(result[0].roles[0]).toEqual({ role: 'pembimbing1', count: 5 });
+      expect(result[0]?.name).toBe('Dr. Test');
+      expect(result[0]?.roles).toHaveLength(1);
+      expect(result[0]?.roles?.[0]).toEqual({ role: 'pembimbing1', count: 5 });
     });
   });
 });

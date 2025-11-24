@@ -54,10 +54,10 @@ describe('PenugasanService', () => {
       const result = await service.getDosenLoad();
 
       expect(result).toHaveLength(2);
-      expect(result[0].totalLoad).toBe(2);
-      expect(result[0].bimbinganLoad).toBe(1);
-      expect(result[0].pengujiLoad).toBe(1);
-      expect(result[1].totalLoad).toBe(1);
+      expect(result[0]?.totalLoad).toBe(2);
+      expect(result[0]?.bimbinganLoad).toBe(1);
+      expect(result[0]?.pengujiLoad).toBe(1);
+      expect(result[1]?.totalLoad).toBe(1);
     });
   });
 

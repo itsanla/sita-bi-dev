@@ -1,7 +1,8 @@
 import { BimbinganService } from './bimbingan.service';
 
 // Mock PrismaClient
-const mockPrisma = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockPrisma: any = {
   tugasAkhir: {
     count: jest.fn(),
     findMany: jest.fn(),

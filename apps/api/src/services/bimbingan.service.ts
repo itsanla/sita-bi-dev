@@ -339,6 +339,7 @@ export class BimbinganService {
     start2: number,
     end2: number,
   ): boolean {
+    // Use strict inequality to allow abutting intervals (e.g. 10:00-11:00 and 11:00-12:00 are compatible)
     return start1 < end2 && start2 < end1;
   }
 
