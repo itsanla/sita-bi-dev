@@ -33,6 +33,7 @@ display.txt
 out/
 build
 dist
+prisma.json
 
 # IDEs and editors
 /.idea
