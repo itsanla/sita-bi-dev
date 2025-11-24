@@ -1,7 +1,7 @@
 # Environment variables
 # .env
-# .wwebjs_cache/
-# .wwebjs_auth/
+.wwebjs_cache/
+.wwebjs_auth/
 /dist
 **/.next
 **/node_modules

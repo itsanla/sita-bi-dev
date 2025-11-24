@@ -70,5 +70,5 @@ pnpm-debug.log*
 # .env.test.local
 # .env.production.local
 
-# .wwebjs_auth
-# apps/api/.wwebjs_auth
+.wwebjs_auth
+apps/api/.wwebjs_auth
