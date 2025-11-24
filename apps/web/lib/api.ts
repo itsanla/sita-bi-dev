@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Definisikan tipe kustom untuk error agar bisa menyertakan detail
 export class FetchError extends Error {
