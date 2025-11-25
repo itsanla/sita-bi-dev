@@ -2,11 +2,13 @@ import { PrismaClient, PeranDosen, StatusTugasAkhir } from '@repo/db';
 import type { AssignPembimbingDto } from '../dto/penugasan.dto';
 import { z } from 'zod';
 import type { PrismaPromise } from '@prisma/client';
+import { validateDosenWorkload } from '../utils/business-rules';
 
 // Define AssignPengujiDto schema here since it's not in the DTO file yet
 export const assignPengujiSchema = z.object({
   penguji1Id: z.number().int(),
   penguji2Id: z.number().int().optional(),
+  penguji3Id: z.number().int().optional(),
 });
 export type AssignPengujiDto = z.infer<typeof assignPengujiSchema>;
 
@@ -129,10 +131,25 @@ export class PenugasanService {
   ): Promise<unknown> {
     const { pembimbing1Id, pembimbing2Id } = dto;
 
-    const queries: PrismaPromise<unknown>[] = [];
+    // Validate workloads
+    await validateDosenWorkload(pembimbing1Id);
+    if (pembimbing2Id) {
+      await validateDosenWorkload(pembimbing2Id);
+    }
 
-    // Check load logic (optional: throw error or just log)
-    // await this.checkDosenLoad(pembimbing1Id);
+    // Validate composition (check if roles are already filled - although upsert handles it, we want to enforce logic)
+    // We are replacing/assigning, so we should check existing logic if we weren't doing upsert.
+    // But since we are doing upsert, validateTeamComposition might throw "already filled" if we call it blindly.
+    // However, the rule is "2 Pembimbing". This method assigns both or one.
+    // So let's just trust the input is intended to fill P1 and P2.
+    // The validateTeamComposition is more useful if we were adding one by one.
+
+    // For now, let's stick to workload validation which is critical.
+
+    // We are removing the unused import error by commenting out until used or just ignoring if we plan to use later
+    // validateTeamComposition(tugasAkhirId, PeranDosen.pembimbing1);
+
+    const queries: PrismaPromise<unknown>[] = [];
 
     // Prepare query for Pembimbing 1
     queries.push(
@@ -213,7 +230,7 @@ export class PenugasanService {
     dto: AssignPengujiDto,
     adminId: number
   ): Promise<unknown> {
-    const { penguji1Id, penguji2Id } = dto;
+    const { penguji1Id, penguji2Id, penguji3Id } = dto;
     const queries: PrismaPromise<unknown>[] = [];
 
      // Assign Penguji 1
@@ -270,6 +287,36 @@ export class PenugasanService {
                     dosen_id: penguji2Id,
                     admin_id: adminId,
                     peran: 'penguji2',
+                    action: 'ASSIGN'
+                }
+            })
+            );
+      }
+
+      if (penguji3Id != null) {
+        queries.push(
+            this.prisma.peranDosenTa.upsert({
+              where: {
+                tugas_akhir_id_peran: {
+                  tugas_akhir_id: tugasAkhirId,
+                  peran: PeranDosen.penguji3,
+                },
+              },
+              update: { dosen_id: penguji3Id },
+              create: {
+                tugas_akhir_id: tugasAkhirId,
+                dosen_id: penguji3Id,
+                peran: PeranDosen.penguji3,
+              },
+            })
+          );
+          queries.push(
+            this.prisma.historyPenugasanDosen.create({
+                data: {
+                    tugas_akhir_id: tugasAkhirId,
+                    dosen_id: penguji3Id,
+                    admin_id: adminId,
+                    peran: 'penguji3',
                     action: 'ASSIGN'
                 }
             })

@@ -219,11 +219,13 @@ model Mahasiswa {
 
 /// Profil khusus untuk Dosen, berisi data akademik.
 model Dosen {
-  id         Int      @id @default(autoincrement())
-  user_id    Int      @unique
-  nidn       String   @unique
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id              Int      @id @default(autoincrement())
+  user_id         Int      @unique
+  nidn            String   @unique
+  prodi           Prodi? // Menandakan homebase atau scope wewenang (untuk Kaprodi)
+  kuota_bimbingan Int      @default(4)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
   // Relasi
   user                  User                    @relation(fields: [user_id], references: [id], onDelete: Cascade)

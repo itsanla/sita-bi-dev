@@ -10,6 +10,7 @@ declare global {
         dosen?: {
           id: number;
           nidn: string;
+          prodi?: 'D3' | 'D4' | null;
         } | null;
         mahasiswa?: {
           id: number;

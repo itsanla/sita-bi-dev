@@ -20,6 +20,7 @@ interface User {
   };
   dosen?: {
     nidn: string;
+    prodi?: 'D3' | 'D4' | null;
   };
 }
 
