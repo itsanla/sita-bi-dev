@@ -29,7 +29,7 @@ interface NotificationData {
   author?: string;
 }
 
-class WhatsAppService {
+export class WhatsAppService {
   private client: Client | null = null;
   private isReady = false;
   private qrCode: string | null = null;

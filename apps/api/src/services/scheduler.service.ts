@@ -1,7 +1,7 @@
 import cron from 'node-cron';
 import { PrismaClient, StatusTugasAkhir } from '@repo/db';
 import { EmailService } from './email.service';
-import { WhatsappService } from './whatsapp.service';
+import { whatsappService, WhatsappService } from './whatsapp.service';
 
 export class SchedulerService {
   private prisma: PrismaClient;
@@ -11,7 +11,7 @@ export class SchedulerService {
   constructor() {
     this.prisma = new PrismaClient();
     this.emailService = new EmailService();
-    this.waService = new WhatsappService();
+    this.waService = whatsappService;
   }
 
   init() {
