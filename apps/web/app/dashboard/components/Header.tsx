@@ -2,9 +2,9 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from '@/apps/web/context/AuthContext';
-import { Button } from '@/apps/web/components/ui/button'; // Assuming a button component exists
-import { Sheet, SheetContent, SheetTrigger } from '@/apps/web/components/ui/sheet'; // Assuming sheet components exist
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button'; // Assuming a button component exists
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; // Assuming sheet components exist
 import { Menu, UserCircle, LogOut } from 'lucide-react';
 import Link from 'next/link';
 

@@ -1,10 +1,10 @@
 // apps/web/app/dashboard/dosen/bimbingan/components/SessionCard.tsx
 import React from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '@/apps/web/lib/api';
 import { toast } from 'sonner';
+import api from '@/lib/api';
 import { BimbinganSession } from '../types';
-import StatusBadge from '@/apps/web/app/components/shared/StatusBadge';
+import StatusBadge from '@/components/shared/StatusBadge';
 import AddNoteForm from './AddNoteForm';
 import { CheckCircle, XCircle } from 'lucide-react';
 

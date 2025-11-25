@@ -4,7 +4,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/apps/web/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { Home, Users, Calendar, Book, FileText, Settings } from 'lucide-react';
 
 const navLinks = {

@@ -4,14 +4,14 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import api, { handleApiError } from '@/apps/web/lib/api';
-import { useAuth } from '@/apps/web/context/AuthContext';
+import api, { handleApiError } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 import { ImportType, ValidationResult, ImportResult } from './types';
 import UploadStep from './components/UploadStep';
 import PreviewStep from './components/PreviewStep';
 import ResultStep from './components/ResultStep';
 import { AxiosResponse } from 'axios';
-import { ApiResponse } from '@/apps/web/types';
+import { ApiResponse } from '@/types';
 
 type ImportStep = 'upload' | 'preview' | 'result';
 

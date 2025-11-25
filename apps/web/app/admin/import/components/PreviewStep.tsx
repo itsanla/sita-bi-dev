@@ -6,7 +6,7 @@ import { ValidationResult, ImportResult } from '../types';
 import { AlertTriangle, CheckCircle, ArrowLeft } from 'lucide-react';
 import { UseMutationResult } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
-import { ApiResponse } from '@/apps/web/types';
+import { ApiResponse } from '@/types';
 
 interface PreviewStepProps {
   validationResult: ValidationResult;

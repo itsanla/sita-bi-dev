@@ -4,7 +4,7 @@
 import React, { ReactNode } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

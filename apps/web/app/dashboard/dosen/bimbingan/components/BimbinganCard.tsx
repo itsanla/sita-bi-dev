@@ -3,7 +3,7 @@ import React from 'react';
 import { TugasAkhir } from '../types';
 import ScheduleForm from './ScheduleForm';
 import SessionList from './SessionList';
-import StatusBadge from '@/apps/web/app/components/shared/StatusBadge';
+import StatusBadge from '@/components/shared/StatusBadge';
 
 interface BimbinganCardProps {
   tugasAkhir: TugasAkhir;

@@ -3,7 +3,7 @@
 
 import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
-import { DashboardCardSkeleton } from '@/apps/web/app/components/Suspense/LoadingFallback';
+import { DashboardCardSkeleton } from '@/components/Suspense/LoadingFallback';
 
 // Dynamically import client components
 const WelcomeSection = dynamic(() => import('./components/WelcomeSection'), { ssr: false });

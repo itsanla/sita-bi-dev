@@ -6,8 +6,8 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import api from '@/apps/web/lib/api';
-import { Dosen, Ruangan, Sidang, ConflictCheckResult as ConflictCheckResultType } from '../types';
+import api from '@/lib/api';
+import { Ruangan, Sidang, ConflictCheckResult as ConflictCheckResultType } from '../types';
 import ConflictCheckResult from './ConflictCheckResult';
 import { useDebounce } from 'use-debounce';
 
@@ -31,10 +31,10 @@ export default function JadwalSidangForm() {
     queryFn: () => api.get('/ruangan').then(res => res.data.data),
   });
 
-  const { data: dosenList } = useQuery<Dosen[]>({
-    queryKey: ['dosenList'],
-    queryFn: () => api.get('/users?role=dosen').then(res => res.data.data),
-  });
+  // const { data: dosenList } = useQuery<Dosen[]>({
+  //   queryKey: ['dosenList'],
+  //   queryFn: () => api.get('/users?role=dosen').then(res => res.data.data),
+  // });
 
   const { control, handleSubmit, formState: { errors }, watch } = useForm({
     resolver: zodResolver(schema),

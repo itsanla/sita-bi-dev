@@ -3,11 +3,11 @@
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import api from '@/apps/web/lib/api';
+import api from '@/lib/api';
 import BimbinganCard from './BimbinganCard';
 import { TugasAkhir } from '../types';
-import LoadingSpinner from '@/apps/web/app/components/shared/LoadingSpinner';
-import EmptyState from '@/apps/web/app/components/shared/EmptyState';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import EmptyState from '@/components/shared/EmptyState';
 
 export default function BimbinganList() {
   const { data: bimbinganList, isLoading, isError } = useQuery<TugasAkhir[]>({

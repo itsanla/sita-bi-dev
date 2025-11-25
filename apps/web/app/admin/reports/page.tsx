@@ -2,8 +2,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useAuth } from '@/apps/web/context/AuthContext';
-import api, { handleApiError } from '@/apps/web/lib/api';
+import { useAuth } from '@/context/AuthContext';
+import api, { handleApiError } from '@/lib/api';
 import { toast } from 'sonner';
 import ExportButton from './components/ExportButton';
 import { BookUp, FileText, Users, CalendarDays } from 'lucide-react';

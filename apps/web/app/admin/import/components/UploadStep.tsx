@@ -7,7 +7,7 @@ import { Download, FileUp } from 'lucide-react';
 import { UseMutationResult } from '@tanstack/react-query';
 import { ValidationResult } from '../types';
 import { AxiosResponse } from 'axios';
-import { ApiResponse } from '@/apps/web/types';
+import { ApiResponse } from '@/types';
 
 interface UploadStepProps {
   setFile: (file: File | null) => void;
@@ -19,7 +19,7 @@ interface UploadStepProps {
 export default function UploadStep({ setFile, file, importType, validateMutation }: UploadStepProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFile(e.target.files[0]);
+      setFile(e.target.files[0] || null);
     }
   };
 

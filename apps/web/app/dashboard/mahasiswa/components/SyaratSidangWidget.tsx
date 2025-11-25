@@ -2,11 +2,11 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import api from '@/apps/web/lib/api';
+import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { AlertCircle, CheckCircle2, Clock, XCircle } from 'lucide-react';
-import { DashboardCardSkeleton } from '@/apps/web/app/components/Suspense/LoadingFallback';
-import EmptyState from '@/apps/web/app/components/shared/EmptyState';
+import { DashboardCardSkeleton } from '@/components/Suspense/LoadingFallback';
+import EmptyState from '@/components/shared/EmptyState';
 
 interface EligibilityDetails {
   tugasAkhirApproved: boolean;
