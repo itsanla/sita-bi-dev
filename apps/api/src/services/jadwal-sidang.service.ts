@@ -184,6 +184,47 @@ export class JadwalSidangService {
     };
   }
 
+  async checkConflict(dto: CreateJadwalDto): Promise<{ hasConflict: boolean; messages: string[] }> {
+    const {
+      sidangId,
+      tanggal,
+      waktu_mulai,
+      waktu_selesai,
+      ruangan_id,
+      pengujiIds,
+    } = dto;
+
+    const sidang = await this.prisma.sidang.findUnique({
+      where: { id: sidangId },
+      include: {
+        tugasAkhir: {
+          include: {
+            peranDosenTa: true,
+          },
+        },
+      },
+    });
+
+    if (sidang === null) {
+      throw new Error(`Sidang with ID ${sidangId} not found`);
+    }
+
+    const pembimbingIds = sidang.tugasAkhir.peranDosenTa
+      .filter((p) => p.peran === PeranDosen.pembimbing1 || p.peran === PeranDosen.pembimbing2)
+      .map((p) => p.dosen_id);
+
+    const allDosenIds = [...new Set([...pembimbingIds, ...pengujiIds])];
+
+    return this.checkScheduleConflict(
+      new Date(tanggal),
+      waktu_mulai,
+      waktu_selesai,
+      ruangan_id,
+      allDosenIds,
+      sidang.id
+    );
+  }
+
   async createJadwal(dto: CreateJadwalDto, userId?: number): Promise<unknown> {
     const {
       sidangId,
