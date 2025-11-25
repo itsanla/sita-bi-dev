@@ -87,20 +87,26 @@ export default function JadwalSidangPage() {
         request<{ data: UnscheduledSidang[] }>('/sidang/unscheduled'),
         request<{ data: Room[] }>('/ruangan'),
       ]);
-      setSchedules(schedulesRes.data || []);
-      setUnscheduled(unscheduledRes.data || []);
-      setRooms(roomsRes.data || []);
+      
+      if (Array.isArray(schedulesRes.data)) {
+        setSchedules(schedulesRes.data);
+      }
+      if (Array.isArray(unscheduledRes.data)) {
+        setUnscheduled(unscheduledRes.data);
+      }
+      if (Array.isArray(roomsRes.data)) {
+        setRooms(roomsRes.data);
+      }
 
       // Fetch dosens (using generic endpoint or assuming one exists based on previous context, but I will assume /users/dosen is correct or fallback)
       // Given the code review, I should ensure this works.
       try {
-         // We use /users/dosen which returns { data: { data: [], ... } } for pagination? Or list?
-         // Based on `users.service.ts`, `findAllDosen` returns object { data: ..., total: ... }.
-         // So `usersRes.data` will be that object. `usersRes.data.data` is the array.
          const dosensRes = await request<{ data: { data: Dosen[] } }>('/users/dosen');
-         setDosens(dosensRes.data?.data || []);
+         if (dosensRes.data?.data && Array.isArray(dosensRes.data.data)) {
+           setDosens(dosensRes.data.data);
+         }
       } catch (e) {
-        console.warn('Failed to fetch dosens', e);
+        console.error('[fetchData] Failed to fetch dosens:', e);
       }
 
     } catch (err: unknown) {
@@ -124,8 +130,8 @@ export default function JadwalSidangPage() {
     try {
       await request('/jadwal-sidang', {
         method: 'POST',
-        body: {
-          sidangId: Number(sidangId), // Now using sidangId
+        data: {
+          sidangId: Number(sidangId),
           ruangan_id: Number(ruanganId),
           tanggal,
           waktu_mulai: waktuMulai,
@@ -382,7 +388,7 @@ export default function JadwalSidangPage() {
                 </div>
 
                 {/* History Section */}
-                {schedule.sidang.historyPerubahan && schedule.sidang.historyPerubahan.length > 0 && (
+                {schedule.sidang.historyPerubahan && schedule.sidang.historyPerubahan.length > 0 ? (
                    <div className="mt-4 pt-4 border-t border-gray-100">
                       <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                         <History size={14} /> Riwayat Perubahan
@@ -396,7 +402,7 @@ export default function JadwalSidangPage() {
                         ))}
                       </ul>
                    </div>
-                )}
+                ) : null}
               </div>
             ))}
           </div>

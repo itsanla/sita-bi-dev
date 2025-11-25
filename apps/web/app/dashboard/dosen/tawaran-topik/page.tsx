@@ -49,7 +49,7 @@ function CreateTopikForm({ onTopicCreated }: { onTopicCreated: () => void }) {
     try {
       await request('/tawaran-topik', {
         method: 'POST',
-        body: { judul_topik: judul, deskripsi, kuota: Number(kuota) },
+        data: { judul_topik: judul, deskripsi, kuota: Number(kuota) },
       });
       alert('Topic created successfully!');
       setJudul('');

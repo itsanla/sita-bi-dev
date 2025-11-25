@@ -65,7 +65,7 @@ export default function SidangApprovalsPage() {
     try {
       await request(`/pendaftaran-sidang/${id}/reject`, {
         method: 'POST',
-        body: { catatan: reason },
+        data: { catatan: reason },
       });
       alert('Registration rejected!');
       fetchData(); // Refresh list

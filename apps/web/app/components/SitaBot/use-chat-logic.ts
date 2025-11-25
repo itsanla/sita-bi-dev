@@ -146,8 +146,8 @@ export function useChatLogic() {
           boundary = buffer.indexOf('\n\n');
         }
       }
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
         console.log('Fetch aborted by user.');
         setMessages((prev) => {
           const last = prev[prev.length - 1];

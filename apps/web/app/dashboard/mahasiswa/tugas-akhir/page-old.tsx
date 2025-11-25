@@ -124,7 +124,7 @@ export default function TugasAkhirPage() {
       const response = await request<{ data: { data: TawaranTopik[] } }>(
         '/tawaran-topik/available',
       );
-      setRecommendedTitles(response.data.data || []);
+      if (Array.isArray(response.data?.data)) { setRecommendedTitles(response.data.data); };
     } catch (err) {
       console.error('Failed to fetch recommended titles:', err);
     }
@@ -154,7 +154,7 @@ export default function TugasAkhirPage() {
         };
       }>('/tugas-akhir/check-similarity', {
         method: 'POST',
-        body: { judul: titleToCheck },
+        data: { judul: titleToCheck },
       });
       setSimilarityResults(response.data.results || []);
       setIsBlocked(response.data.isBlocked || false);
@@ -170,7 +170,7 @@ export default function TugasAkhirPage() {
     try {
       await request('/tugas-akhir', {
         method: 'POST',
-        body: { judul: judulMandiri },
+        data: { judul: judulMandiri },
       });
       alert('Successfully submitted title for approval.');
       setSimilarityResults(null);

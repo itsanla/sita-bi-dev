@@ -1,16 +1,18 @@
 import { LogService } from '../log.service';
-import { PrismaClient } from '@repo/db';
+
+// Define the type of the mock
+const mPrismaClient = {
+  log: {
+    create: jest.fn(),
+    findMany: jest.fn(),
+    count: jest.fn(),
+  },
+  $transaction: jest.fn((promises) => Promise.all(promises)),
+};
+type MockPrismaClient = typeof mPrismaClient;
 
 // Mock PrismaClient
 jest.mock('@repo/db', () => {
-  const mPrismaClient = {
-    log: {
-      create: jest.fn(),
-      findMany: jest.fn(),
-      count: jest.fn(),
-    },
-    $transaction: jest.fn((promises) => Promise.all(promises)),
-  };
   return {
     PrismaClient: jest.fn(() => mPrismaClient),
     LogLevel: {
@@ -24,7 +26,7 @@ jest.mock('@repo/db', () => {
 
 describe('LogService', () => {
   let service: LogService;
-  let prisma: any;
+  let prisma: MockPrismaClient;
 
   beforeEach(() => {
     service = new LogService();

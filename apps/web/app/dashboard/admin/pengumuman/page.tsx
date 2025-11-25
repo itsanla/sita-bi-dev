@@ -29,7 +29,7 @@ export default function AdminPengumumanPage() {
       const response = await request<{ data: { data: Pengumuman[] } }>(
         '/pengumuman/all?limit=100',
       );
-      setPengumuman(response.data.data);
+      if (Array.isArray(response.data?.data)) { setPengumuman(response.data.data); };
     } catch (err) {
       console.error(err);
     } finally {

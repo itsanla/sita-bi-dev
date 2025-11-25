@@ -5,8 +5,7 @@ import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button'; // Assuming a button component exists
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; // Assuming sheet components exist
-import { Menu, UserCircle, LogOut } from 'lucide-react';
-import Link from 'next/link';
+import { Menu, LogOut } from 'lucide-react';
 
 export default function Header() {
   const { user, logout } = useAuth();

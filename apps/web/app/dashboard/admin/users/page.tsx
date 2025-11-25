@@ -95,7 +95,7 @@ const UserModal = ({
     }
 
     try {
-      await request(endpoint, { method, body });
+      await request(endpoint, { method, data: body });
       alert(`User successfully ${isEditing ? 'updated' : 'created'}!`);
       onSave();
     } catch (err: unknown) {
@@ -279,11 +279,13 @@ export default function KelolaPenggunaPage() {
         request<{ data: { data: User[] } }>('/users/mahasiswa'),
       ]);
 
-      const mappedDosen = dosenRes.data.data;
-      const mappedMahasiswa = mahasiswaRes.data.data;
+      const mappedDosen = Array.isArray(dosenRes.data?.data) ? dosenRes.data.data : [];
+      const mappedMahasiswa = Array.isArray(mahasiswaRes.data?.data) ? mahasiswaRes.data.data : [];
 
       const allUsers = [...mappedDosen, ...mappedMahasiswa];
       setUsers(allUsers);
+
+
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message || 'Failed to fetch users');

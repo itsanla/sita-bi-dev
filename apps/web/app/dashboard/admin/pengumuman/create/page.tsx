@@ -32,10 +32,11 @@ export default function CreatePengumumanPage() {
       // Ganti api.post dengan request
       await request('/pengumuman', {
         method: 'POST',
-        body: payload,
+        data: payload,
       });
       router.push('/dashboard/admin/pengumuman');
     } catch (err) {
+      console.error('[CreatePengumuman] Error:', err);
       alert('Gagal membuat pengumuman');
     }
   };

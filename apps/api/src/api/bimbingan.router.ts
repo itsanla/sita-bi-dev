@@ -281,7 +281,12 @@ router.get(
       return;
     }
     const { tanggal, jam } = req.query;
-    if (!tanggal || !jam) {
+    if (
+      typeof tanggal !== 'string' ||
+      tanggal.length === 0 ||
+      typeof jam !== 'string' ||
+      jam.length === 0
+    ) {
       res.status(400).json({
         status: 'gagal',
         message: 'Parameter tanggal dan jam diperlukan',
@@ -311,7 +316,7 @@ router.get(
       return;
     }
     const { tanggal } = req.query;
-    if (!tanggal) {
+    if (typeof tanggal !== 'string' || tanggal.length === 0) {
       res.status(400).json({
         status: 'gagal',
         message: 'Parameter tanggal diperlukan',

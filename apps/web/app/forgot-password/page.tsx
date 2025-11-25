@@ -18,7 +18,7 @@ export default function ForgotPasswordPage() {
     try {
       await request('/auth/forgot-password', {
         method: 'POST',
-        body: { email },
+        data: { email },
       });
       // We don't redirect, we just show success message (handled by UI state if needed, currently just an alert)
       alert('Jika email terdaftar, link reset password akan dikirim.');

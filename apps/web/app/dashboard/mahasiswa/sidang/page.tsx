@@ -118,7 +118,7 @@ function RegistrationForm({
       // Use test upload endpoint instead of the authenticated one
       await request('/upload-test/sidang', {
         method: 'POST',
-        body: formData,
+        data: formData,
       });
 
       alert('Registration successful! Please wait for approval.');

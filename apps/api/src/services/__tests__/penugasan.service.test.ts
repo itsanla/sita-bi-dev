@@ -1,7 +1,7 @@
 
 import { PenugasanService } from '../penugasan.service';
-import { PrismaClient, PeranDosen, StatusTugasAkhir } from '@repo/db';
-import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
+import { PrismaClient, StatusTugasAkhir } from '@repo/db';
+import { mockDeep, type DeepMockProxy } from 'jest-mock-extended';
 import * as businessRules from '../../utils/business-rules';
 
 // Mock Prisma
@@ -32,6 +32,7 @@ describe('PenugasanService', () => {
     (PrismaClient as jest.Mock).mockImplementation(() => prismaMock);
     service = new PenugasanService();
     // Access the private prisma property to set the mock
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (service as any).prisma = prismaMock;
 
     // Reset business rules mocks
@@ -41,6 +42,7 @@ describe('PenugasanService', () => {
 
   describe('getDosenLoad', () => {
     it('should calculate load correctly', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       prismaMock.dosen.findMany.mockResolvedValue([
         {
           id: 1,

@@ -36,7 +36,7 @@ export default function LoginPage() {
         };
       }>('/auth/login', {
         method: 'POST',
-        body: { identifier, password },
+        data: { identifier, password },
       });
 
       if (response.status !== 'sukses') {

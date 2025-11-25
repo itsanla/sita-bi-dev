@@ -73,7 +73,7 @@ export default function PengajuanBimbinganPage() {
     try {
       await request('/pengajuan/dosen', {
         method: 'POST',
-        body: { mahasiswaId },
+        data: { mahasiswaId },
       });
     } catch (err: unknown) {
       if (err instanceof Error) {

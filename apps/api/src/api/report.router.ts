@@ -81,7 +81,7 @@ router.get(
   authorizeRoles([Role.admin, Role.dosen]),
   asyncHandler(async (req, res) => {
     const { sidangId } = req.params;
-    if (!sidangId) {
+    if (sidangId == null || sidangId === '') {
         res.status(400).json({ status: 'gagal', message: 'ID Sidang diperlukan' });
         return;
     }

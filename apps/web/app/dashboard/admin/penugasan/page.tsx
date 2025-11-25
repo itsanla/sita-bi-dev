@@ -47,8 +47,12 @@ export default function PenugasanPage() {
         request<{ data: { data: TugasAkhir[] } }>('/penugasan/unassigned'),
         request<{ data: DosenLoad[] }>('/penugasan/dosen-load'),
       ]);
-      setUnassignedTAs(taRes.data.data || []);
-      setDosenLoad(dosenRes.data || []);
+      if (taRes.data?.data && Array.isArray(taRes.data.data)) {
+        setUnassignedTAs(taRes.data.data);
+      }
+      if (Array.isArray(dosenRes.data)) {
+        setDosenLoad(dosenRes.data);
+      }
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message || 'Failed to fetch data');
@@ -96,7 +100,7 @@ export default function PenugasanPage() {
 
       await request(`/penugasan/${selectedTA.id}/${endpoint}`, {
         method: 'POST',
-        body: JSON.stringify(body),
+        data: body,
       });
       alert(`${assignType === 'pembimbing' ? 'Supervisors' : 'Examiners'} assigned successfully!`);
       handleCloseModal();

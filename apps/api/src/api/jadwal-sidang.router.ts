@@ -52,9 +52,6 @@ router.post(
   authorizeRoles([Role.admin]),
   validate(createJadwalSchema),
   asyncHandler(async (req, res): Promise<void> => {
-    // We need to fetch the sidang to get pembimbing IDs, similar to createJadwal
-    const { sidangId, pengujiIds, tanggal, waktu_mulai, waktu_selesai, ruangan_id } = req.body;
-
     // We can't easily access the logic inside createJadwal without refactoring or duplicating.
     // However, JadwalSidangService has checkScheduleConflict but it needs ALL dosen IDs.
     // So we need to fetch the sidang here or add a helper in service.

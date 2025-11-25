@@ -1,6 +1,6 @@
 import { JadwalSidangService } from '../jadwal-sidang.service';
 import { PrismaClient } from '@repo/db';
-import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
+import { mockDeep, type DeepMockProxy } from 'jest-mock-extended';
 
 jest.mock('@repo/db', () => ({
   PrismaClient: jest.fn(),
@@ -33,6 +33,7 @@ describe('JadwalSidangService', () => {
         pengujiIds: [2, 3],
       };
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       prismaMock.sidang.findUnique.mockResolvedValue({
         id: 1,
         tugasAkhir: {
@@ -43,6 +44,7 @@ describe('JadwalSidangService', () => {
       } as any);
 
       // Mock finding a conflicting room
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       prismaMock.jadwalSidang.findFirst.mockResolvedValue({
         id: 99,
         waktu_mulai: '09:30',
@@ -77,19 +79,30 @@ describe('JadwalSidangService', () => {
         pengujiIds: [2, 3],
       };
 
-      prismaMock.sidang.findUnique.mockResolvedValue({
-        id: 1,
-        tugasAkhir: {
-          peranDosenTa: [
-            { dosen_id: 1, peran: 'pembimbing1' },
-          ],
-        },
-      } as any);
+      
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+      prismaMock.sidang.findUnique.mockResolvedValue({
+
+        id: 1,
+
+        tugasAkhir: {
+
+          peranDosenTa: [
+
+            { dosen_id: 1, peran: 'pembimbing1' },
+
+          ],
+
+        },
+
+      } as any);
       // No room conflict
       prismaMock.jadwalSidang.findFirst.mockResolvedValue(null);
 
       // Dosen conflict
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       prismaMock.jadwalSidang.findMany.mockResolvedValue([
         {
           sidang: {

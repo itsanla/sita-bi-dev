@@ -57,7 +57,7 @@ export default function ProfilePage() {
     }
 
     try {
-      await api('/profile', { method: 'PATCH', body: profileData });
+      await api('/profile', { method: 'PATCH', data: profileData });
       setSuccess(
         'Profil berhasil diperbarui. Data akan ter-refresh pada login berikutnya.',
       );

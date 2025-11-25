@@ -56,7 +56,7 @@ export default function ViewPengumumanPage() {
     const fetchPengumuman = async () => {
       try {
         const response = await request<{ data: { data: Pengumuman[] } }>(endpoint);
-        setPengumuman(response.data.data || []);
+        if (Array.isArray(response.data?.data)) { setPengumuman(response.data.data); };
       } catch {
         setError('Gagal memuat pengumuman.');
       } finally {

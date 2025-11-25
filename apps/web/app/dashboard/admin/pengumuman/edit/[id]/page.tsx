@@ -32,21 +32,16 @@ export default function EditPengumumanPage() {
     const fetchAnnouncement = async () => {
       try {
         setLoading(true);
-        interface Pengumuman {
-          judul: string;
-          isi: string;
-          audiens: string;
-        }
-
-        // ...
-
-        const response = await request<{ data: Pengumuman }>(
+        const response = await request(
           `/pengumuman/${id}`,
         );
-        const data = response.data;
-        setJudul(data.judul);
-        setIsi(data.isi);
-        setAudiens(data.audiens);
+        // Handle both possible response structures
+        const pengumuman = (response.data as any)?.data || response.data;
+        if (pengumuman && pengumuman.judul) {
+          setJudul(pengumuman.judul);
+          setIsi(pengumuman.isi);
+          setAudiens(pengumuman.audiens);
+        }
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message || 'Failed to fetch announcement');
@@ -66,7 +61,7 @@ export default function EditPengumumanPage() {
     try {
       await request(`/pengumuman/${id}`, {
         method: 'PATCH',
-        body: { judul, isi, audiens },
+        data: { judul, isi, audiens },
       });
       alert('Pengumuman berhasil diperbarui!');
       router.push('/dashboard/admin/pengumuman');

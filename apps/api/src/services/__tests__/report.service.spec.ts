@@ -1,13 +1,14 @@
 import { ReportService } from '../report.service';
-import { PrismaClient } from '@repo/db';
+
+const mPrismaClient = {
+  mahasiswa: { count: jest.fn() },
+  dosen: { count: jest.fn(), findMany: jest.fn() },
+  tugasAkhir: { count: jest.fn() },
+  peranDosenTa: { groupBy: jest.fn() },
+};
+type MockPrismaClient = typeof mPrismaClient;
 
 jest.mock('@repo/db', () => {
-  const mPrismaClient = {
-    mahasiswa: { count: jest.fn() },
-    dosen: { count: jest.fn(), findMany: jest.fn() },
-    tugasAkhir: { count: jest.fn() },
-    peranDosenTa: { groupBy: jest.fn() },
-  };
   return {
     PrismaClient: jest.fn(() => mPrismaClient),
   };
@@ -15,17 +16,14 @@ jest.mock('@repo/db', () => {
 
 describe('ReportService', () => {
   let service: ReportService;
-  let prisma: any;
+  let prisma: MockPrismaClient;
 
   beforeEach(() => {
-    // Create a fresh instance of PrismaClient mock
-    const { PrismaClient } = require('@repo/db');
-    const mockPrisma = new PrismaClient();
-
     service = new ReportService();
     // Inject the mock into the service
-    (service as any).prisma = mockPrisma;
-    prisma = mockPrisma;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (service as any).prisma = mPrismaClient;
+    prisma = mPrismaClient;
     jest.clearAllMocks();
   });
 
@@ -61,9 +59,9 @@ describe('ReportService', () => {
       const result = await service.getLecturerWorkload();
 
       expect(result).toHaveLength(1);
-      expect(result[0]?.name).toBe('Dr. Test');
-      expect(result[0]?.roles).toHaveLength(1);
-      expect(result[0]?.roles?.[0]).toEqual({ role: 'pembimbing1', count: 5 });
+      expect(result[0].name).toBe('Dr. Test');
+      expect(result[0].roles).toHaveLength(1);
+      expect(result[0].roles[0]).toEqual({ role: 'pembimbing1', count: 5 });
     });
   });
 });

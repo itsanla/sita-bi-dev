@@ -1,46 +1,50 @@
 
 import { BimbinganService } from './bimbingan.service';
+import { PrismaClient } from '@repo/db';
+
+// Define the mock shape and type
+const mPrisma = {
+  bimbinganTA: {
+    findMany: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+  },
+  jadwalSidang: {
+    findMany: jest.fn(),
+  },
+  peranDosenTa: {
+    findFirst: jest.fn(),
+  },
+  dosen: {
+    findUnique: jest.fn(),
+  },
+  log: {
+    create: jest.fn(),
+  },
+  $transaction: jest.fn(),
+};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+mPrisma.$transaction.mockImplementation((callback: any) => callback(mPrisma));
+type MockPrismaClient = typeof mPrisma;
+
 
 // Mock @repo/db
-jest.mock('@repo/db', () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mPrisma: any = {
-    bimbinganTA: {
-      findMany: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-    },
-    jadwalSidang: {
-      findMany: jest.fn(),
-    },
-    peranDosenTa: {
-      findFirst: jest.fn(),
-    },
-    dosen: {
-      findUnique: jest.fn(),
-    },
-    log: {
-      create: jest.fn(),
-    },
-    $transaction: jest.fn((callback) => callback(mPrisma)),
-  };
-  return {
-    PrismaClient: jest.fn(() => mPrisma),
-    StatusTugasAkhir: {},
-  };
-});
+jest.mock('@repo/db', () => ({
+  PrismaClient: jest.fn(() => mPrisma),
+  StatusTugasAkhir: {},
+}));
 
-// Import PrismaClient AFTER mocking
-const { PrismaClient } = require('@repo/db');
 
 describe('BimbinganService - Smart Scheduling', () => {
   let service: BimbinganService;
-  let prisma: any;
+  let prisma: MockPrismaClient;
 
   beforeEach(() => {
     jest.clearAllMocks();
     service = new BimbinganService();
-    prisma = new PrismaClient();
+    prisma = new PrismaClient() as unknown as MockPrismaClient;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (service as any).prisma = prisma;
   });
 
   describe('detectScheduleConflicts', () => {

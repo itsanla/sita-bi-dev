@@ -18,14 +18,16 @@ router.post(
   '/login',
   validate(loginSchema),
   asyncHandler(async (req, res) => {
-    const meta = {
-      ip: req.ip,
-      userAgent: req.headers['user-agent'],
-    };
-    // Build meta object carefully to respect exactOptionalPropertyTypes
     const sanitizedMeta: { ip?: string; userAgent?: string } = {};
-    if (meta.ip) sanitizedMeta.ip = meta.ip;
-    if (meta.userAgent) sanitizedMeta.userAgent = meta.userAgent;
+
+    if (req.ip != null && req.ip !== '') {
+      sanitizedMeta.ip = req.ip;
+    }
+
+    const userAgent = req.headers['user-agent'];
+    if (typeof userAgent === 'string' && userAgent !== '') {
+      sanitizedMeta.userAgent = userAgent;
+    }
 
     const result = await authService.login(req.body, sanitizedMeta);
     res.status(200).json({ status: 'sukses', data: result });

@@ -50,7 +50,14 @@ export default function JadwalSidangForm() {
   const watchedFields = watch();
   const [debouncedFields] = useDebounce(watchedFields, 500);
 
-  const conflictCheckMutation = useMutation<ConflictCheckResultType, Error, any>({
+  interface ConflictCheckPayload {
+    tanggal: string;
+    waktu_mulai: string;
+    waktu_selesai: string;
+    ruangan_id: number;
+  }
+
+  const conflictCheckMutation = useMutation<ConflictCheckResultType, Error, ConflictCheckPayload>({
     mutationFn: (data) => api.post('/jadwal-sidang/check-conflict', data).then(res => res.data.data),
     onSuccess: (data) => {
         setConflictResult(data);
@@ -59,20 +66,20 @@ export default function JadwalSidangForm() {
 
   useEffect(() => {
     const { tanggal, waktu_mulai, waktu_selesai, ruangan_id } = debouncedFields;
-    if (tanggal && waktu_mulai && waktu_selesai && ruangan_id > 0) {
+    const ruanganIdNum = Number(ruangan_id);
+    if (tanggal && waktu_mulai && waktu_selesai && ruanganIdNum > 0) {
       conflictCheckMutation.mutate({
         tanggal,
         waktu_mulai,
         waktu_selesai,
-        ruangan_id,
-        // Pass dosen IDs if they are part of the form
+        ruangan_id: ruanganIdNum,
       });
     }
   }, [debouncedFields, conflictCheckMutation]);
 
-  const onSubmit = (data: any) => {
-    console.log(data);
-    // Submit logic here
+  const onSubmit = (data: z.infer<typeof schema>) => {
+    // TODO: Implement submit logic
+    void data;
   };
 
   return (
@@ -84,13 +91,13 @@ export default function JadwalSidangForm() {
             name="sidang_id"
             control={control}
             render={({ field }) => (
-                <select {...field} className="w-full border p-2 rounded">
+                <select {...field} value={String(field.value)} onChange={(e) => field.onChange(Number(e.target.value))} className="w-full border p-2 rounded">
                 <option value={0}>Pilih Sidang</option>
                 {sidangList?.map(s => <option key={s.id} value={s.id}>{s.mahasiswa.nama} - {s.judul}</option>)}
                 </select>
             )}
             />
-            {errors.sidang_id && <p className="text-red-500 text-sm">{errors.sidang_id.message}</p>}
+            {errors.sidang_id ? <p className="text-red-500 text-sm">{errors.sidang_id.message}</p> : null}
         </div>
         <div>
             <label>Ruangan</label>
@@ -98,29 +105,29 @@ export default function JadwalSidangForm() {
             name="ruangan_id"
             control={control}
             render={({ field }) => (
-                <select {...field} className="w-full border p-2 rounded">
+                <select {...field} value={String(field.value)} onChange={(e) => field.onChange(Number(e.target.value))} className="w-full border p-2 rounded">
                 <option value={0}>Pilih Ruangan</option>
                 {ruanganList?.map(r => <option key={r.id} value={r.id}>{r.nama}</option>)}
                 </select>
             )}
             />
-            {errors.ruangan_id && <p className="text-red-500 text-sm">{errors.ruangan_id.message}</p>}
+            {errors.ruangan_id ? <p className="text-red-500 text-sm">{errors.ruangan_id.message}</p> : null}
         </div>
         <div>
             <label>Tanggal</label>
             <Controller name="tanggal" control={control} render={({ field }) => <input type="date" {...field} className="w-full border p-2 rounded" />} />
-            {errors.tanggal && <p className="text-red-500 text-sm">{errors.tanggal.message}</p>}
+            {errors.tanggal ? <p className="text-red-500 text-sm">{errors.tanggal.message}</p> : null}
         </div>
         <div className="grid grid-cols-2 gap-4">
             <div>
                 <label>Waktu Mulai</label>
                 <Controller name="waktu_mulai" control={control} render={({ field }) => <input type="time" {...field} className="w-full border p-2 rounded" />} />
-                {errors.waktu_mulai && <p className="text-red-500 text-sm">{errors.waktu_mulai.message}</p>}
+                {errors.waktu_mulai ? <p className="text-red-500 text-sm">{errors.waktu_mulai.message}</p> : null}
             </div>
             <div>
                 <label>Waktu Selesai</label>
                 <Controller name="waktu_selesai" control={control} render={({ field }) => <input type="time" {...field} className="w-full border p-2 rounded" />} />
-                {errors.waktu_selesai && <p className="text-red-500 text-sm">{errors.waktu_selesai.message}</p>}
+                {errors.waktu_selesai ? <p className="text-red-500 text-sm">{errors.waktu_selesai.message}</p> : null}
             </div>
         </div>
       </div>

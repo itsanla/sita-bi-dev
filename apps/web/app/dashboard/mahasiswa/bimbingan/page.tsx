@@ -143,7 +143,7 @@ export default function BimbinganPage() {
     try {
       await request('/pengajuan/mahasiswa', {
         method: 'POST',
-        body: { dosenId },
+        data: { dosenId },
       });
       alert('Request sent successfully!');
       fetchData();
@@ -212,7 +212,7 @@ export default function BimbinganPage() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          body: formData,
+          data: formData,
         },
       );
 

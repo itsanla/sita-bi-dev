@@ -22,7 +22,10 @@ export default function ActivityLog() {
     try {
       setLoading(true);
       const res = await request<{ data: { data: Log[] } }>('/log/me?limit=10');
-      setLogs(res.data.data);
+      const logsData = res?.data?.data?.data;
+      if (Array.isArray(logsData)) {
+        setLogs(logsData);
+      }
     } catch (error) {
       console.error('Failed to fetch logs', error);
     } finally {

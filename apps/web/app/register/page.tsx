@@ -117,7 +117,7 @@ export default function RegisterPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        data: payload,
       });
 
       const data = await response.json();

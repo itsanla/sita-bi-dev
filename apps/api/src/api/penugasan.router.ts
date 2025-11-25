@@ -57,7 +57,7 @@ router.post(
     }
 
     // Admin ID from token
-    if (!req.user?.id) {
+    if (req.user?.id == null) {
       res.status(401).json({ status: 'gagal', message: 'Unauthorized' });
       return;
     }
@@ -84,7 +84,7 @@ router.post(
       return;
     }
 
-    if (!req.user?.id) {
+    if (req.user?.id == null) {
       res.status(401).json({ status: 'gagal', message: 'Unauthorized' });
       return;
     }

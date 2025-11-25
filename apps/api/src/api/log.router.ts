@@ -52,7 +52,7 @@ router.get(
   asyncHandler(insecureAuthMiddleware),
   asyncHandler(async (req, res): Promise<void> => {
     const userId = req.user?.id;
-    if (!userId) {
+    if (userId == null) {
       res.status(401).json({ status: 'gagal', message: 'Unauthorized' });
       return;
     }

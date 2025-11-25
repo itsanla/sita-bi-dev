@@ -47,7 +47,7 @@ function PenilaianForm({
     try {
       await request('/penilaian', {
         method: 'POST',
-        body: { sidang_id: sidangId, aspek, skor: Number(skor), komentar },
+        data: { sidang_id: sidangId, aspek, skor: Number(skor), komentar },
       });
       alert('Score submitted successfully!');
       setAspek('');

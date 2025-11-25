@@ -242,7 +242,7 @@ export class AuthService {
       where: { email },
     });
 
-    if (existingToken) {
+    if (existingToken !== null) {
       await prisma.passwordResetToken.update({
         where: { id: existingToken.id },
         data: { token, created_at: new Date() },

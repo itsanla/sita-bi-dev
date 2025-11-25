@@ -31,7 +31,7 @@ export class BimbinganService {
     action: string,
     url?: string,
     method?: string,
-  ) {
+  ): Promise<void> {
     try {
       await this.prisma.log.create({
         data: {
@@ -203,7 +203,7 @@ export class BimbinganService {
     });
 
     for (const bimbingan of bimbinganConflicts) {
-      if (bimbingan.jam_bimbingan) {
+      if (bimbingan.jam_bimbingan != null) {
         const bStart = this.timeStringToMinutes(bimbingan.jam_bimbingan);
         const bEnd = bStart + 60;
         if (this.isOverlap(startTime, endTime, bStart, bEnd)) {
@@ -258,7 +258,7 @@ export class BimbinganService {
     });
 
     for (const b of bimbingan) {
-      if (b.jam_bimbingan) {
+      if (b.jam_bimbingan != null) {
         const start = this.timeStringToMinutes(b.jam_bimbingan);
         busyIntervals.push({ start, end: start + 60 });
       }
@@ -290,16 +290,11 @@ export class BimbinganService {
 
     const mergedIntervals: { start: number; end: number }[] = [];
     for (const interval of busyIntervals) {
-      if (
-        mergedIntervals.length === 0 ||
-        mergedIntervals[mergedIntervals.length - 1]!.end < interval.start
-      ) {
+      const lastInterval = mergedIntervals[mergedIntervals.length - 1];
+      if (lastInterval == null || lastInterval.end < interval.start) {
         mergedIntervals.push(interval);
       } else {
-        mergedIntervals[mergedIntervals.length - 1]!.end = Math.max(
-          mergedIntervals[mergedIntervals.length - 1]!.end,
-          interval.end,
-        );
+        lastInterval.end = Math.max(lastInterval.end, interval.end);
       }
     }
 
@@ -323,8 +318,17 @@ export class BimbinganService {
   }
 
   private timeStringToMinutes(time: string): number {
-    const [hours, minutes] = time.split(':').map(Number);
-    return (hours || 0) * 60 + (minutes || 0);
+    if (typeof time !== 'string') {
+      return 0;
+    }
+    const parts = time.split(':');
+    const hours = parseInt(parts[0], 10);
+    const minutes = parseInt(parts[1], 10);
+
+    const h = Number.isNaN(hours) ? 0 : hours;
+    const m = Number.isNaN(minutes) ? 0 : minutes;
+
+    return h * 60 + m;
   }
 
   private minutesToTimeString(minutes: number): string {
@@ -357,7 +361,7 @@ export class BimbinganService {
 
     const userId = dosen?.user_id ?? 0;
 
-    return this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const peranDosen = await tx.peranDosenTa.findFirst({
         where: { tugas_akhir_id: tugasAkhirId, dosen_id: dosenId },
         include: {
@@ -369,11 +373,7 @@ export class BimbinganService {
         },
       });
 
-      if (peranDosen?.peran == null) {
-        throw new Error('You are not a supervisor for this final project.');
-      }
-
-      if (!peranDosen.peran.startsWith('pembimbing')) {
+      if (peranDosen?.peran?.startsWith('pembimbing') !== true) {
         throw new Error('You are not a supervisor for this final project.');
       }
 
@@ -390,7 +390,7 @@ export class BimbinganService {
       });
 
       for (const c of conflicts) {
-        if (c.jam_bimbingan) {
+        if (c.jam_bimbingan != null) {
           const cStart = this.timeStringToMinutes(c.jam_bimbingan);
           const cEnd = cStart + 60;
           if (cStart < endTime && startTime < cEnd) {
@@ -456,7 +456,7 @@ export class BimbinganService {
     alasan: string,
   ): Promise<unknown> {
     return this.prisma
-      .$transaction(async (tx) => {
+      .$transaction(async (tx: Prisma.TransactionClient) => {
         const mahasiswa = await tx.mahasiswa.findUnique({
           where: { user_id: mahasiswaUserId },
         });
@@ -507,7 +507,7 @@ export class BimbinganService {
     const userId = dosen?.user_id ?? 0;
 
     return this.prisma
-      .$transaction(async (tx) => {
+      .$transaction(async (tx: Prisma.TransactionClient) => {
         const bimbingan = await tx.bimbinganTA.findFirst({});
         if (bimbingan === null) {
           throw new Error(
@@ -537,7 +537,7 @@ export class BimbinganService {
     const userId = dosen?.user_id ?? 0;
 
     return this.prisma
-      .$transaction(async (tx) => {
+      .$transaction(async (tx: Prisma.TransactionClient) => {
         const bimbingan = await tx.bimbinganTA.findFirst({
           where: { id: bimbinganId, dosen_id: dosenId },
           include: { tugasAkhir: true },
