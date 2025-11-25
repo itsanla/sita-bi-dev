@@ -82,6 +82,16 @@ router.post(
   }),
 );
 
+// Get current user profile
+router.get(
+  '/me',
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+    const user = await authService.getCurrentUser(req.user!.id);
+    res.status(200).json({ status: 'sukses', data: user });
+  }),
+);
+
 // Logout endpoint
 router.post('/logout', authMiddleware, (_req, res) => {
   res.status(200).json({

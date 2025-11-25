@@ -288,4 +288,33 @@ export class AuthService {
       });
     });
   }
+
+  async getCurrentUser(
+    userId: number,
+  ): Promise<
+    Omit<
+      User & {
+        roles: Role[];
+        mahasiswa: Mahasiswa | null;
+        dosen: Dosen | null;
+      },
+      'password'
+    >
+  > {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        roles: true,
+        mahasiswa: true,
+        dosen: true,
+      },
+    });
+
+    if (user === null) {
+      throw new HttpError(404, 'User tidak ditemukan.');
+    }
+
+    const { password: _, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
 }

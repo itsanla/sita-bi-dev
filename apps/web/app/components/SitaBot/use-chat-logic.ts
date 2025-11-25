@@ -73,7 +73,8 @@ export function useChatLogic() {
       // Send only completed messages (exclude the empty assistant message we just added)
       const historyToSend = messages.filter((msg) => msg.content.trim() !== '');
 
-      const response = await fetch('/api/gemini/chat/stream/public', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+      const response = await fetch(`${apiUrl}/api/gemini/chat/stream/public`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -131,7 +132,7 @@ export function useChatLogic() {
                       ...allButLast,
                       {
                         ...last,
-                        content: last.content || `Error: ${parsed.error}`,
+                        content: `😔 ${parsed.error || 'Maaf, terjadi kesalahan. Silakan coba lagi.'}`,
                       },
                     ];
                   }
@@ -158,11 +159,24 @@ export function useChatLogic() {
         });
       } else {
         console.error('Fetch error:', error);
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+        let userMessage = '😔 Maaf, terjadi kesalahan. Silakan coba lagi.';
+        
+        if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+          userMessage = '😔 Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+        }
+        
         setMessages((prev) => {
           const allButLast = prev.slice(0, -1);
           const last = prev[prev.length - 1];
-          if (last && last.role === 'assistant' && last.content.trim() === '') {
-            return allButLast;
+          if (last && last.role === 'assistant') {
+            return [
+              ...allButLast,
+              {
+                ...last,
+                content: last.content.trim() || userMessage,
+              },
+            ];
           }
           return prev;
         });

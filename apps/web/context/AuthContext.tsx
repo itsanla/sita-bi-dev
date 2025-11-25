@@ -9,7 +9,6 @@ import React, {
   useCallback,
 } from 'react';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
 import api, { handleApiError } from '../lib/api';
 import { User } from '../types';
 
@@ -29,7 +28,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   const fetchUserProfile = useCallback(async () => {
-    const token = Cookies.get('token');
+    if (typeof window === 'undefined') {
+      setLoading(false);
+      return;
+    }
+
+    const token = localStorage.getItem('token');
     if (!token) {
       setLoading(false);
       setUser(null);
@@ -38,18 +42,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       setLoading(true);
-      const response = await api.get<{ data: User }>('/auth/me');
-      if (response.data && response.data.data) {
-        setUser(response.data.data);
+      const response = await api.get<User>('/auth/me');
+      if (response.data?.data) {
+        const userData = response.data.data;
+        // Add alias properties for backward compatibility
+        setUser({
+          ...userData,
+          nama: userData.name,
+          nim: userData.mahasiswa?.nim,
+          nidn: userData.dosen?.nidn,
+        });
       } else {
-        // Handle cases where API returns success but no user data
         setUser(null);
-        Cookies.remove('token');
+        localStorage.removeItem('token');
       }
     } catch (error) {
       console.error('Failed to fetch user profile:', handleApiError(error));
       setUser(null);
-      Cookies.remove('token');
+      localStorage.removeItem('token');
     } finally {
       setLoading(false);
     }
@@ -60,16 +70,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchUserProfile]);
 
   const login = async (_token: string) => {
-    Cookies.set('token', _token, {
-      expires: 7,
-      secure: process.env.NODE_ENV === 'production',
-    });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('token', _token);
+    }
     await fetchUserProfile();
   };
 
   const logout = () => {
     setUser(null);
-    Cookies.remove('token');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+    }
     router.push('/login');
   };
 

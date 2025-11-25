@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LogIn, Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
-import request from '@/lib/api';
+import { api } from '@/lib/api';
 
 import { useAuth } from '../../context/AuthContext';
 
@@ -22,39 +22,33 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await request<{
-        data: {
-          userId: number;
-          user: {
-            id: number;
-            name: string;
-            email: string;
-            roles: Array<{ name: string }>;
-          };
+      const response = await api.post<{
+        userId: number;
+        user: {
+          id: number;
+          name: string;
+          email: string;
+          roles: Array<{ name: string }>;
         };
-      }>('/auth/login', {
-        method: 'POST',
-        data: { identifier, password },
-      });
+      }>('/auth/login', { identifier, password });
 
+      const userId = response.data?.data?.userId;
       const user = response.data?.data?.user;
 
-      // Store user data and userId as token in localStorage
-      if (user) {
-        const token = String(response.data?.data?.userId);
+      if (userId && user) {
+        const token = String(userId);
         await login(token);
-        localStorage.setItem('userId', token);
-      }
 
-      // Redirect based on role
-      const userRole = user?.roles[0]?.name;
+        // Redirect based on role
+        const userRole = user.roles[0]?.name;
 
-      if (userRole === 'dosen') {
-        router.push('/dashboard/dosen');
-      } else if (userRole === 'mahasiswa') {
-        router.push('/dashboard/mahasiswa');
-      } else {
-        router.push('/dashboard'); // Fallback for other roles like admin
+        if (userRole === 'dosen') {
+          router.push('/dashboard/dosen');
+        } else if (userRole === 'mahasiswa') {
+          router.push('/dashboard/mahasiswa');
+        } else {
+          router.push('/dashboard');
+        }
       }
     } catch (err) {
       const error = err as Error;

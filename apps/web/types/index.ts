@@ -1,12 +1,27 @@
 // apps/web/types/index.ts
 
 export interface User {
-  id: string;
-  nama: string;
+  id: number;
+  name: string;
+  nama?: string; // Alias for name
   email: string;
-  nim?: string;
-  nidn?: string;
+  phone_number: string;
+  photo?: string | null;
   roles: { id: number; name: string }[];
+  nim?: string; // From mahasiswa
+  nidn?: string; // From dosen
+  mahasiswa?: {
+    id: number;
+    nim: string;
+    prodi: string;
+    kelas: string;
+  } | null;
+  dosen?: {
+    id: number;
+    nidn: string;
+    prodi?: string | null;
+    kuota_bimbingan: number;
+  } | null;
 }
 
 export interface ApiResponse<T = null> {

@@ -199,7 +199,11 @@ export default function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
                         }`}
                       >
                         <div
-                          className={`prose prose-sm max-w-none ${msg.role === 'user' ? 'prose-invert' : ''}`}
+                          className={`prose prose-sm max-w-none ${
+                            msg.role === 'user'
+                              ? 'prose-invert'
+                              : 'prose-headings:text-red-900 prose-headings:font-bold prose-p:text-gray-700 prose-p:leading-relaxed prose-strong:text-red-800 prose-strong:font-semibold prose-a:text-red-600 prose-a:no-underline hover:prose-a:underline prose-code:text-red-700 prose-code:bg-red-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-ul:list-disc prose-ol:list-decimal prose-li:text-gray-700 prose-blockquote:border-l-red-500 prose-blockquote:text-gray-600'
+                          }`}
                         >
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {msg.content || '...'}
