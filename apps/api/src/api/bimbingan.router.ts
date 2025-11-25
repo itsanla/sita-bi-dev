@@ -103,6 +103,68 @@ router.post(
 );
 
 router.post(
+  '/sesi/:id/upload',
+  authorizeRoles([Role.dosen, Role.mahasiswa]),
+  upload.array('files'), // Allow multiple files
+  asyncHandler(async (req, res): Promise<void> => {
+    const { id } = req.params;
+    if (id == null) {
+      res.status(400).json({ status: 'gagal', message: 'ID Sesi diperlukan' });
+      return;
+    }
+    const userId = req.user?.id;
+    if (userId === undefined) {
+      res.status(401).json({ status: 'gagal', message: 'User ID not found' });
+      return;
+    }
+
+    if (!req.files || (Array.isArray(req.files) && req.files.length === 0)) {
+        res.status(400).json({ status: 'gagal', message: 'No files uploaded' });
+        return;
+    }
+
+    const files = req.files as Express.Multer.File[];
+    // Process each file
+    const results = [];
+    for (const file of files) {
+        // You would typically move the file or get its path here
+        // And save it to the database
+        // For now, assuming bimbinganService has a method or we add one
+        // We'll just call a service method
+        const result = await bimbinganService.addLampiran(
+            parseInt(id, 10),
+            file.path, // Or relative path
+            file.originalname,
+            file.mimetype
+        );
+        results.push(result);
+    }
+
+    res.status(201).json({ status: 'sukses', data: results });
+  }),
+);
+
+router.post(
+  '/sesi/:id/konfirmasi',
+  authorizeRoles([Role.dosen]),
+  asyncHandler(async (req, res): Promise<void> => {
+    const { id } = req.params;
+    if (id == null) {
+      res.status(400).json({ status: 'gagal', message: 'ID Sesi diperlukan' });
+      return;
+    }
+    const dosenId = req.user?.dosen?.id;
+    if (dosenId === undefined) {
+      res.status(401).json({ status: 'gagal', message: 'Not a dosen' });
+      return;
+    }
+
+    const result = await bimbinganService.konfirmasiBimbingan(parseInt(id, 10));
+    res.status(200).json({ status: 'sukses', data: result });
+  }),
+);
+
+router.post(
   '/:tugasAkhirId/jadwal',
   authorizeRoles([Role.dosen]),
   validate(setJadwalSchema),

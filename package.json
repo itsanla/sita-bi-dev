@@ -41,5 +41,11 @@
       "glob": "^10.0.0",
       "rimraf": "^5.0.0"
     }
+  },
+  "dependencies": {
+    "@tiptap/extension-link": "^3.11.0",
+    "@tiptap/extension-underline": "^3.11.0",
+    "@tiptap/react": "^3.11.0",
+    "@tiptap/starter-kit": "^3.11.0"
   }
 }

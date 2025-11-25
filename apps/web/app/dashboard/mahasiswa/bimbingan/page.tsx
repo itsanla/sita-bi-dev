@@ -190,11 +190,16 @@ export default function BimbinganPage() {
     e: React.ChangeEvent<HTMLInputElement>,
     bimbinganId: number,
   ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     const formData = new FormData();
-    formData.append('file', file);
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file) {
+            formData.append('files', file);
+        }
+    }
 
     setUploading(true);
     try {
@@ -213,7 +218,7 @@ export default function BimbinganPage() {
 
       if (!res.ok) throw new Error('Upload failed');
 
-      alert('File uploaded successfully');
+      alert('Files uploaded successfully');
       fetchData();
     } catch (err) {
       alert('Upload failed: ' + (err as Error).message);
@@ -391,7 +396,7 @@ export default function BimbinganPage() {
                     <h4 className="text-sm font-bold text-gray-700 mb-2">
                       Catatan & Diskusi
                     </h4>
-                    <div className="bg-gray-50 p-4 rounded border space-y-3 max-h-60 overflow-y-auto">
+                    <div className="bg-gray-50 p-4 rounded border space-y-3 max-h-80 overflow-y-auto">
                       {bimbingan.catatan && bimbingan.catatan.length > 0 ? (
                         bimbingan.catatan.map((note) => (
                           <div
@@ -408,9 +413,7 @@ export default function BimbinganPage() {
                                 )}
                               </span>
                             </div>
-                            <p className="text-gray-600 mt-1 whitespace-pre-wrap">
-                              {note.catatan}
-                            </p>
+                            <div className="text-gray-600 mt-1 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: note.catatan }} />
                           </div>
                         ))
                       ) : (

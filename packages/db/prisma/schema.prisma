@@ -331,15 +331,31 @@ model BimbinganTA {
   tanggal_bimbingan DateTime?
   jam_bimbingan     String?
   status_bimbingan  StatusBimbingan
+  is_konfirmasi     Boolean         @default(false)
+  konfirmasi_at     DateTime?
   created_at        DateTime        @default(now())
   updated_at        DateTime        @updatedAt
 
   tugasAkhir       TugasAkhir               @relation(fields: [tugas_akhir_id], references: [id], onDelete: Cascade)
   dosen            Dosen                    @relation(fields: [dosen_id], references: [id])
   catatan          CatatanBimbingan[]
+  lampiran         BimbinganLampiran[]
   historyPerubahan HistoryPerubahanJadwal[]
 
   @@map("bimbingan_ta")
+}
+
+model BimbinganLampiran {
+  id              Int      @id @default(autoincrement())
+  bimbingan_ta_id Int
+  file_path       String
+  file_name       String?
+  file_type       String?
+  created_at      DateTime @default(now())
+
+  bimbinganTa BimbinganTA @relation(fields: [bimbingan_ta_id], references: [id], onDelete: Cascade)
+
+  @@map("bimbingan_lampiran")
 }
 
 model CatatanBimbingan {

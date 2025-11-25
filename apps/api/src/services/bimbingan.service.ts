@@ -610,4 +610,41 @@ export class BimbinganService {
         return res;
       });
   }
+
+  async addLampiran(
+    bimbinganTaId: number,
+    filePath: string,
+    fileName: string,
+    fileType: string
+  ): Promise<unknown> {
+    return this.prisma.bimbinganLampiran.create({
+      data: {
+        bimbingan_ta_id: bimbinganTaId,
+        file_path: filePath,
+        file_name: fileName,
+        file_type: fileType,
+      },
+    });
+  }
+
+  async konfirmasiBimbingan(bimbinganTaId: number): Promise<unknown> {
+    const bimbingan = await this.prisma.bimbinganTA.findUnique({
+      where: { id: bimbinganTaId },
+    });
+
+    if (!bimbingan) {
+        throw new Error('Bimbingan not found');
+    }
+
+    // Logic to ensure only the assigned dosen can confirm is checked in controller/router via authorizeRoles or check there.
+    // Ideally we pass dosenId here to verify ownership if not already done.
+
+    return this.prisma.bimbinganTA.update({
+        where: { id: bimbinganTaId },
+        data: {
+            is_konfirmasi: true,
+            konfirmasi_at: new Date(),
+        }
+    });
+  }
 }

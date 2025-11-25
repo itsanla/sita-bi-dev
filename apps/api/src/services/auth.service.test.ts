@@ -24,6 +24,9 @@ jest.mock('../config/database', () => ({
     },
     passwordResetToken: {
       upsert: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
       findUnique: jest.fn(),
       delete: jest.fn(),
     },
@@ -147,10 +150,11 @@ describe('AuthService', () => {
       (crypto.randomBytes as jest.Mock).mockReturnValue({
         toString: () => 'resetToken',
       });
+      (prisma.passwordResetToken.findFirst as jest.Mock).mockResolvedValue(null);
 
       await authService.forgotPassword({ email: 'test@example.com' });
 
-      expect(prisma.passwordResetToken.upsert).toHaveBeenCalled();
+      expect(prisma.passwordResetToken.create).toHaveBeenCalled();
     });
   });
 

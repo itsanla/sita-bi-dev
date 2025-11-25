@@ -112,8 +112,8 @@ export class AuthService {
       data: {
         user_id: user.id,
         action: 'LOGIN',
-        ip_address: meta?.ip,
-        user_agent: meta?.userAgent,
+        ip_address: meta?.ip ?? null,
+        user_agent: meta?.userAgent ?? null,
         method: 'POST',
         url: '/auth/login',
       },
@@ -238,11 +238,20 @@ export class AuthService {
 
     const token = crypto.randomBytes(32).toString('hex');
 
-    await prisma.passwordResetToken.upsert({
+    const existingToken = await prisma.passwordResetToken.findFirst({
       where: { email },
-      update: { token, created_at: new Date() },
-      create: { email, token },
     });
+
+    if (existingToken) {
+      await prisma.passwordResetToken.update({
+        where: { id: existingToken.id },
+        data: { token, created_at: new Date() },
+      });
+    } else {
+      await prisma.passwordResetToken.create({
+        data: { email, token },
+      });
+    }
 
     await this.emailService.sendPasswordResetEmail(email, token);
   }

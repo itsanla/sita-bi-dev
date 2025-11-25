@@ -14,6 +14,7 @@ const SubmissionChart = dynamic(() => import('./components/SubmissionChart'));
 const ProgressTimeline = dynamic(() => import('./components/ProgressTimeline'));
 const QuickActions = dynamic(() => import('./components/QuickActions'));
 const UpcomingSchedule = dynamic(() => import('./components/UpcomingSchedule'));
+const SyaratSidangWidget = dynamic(() => import('./components/SyaratSidangWidget'));
 
 export default function MahasiswaDashboardPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -101,6 +102,11 @@ export default function MahasiswaDashboardPage() {
 
         {/* Right Column - Schedule only */}
         <div className="space-y-6">
+          {/* Syarat Sidang Widget */}
+          <Suspense fallback={<DashboardCardSkeleton />}>
+            <SyaratSidangWidget />
+          </Suspense>
+
           {/* Upcoming Schedule */}
           <Suspense fallback={<DashboardCardSkeleton />}>
             <UpcomingSchedule />
