@@ -10,7 +10,11 @@ import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import EmptyState from '@/components/shared/EmptyState';
 
 export default function BimbinganList() {
-  const { data: bimbinganList, isLoading, isError } = useQuery<TugasAkhir[]>({
+  const {
+    data: bimbinganList,
+    isLoading,
+    isError,
+  } = useQuery<TugasAkhir[]>({
     queryKey: ['dosenBimbinganList'],
     queryFn: async () => {
       const response = await api.get('/bimbingan/sebagai-dosen');
@@ -27,7 +31,9 @@ export default function BimbinganList() {
   }
 
   if (bimbinganList.length === 0) {
-    return <EmptyState message="Anda tidak memiliki mahasiswa bimbingan saat ini." />;
+    return (
+      <EmptyState message="Anda tidak memiliki mahasiswa bimbingan saat ini." />
+    );
   }
 
   return (

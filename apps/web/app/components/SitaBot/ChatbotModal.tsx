@@ -217,7 +217,7 @@ export default function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
                   ))
                 )}
 
-                {isLoading && (
+                {isLoading ? (
                   <div className="flex justify-start animate-fade-in">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-900 to-red-700 flex items-center justify-center mr-3 flex-shrink-0 shadow-lg">
                       <MessageCircle className="w-5 h-5 text-white" />
@@ -236,7 +236,7 @@ export default function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
                       </div>
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
 
@@ -285,7 +285,7 @@ export default function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fade-in {
           from {
             opacity: 0;

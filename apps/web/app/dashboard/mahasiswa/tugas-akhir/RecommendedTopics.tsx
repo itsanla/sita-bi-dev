@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  BookMarked,
-  PlusCircle,
-  User,
-  Users2,
-  Sparkles,
-} from 'lucide-react';
+import { BookMarked, PlusCircle, User, Users2, Sparkles } from 'lucide-react';
 import { useRecommendedTopics } from '@/hooks/useTugasAkhir';
 import SkeletonCard from '@/app/components/loading/SkeletonCard';
 

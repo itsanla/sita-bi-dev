@@ -3,7 +3,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { CheckCircle2, Circle, Clock, AlertTriangle, ChevronRight } from 'lucide-react';
+import { CheckCircle2, Circle, Clock, AlertTriangle } from 'lucide-react';
 import { DashboardCardSkeleton } from '@/components/Suspense/LoadingFallback';
 import EmptyState from '@/components/shared/EmptyState';
 
@@ -23,7 +23,11 @@ interface ProgressData {
 }
 
 export default function ProgressTimeline() {
-  const { data: progress, isLoading, isError } = useQuery<ProgressData>({
+  const {
+    data: progress,
+    isLoading,
+    isError,
+  } = useQuery<ProgressData>({
     queryKey: ['mahasiswaProgress'],
     queryFn: async () => {
       const response = await api.get('/dashboard/mahasiswa/progress');
@@ -45,20 +49,34 @@ export default function ProgressTimeline() {
   const steps: TimelineItem[] = [
     {
       title: 'Pengajuan Judul',
-      description: ['BIMBINGAN', 'SELESAI'].includes(statusTA) ? `Judul disetujui` : 'Menunggu persetujuan judul',
-      status: ['BIMBINGAN', 'SELESAI'].includes(statusTA) ? 'completed' : 'current',
+      description: ['BIMBINGAN', 'SELESAI'].includes(statusTA)
+        ? `Judul disetujui`
+        : 'Menunggu persetujuan judul',
+      status: ['BIMBINGAN', 'SELESAI'].includes(statusTA)
+        ? 'completed'
+        : 'current',
       date: tanggalDisetujui,
     },
     {
       title: 'Bimbingan',
       description: `Bimbingan: ${bimbinganCount}/${minBimbingan} sesi terkonfirmasi`,
-      status: bimbinganCount >= minBimbingan ? 'completed' : (statusTA === 'BIMBINGAN' ? 'current' : 'upcoming'),
+      status:
+        bimbinganCount >= minBimbingan
+          ? 'completed'
+          : statusTA === 'BIMBINGAN'
+            ? 'current'
+            : 'upcoming',
       isError: bimbinganCount < minBimbingan && statusTA === 'BIMBINGAN',
     },
     {
       title: 'Sidang',
       description: 'Pendaftaran Sidang Tugas Akhir',
-      status: statusTA === 'SELESAI' ? 'completed' : (bimbinganCount >= minBimbingan ? 'current' : 'upcoming'),
+      status:
+        statusTA === 'SELESAI'
+          ? 'completed'
+          : bimbinganCount >= minBimbingan
+            ? 'current'
+            : 'upcoming',
     },
     {
       title: 'Selesai',
@@ -67,7 +85,7 @@ export default function ProgressTimeline() {
     },
   ];
 
-  const completedSteps = steps.filter(s => s.status === 'completed').length;
+  const completedSteps = steps.filter((s) => s.status === 'completed').length;
   const percentage = Math.round((completedSteps / steps.length) * 100);
 
   return (
@@ -80,7 +98,7 @@ export default function ProgressTimeline() {
       </div>
 
       <div className="space-y-6">
-        {steps.map((item, index) => (
+        {steps.map((item) => (
           <div key={item.title} className="flex gap-4">
             <div className="relative flex-shrink-0">
               {item.status === 'completed' ? (
@@ -105,8 +123,14 @@ export default function ProgressTimeline() {
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <h4 className={`font-semibold ${item.status === 'completed' ? 'text-gray-900' : 'text-gray-500'}`}>{item.title}</h4>
-                {item.date && <span className="text-xs text-gray-500">{item.date}</span>}
+                <h4
+                  className={`font-semibold ${item.status === 'completed' ? 'text-gray-900' : 'text-gray-500'}`}
+                >
+                  {item.title}
+                </h4>
+                {item.date ? (
+                  <span className="text-xs text-gray-500">{item.date}</span>
+                ) : null}
               </div>
               <p className="text-sm text-gray-600">{item.description}</p>
             </div>

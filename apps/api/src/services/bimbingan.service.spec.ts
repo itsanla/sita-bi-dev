@@ -80,7 +80,9 @@ describe('BimbinganService', () => {
 
       const result = await service.setJadwal(1, 1, '2023-10-27', '10:00');
 
-      expect(mockPrisma.dosen.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(mockPrisma.dosen.findUnique).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
       expect(mockPrisma.peranDosenTa.findFirst).toHaveBeenCalled();
       expect(mockPrisma.bimbinganTA.create).toHaveBeenCalledWith({
         data: {
@@ -109,11 +111,12 @@ describe('BimbinganService', () => {
 
       // Simulate conflict with another bimbingan
       mockPrisma.bimbinganTA.findMany.mockResolvedValue([
-        { id: 2, jam_bimbingan: '10:00' } // Conflict at 10:00
+        { id: 2, jam_bimbingan: '10:00' }, // Conflict at 10:00
       ]);
 
-      await expect(service.setJadwal(1, 1, '2023-10-27', '10:00'))
-        .rejects.toThrow(/Jadwal konflik dengan bimbingan lain/);
+      await expect(
+        service.setJadwal(1, 1, '2023-10-27', '10:00'),
+      ).rejects.toThrow(/Jadwal konflik dengan bimbingan lain/);
     });
   });
 
@@ -129,11 +132,16 @@ describe('BimbinganService', () => {
 
       mockPrisma.dosen.findUnique.mockResolvedValue(mockDosen);
       mockPrisma.bimbinganTA.findFirst.mockResolvedValue(mockBimbingan);
-      mockPrisma.bimbinganTA.update.mockResolvedValue({ ...mockBimbingan, status_bimbingan: 'dibatalkan' });
+      mockPrisma.bimbinganTA.update.mockResolvedValue({
+        ...mockBimbingan,
+        status_bimbingan: 'dibatalkan',
+      });
 
       await service.cancelBimbingan(1, 1);
 
-      expect(mockPrisma.dosen.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(mockPrisma.dosen.findUnique).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
       expect(mockPrisma.bimbinganTA.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: { status_bimbingan: 'dibatalkan' },
@@ -154,12 +162,17 @@ describe('BimbinganService', () => {
 
       mockPrisma.dosen.findUnique.mockResolvedValue(mockDosen);
       mockPrisma.bimbinganTA.findFirst.mockResolvedValue(mockBimbingan);
-      mockPrisma.bimbinganTA.update.mockResolvedValue({ ...mockBimbingan, status_bimbingan: 'selesai' });
+      mockPrisma.bimbinganTA.update.mockResolvedValue({
+        ...mockBimbingan,
+        status_bimbingan: 'selesai',
+      });
       mockPrisma.dokumenTa.findFirst.mockResolvedValue(null); // No document to validate
 
       await service.selesaikanSesi(1, 1);
 
-      expect(mockPrisma.dosen.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(mockPrisma.dosen.findUnique).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
       expect(mockPrisma.bimbinganTA.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: { status_bimbingan: 'selesai' },
@@ -177,7 +190,9 @@ describe('BimbinganService', () => {
       mockPrisma.dosen.findUnique.mockResolvedValue(mockDosen);
       mockPrisma.bimbinganTA.findFirst.mockResolvedValue(mockBimbingan);
 
-      await expect(service.selesaikanSesi(1, 1)).rejects.toThrow('Only a "dijadwalkan" session can be completed.');
+      await expect(service.selesaikanSesi(1, 1)).rejects.toThrow(
+        'Only a "dijadwalkan" session can be completed.',
+      );
     });
   });
 });

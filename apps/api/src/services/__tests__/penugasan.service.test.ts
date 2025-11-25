@@ -1,4 +1,3 @@
-
 import { PenugasanService } from '../penugasan.service';
 import { PrismaClient, StatusTugasAkhir } from '@repo/db';
 import { mockDeep, type DeepMockProxy } from 'jest-mock-extended';
@@ -31,35 +30,29 @@ describe('PenugasanService', () => {
     prismaMock = mockDeep<PrismaClient>();
     (PrismaClient as jest.Mock).mockImplementation(() => prismaMock);
     service = new PenugasanService();
-    // Access the private prisma property to set the mock
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (service as any).prisma = prismaMock;
+    (service as { prisma: DeepMockProxy<PrismaClient> }).prisma = prismaMock;
 
     // Reset business rules mocks
     (businessRules.validateDosenWorkload as jest.Mock).mockResolvedValue(true);
-    (businessRules.validateTeamComposition as jest.Mock).mockResolvedValue(true);
+    (businessRules.validateTeamComposition as jest.Mock).mockResolvedValue(
+      true,
+    );
   });
 
   describe('getDosenLoad', () => {
     it('should calculate load correctly', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       prismaMock.dosen.findMany.mockResolvedValue([
         {
           id: 1,
           user: { name: 'Dosen A', email: 'a@test.com' },
-          peranDosenTa: [
-            { peran: 'pembimbing1' },
-            { peran: 'penguji1' },
-          ],
+          peranDosenTa: [{ peran: 'pembimbing1' }, { peran: 'penguji1' }],
         },
         {
           id: 2,
           user: { name: 'Dosen B', email: 'b@test.com' },
-          peranDosenTa: [
-            { peran: 'pembimbing1' },
-          ],
+          peranDosenTa: [{ peran: 'pembimbing1' }],
         },
-      ] as any);
+      ] as unknown as never);
 
       const result = await service.getDosenLoad();
 
@@ -111,30 +104,30 @@ describe('PenugasanService', () => {
       expect(prismaMock.peranDosenTa.upsert).toHaveBeenCalledTimes(2);
       expect(prismaMock.historyPenugasanDosen.create).toHaveBeenCalledTimes(2);
       expect(prismaMock.tugasAkhir.update).toHaveBeenCalledWith({
-          where: { id: taId },
-          data: { status: StatusTugasAkhir.BIMBINGAN }
+        where: { id: taId },
+        data: { status: StatusTugasAkhir.BIMBINGAN },
       });
     });
   });
 
   describe('assignPenguji', () => {
-      it('should assign examiners and log history', async () => {
-        const dto = { penguji1Id: 3, penguji2Id: 4 };
-        const adminId = 99;
-        const taId = 100;
+    it('should assign examiners and log history', async () => {
+      const dto = { penguji1Id: 3, penguji2Id: 4 };
+      const adminId = 99;
+      const taId = 100;
 
-        prismaMock.$transaction.mockResolvedValue([{}, {}, {}, {}]);
+      prismaMock.$transaction.mockResolvedValue([{}, {}, {}, {}]);
 
-        await service.assignPenguji(taId, dto, adminId);
+      await service.assignPenguji(taId, dto, adminId);
 
-        // Verify transaction calls
-        // 1. Upsert Penguji 1
-        // 2. Log History Penguji 1
-        // 3. Upsert Penguji 2
-        // 4. Log History Penguji 2
+      // Verify transaction calls
+      // 1. Upsert Penguji 1
+      // 2. Log History Penguji 1
+      // 3. Upsert Penguji 2
+      // 4. Log History Penguji 2
 
-        expect(prismaMock.peranDosenTa.upsert).toHaveBeenCalledTimes(2);
-        expect(prismaMock.historyPenugasanDosen.create).toHaveBeenCalledTimes(2);
-      });
+      expect(prismaMock.peranDosenTa.upsert).toHaveBeenCalledTimes(2);
+      expect(prismaMock.historyPenugasanDosen.create).toHaveBeenCalledTimes(2);
     });
+  });
 });

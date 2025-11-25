@@ -17,11 +17,12 @@ export class PengumumanService {
     authorId: number,
   ): Promise<Pengumuman> {
     // Explicitly type lampiran creation to avoid TS errors
-    const lampiranData = dto.lampiran?.map(l => ({
-      file_path: l.file_path,
-      file_name: l.file_name ?? null, // Convert undefined to null
-      file_type: l.file_type ?? null  // Convert undefined to null
-    })) ?? [];
+    const lampiranData =
+      dto.lampiran?.map((l) => ({
+        file_path: l.file_path,
+        file_name: l.file_name ?? null, // Convert undefined to null
+        file_type: l.file_type ?? null, // Convert undefined to null
+      })) ?? [];
 
     return this.prisma.pengumuman.create({
       data: {
@@ -106,8 +107,7 @@ export class PengumumanService {
     limit: number;
     totalPages: number;
   }> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const whereClause: any = {
+    const whereClause: Record<string, unknown> = {
       AND: [
         {
           audiens: {
@@ -118,8 +118,8 @@ export class PengumumanService {
       ],
     };
 
-    if (kategori) {
-      whereClause.AND.push({ kategori: kategori });
+    if (kategori !== undefined) {
+      (whereClause.AND as unknown[]).push({ kategori: kategori });
     }
 
     const total = await this.prisma.pengumuman.count({ where: whereClause });
@@ -154,8 +154,7 @@ export class PengumumanService {
     limit: number;
     totalPages: number;
   }> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const whereClause: any = {
+    const whereClause: Record<string, unknown> = {
       AND: [
         {
           audiens: {
@@ -170,22 +169,20 @@ export class PengumumanService {
       ],
     };
 
-    if (kategori) {
-      whereClause.AND.push({ kategori: kategori });
+    if (kategori !== undefined) {
+      (whereClause.AND as unknown[]).push({ kategori: kategori });
     }
 
     const total = await this.prisma.pengumuman.count({ where: whereClause });
     const data = await this.prisma.pengumuman.findMany({
       where: whereClause,
-      orderBy: [
-        { scheduled_at: 'desc' },
-      ],
+      orderBy: [{ scheduled_at: 'desc' }],
       skip: (page - 1) * limit,
       take: limit,
       include: {
         lampiran: true,
         pembuat: { select: { name: true } },
-        pembaca: userId != null ? { where: { user_id: userId } } : false,
+        pembaca: userId !== undefined ? { where: { user_id: userId } } : false,
       },
     });
     return {
@@ -209,8 +206,7 @@ export class PengumumanService {
     limit: number;
     totalPages: number;
   }> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const whereClause: any = {
+    const whereClause: Record<string, unknown> = {
       AND: [
         {
           audiens: {
@@ -225,8 +221,8 @@ export class PengumumanService {
       ],
     };
 
-    if (kategori) {
-      whereClause.AND.push({ kategori: kategori });
+    if (kategori !== undefined) {
+      (whereClause.AND as unknown[]).push({ kategori: kategori });
     }
 
     const total = await this.prisma.pengumuman.count({ where: whereClause });
@@ -238,7 +234,7 @@ export class PengumumanService {
       include: {
         lampiran: true,
         pembuat: { select: { name: true } },
-        pembaca: userId != null ? { where: { user_id: userId } } : false,
+        pembaca: userId !== undefined ? { where: { user_id: userId } } : false,
       },
     });
     return {
@@ -280,8 +276,7 @@ export class PengumumanService {
   }
 
   async update(id: number, dto: UpdatePengumumanDto): Promise<Pengumuman> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updateData: Record<string, any> = {};
+    const updateData: Record<string, unknown> = {};
     if (dto.judul !== undefined) updateData['judul'] = dto.judul;
     if (dto.isi !== undefined) updateData['isi'] = dto.isi;
     if (dto.audiens !== undefined) updateData['audiens'] = dto.audiens;

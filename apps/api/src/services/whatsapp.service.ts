@@ -43,11 +43,11 @@ export class WhatsAppService {
     // Ensure session directory exists
     // Use try-catch to handle permission issues during tests or dev
     try {
-        if (!fs.existsSync(this.sessionDir)) {
-            fs.mkdirSync(this.sessionDir, { recursive: true });
-        }
+      if (!fs.existsSync(this.sessionDir)) {
+        fs.mkdirSync(this.sessionDir, { recursive: true });
+      }
     } catch (err) {
-        console.error('Failed to create session directory:', err);
+      console.error('Failed to create session directory:', err);
     }
   }
 

@@ -4,15 +4,21 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Underline from '@tiptap/extension-underline';
-import { Bold, Italic, List, ListOrdered, Underline as UnderlineIcon } from 'lucide-react';
+import {
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Underline as UnderlineIcon,
+} from 'lucide-react';
 
 interface RichTextEditorProps {
   content: string;
-  onChange: (content: string) => void;
+  onChange: (_content: string) => void;
   editable?: boolean;
 }
 
-const MenuBar = ({ editor }: { editor: any }) => {
+const MenuBar = ({ editor }: { editor: ReturnType<typeof useEditor> }) => {
   if (!editor) {
     return null;
   }
@@ -62,7 +68,11 @@ const MenuBar = ({ editor }: { editor: any }) => {
   );
 };
 
-export default function RichTextEditor({ content, onChange, editable = true }: RichTextEditorProps) {
+export default function RichTextEditor({
+  content,
+  onChange,
+  editable = true,
+}: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -77,15 +87,18 @@ export default function RichTextEditor({ content, onChange, editable = true }: R
       onChange(editor.getHTML());
     },
     editorProps: {
-        attributes: {
-            class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl m-5 focus:outline-none min-h-[100px]',
-        },
-    }
+      attributes: {
+        class:
+          'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl m-5 focus:outline-none min-h-[100px]',
+      },
+    },
   });
 
   return (
-    <div className={`border rounded-lg overflow-hidden ${editable ? 'bg-white' : 'bg-gray-50'}`}>
-      {editable && <MenuBar editor={editor} />}
+    <div
+      className={`border rounded-lg overflow-hidden ${editable ? 'bg-white' : 'bg-gray-50'}`}
+    >
+      {editable ? <MenuBar editor={editor} /> : null}
       <EditorContent editor={editor} className="p-2" />
     </div>
   );

@@ -65,13 +65,17 @@ export class PenugasanService {
   }
 
   // Refinement: Sort by lowest load
-  async getRecommendedDosen(_type: 'pembimbing' | 'penguji' = 'pembimbing'): Promise<DosenLoadResult[]> {
-      const allDosen = await this.getDosenLoad();
-      // Simple refinement: sort by total load asc
-      return allDosen.sort((a, b) => a.totalLoad - b.totalLoad);
+  async getRecommendedDosen(
+    _type: 'pembimbing' | 'penguji' = 'pembimbing',
+  ): Promise<DosenLoadResult[]> {
+    const allDosen = await this.getDosenLoad();
+    // Simple refinement: sort by total load asc
+    return allDosen.sort((a, b) => a.totalLoad - b.totalLoad);
   }
 
-  async checkDosenLoad(dosenId: number): Promise<{ isOverloaded: boolean; load: number }> {
+  async checkDosenLoad(
+    dosenId: number,
+  ): Promise<{ isOverloaded: boolean; load: number }> {
     const activeAssignments = await this.prisma.peranDosenTa.count({
       where: {
         dosen_id: dosenId,
@@ -127,13 +131,12 @@ export class PenugasanService {
   async assignPembimbing(
     tugasAkhirId: number,
     dto: AssignPembimbingDto,
-    adminId: number // Need admin ID for history
+    adminId: number, // Need admin ID for history
   ): Promise<unknown> {
     const { pembimbing1Id, pembimbing2Id } = dto;
 
-    // Validate workloads
     await validateDosenWorkload(pembimbing1Id);
-    if (pembimbing2Id) {
+    if (pembimbing2Id !== undefined) {
       await validateDosenWorkload(pembimbing2Id);
     }
 
@@ -166,24 +169,24 @@ export class PenugasanService {
           dosen_id: pembimbing1Id,
           peran: PeranDosen.pembimbing1,
         },
-      })
+      }),
     );
 
     // Log history for Pembimbing 1
     queries.push(
       this.prisma.historyPenugasanDosen.create({
         data: {
-            tugas_akhir_id: tugasAkhirId,
-            dosen_id: pembimbing1Id,
-            admin_id: adminId,
-            peran: 'pembimbing1',
-            action: 'ASSIGN'
-        }
-      })
+          tugas_akhir_id: tugasAkhirId,
+          dosen_id: pembimbing1Id,
+          admin_id: adminId,
+          peran: 'pembimbing1',
+          action: 'ASSIGN',
+        },
+      }),
     );
 
     // Prepare query for Pembimbing 2 if provided
-    if (pembimbing2Id != null) {
+    if (pembimbing2Id !== undefined) {
       queries.push(
         this.prisma.peranDosenTa.upsert({
           where: {
@@ -198,20 +201,20 @@ export class PenugasanService {
             dosen_id: pembimbing2Id,
             peran: PeranDosen.pembimbing2,
           },
-        })
+        }),
       );
-       // Log history for Pembimbing 2
-        queries.push(
+      // Log history for Pembimbing 2
+      queries.push(
         this.prisma.historyPenugasanDosen.create({
-            data: {
-                tugas_akhir_id: tugasAkhirId,
-                dosen_id: pembimbing2Id,
-                admin_id: adminId,
-                peran: 'pembimbing2',
-                action: 'ASSIGN'
-            }
-        })
-        );
+          data: {
+            tugas_akhir_id: tugasAkhirId,
+            dosen_id: pembimbing2Id,
+            admin_id: adminId,
+            peran: 'pembimbing2',
+            action: 'ASSIGN',
+          },
+        }),
+      );
     }
 
     // Update TugasAkhir status
@@ -228,101 +231,101 @@ export class PenugasanService {
   async assignPenguji(
     tugasAkhirId: number,
     dto: AssignPengujiDto,
-    adminId: number
+    adminId: number,
   ): Promise<unknown> {
     const { penguji1Id, penguji2Id, penguji3Id } = dto;
     const queries: PrismaPromise<unknown>[] = [];
 
-     // Assign Penguji 1
-     queries.push(
+    // Assign Penguji 1
+    queries.push(
+      this.prisma.peranDosenTa.upsert({
+        where: {
+          tugas_akhir_id_peran: {
+            tugas_akhir_id: tugasAkhirId,
+            peran: PeranDosen.penguji1,
+          },
+        },
+        update: { dosen_id: penguji1Id },
+        create: {
+          tugas_akhir_id: tugasAkhirId,
+          dosen_id: penguji1Id,
+          peran: PeranDosen.penguji1,
+        },
+      }),
+    );
+
+    queries.push(
+      this.prisma.historyPenugasanDosen.create({
+        data: {
+          tugas_akhir_id: tugasAkhirId,
+          dosen_id: penguji1Id,
+          admin_id: adminId,
+          peran: 'penguji1',
+          action: 'ASSIGN',
+        },
+      }),
+    );
+
+    if (penguji2Id !== undefined) {
+      queries.push(
         this.prisma.peranDosenTa.upsert({
           where: {
             tugas_akhir_id_peran: {
               tugas_akhir_id: tugasAkhirId,
-              peran: PeranDosen.penguji1,
+              peran: PeranDosen.penguji2,
             },
           },
-          update: { dosen_id: penguji1Id },
+          update: { dosen_id: penguji2Id },
           create: {
             tugas_akhir_id: tugasAkhirId,
-            dosen_id: penguji1Id,
-            peran: PeranDosen.penguji1,
+            dosen_id: penguji2Id,
+            peran: PeranDosen.penguji2,
           },
-        })
+        }),
       );
-
-       queries.push(
+      queries.push(
         this.prisma.historyPenugasanDosen.create({
-            data: {
-                tugas_akhir_id: tugasAkhirId,
-                dosen_id: penguji1Id,
-                admin_id: adminId,
-                peran: 'penguji1',
-                action: 'ASSIGN'
-            }
-        })
-        );
+          data: {
+            tugas_akhir_id: tugasAkhirId,
+            dosen_id: penguji2Id,
+            admin_id: adminId,
+            peran: 'penguji2',
+            action: 'ASSIGN',
+          },
+        }),
+      );
+    }
 
-      if (penguji2Id != null) {
-        queries.push(
-            this.prisma.peranDosenTa.upsert({
-              where: {
-                tugas_akhir_id_peran: {
-                  tugas_akhir_id: tugasAkhirId,
-                  peran: PeranDosen.penguji2,
-                },
-              },
-              update: { dosen_id: penguji2Id },
-              create: {
-                tugas_akhir_id: tugasAkhirId,
-                dosen_id: penguji2Id,
-                peran: PeranDosen.penguji2,
-              },
-            })
-          );
-          queries.push(
-            this.prisma.historyPenugasanDosen.create({
-                data: {
-                    tugas_akhir_id: tugasAkhirId,
-                    dosen_id: penguji2Id,
-                    admin_id: adminId,
-                    peran: 'penguji2',
-                    action: 'ASSIGN'
-                }
-            })
-            );
-      }
+    if (penguji3Id !== undefined) {
+      queries.push(
+        this.prisma.peranDosenTa.upsert({
+          where: {
+            tugas_akhir_id_peran: {
+              tugas_akhir_id: tugasAkhirId,
+              peran: PeranDosen.penguji3,
+            },
+          },
+          update: { dosen_id: penguji3Id },
+          create: {
+            tugas_akhir_id: tugasAkhirId,
+            dosen_id: penguji3Id,
+            peran: PeranDosen.penguji3,
+          },
+        }),
+      );
+      queries.push(
+        this.prisma.historyPenugasanDosen.create({
+          data: {
+            tugas_akhir_id: tugasAkhirId,
+            dosen_id: penguji3Id,
+            admin_id: adminId,
+            peran: 'penguji3',
+            action: 'ASSIGN',
+          },
+        }),
+      );
+    }
 
-      if (penguji3Id != null) {
-        queries.push(
-            this.prisma.peranDosenTa.upsert({
-              where: {
-                tugas_akhir_id_peran: {
-                  tugas_akhir_id: tugasAkhirId,
-                  peran: PeranDosen.penguji3,
-                },
-              },
-              update: { dosen_id: penguji3Id },
-              create: {
-                tugas_akhir_id: tugasAkhirId,
-                dosen_id: penguji3Id,
-                peran: PeranDosen.penguji3,
-              },
-            })
-          );
-          queries.push(
-            this.prisma.historyPenugasanDosen.create({
-                data: {
-                    tugas_akhir_id: tugasAkhirId,
-                    dosen_id: penguji3Id,
-                    admin_id: adminId,
-                    peran: 'penguji3',
-                    action: 'ASSIGN'
-                }
-            })
-            );
-      }
-
-      return this.prisma.$transaction(queries);
+    return this.prisma.$transaction(queries);
   }
 }

@@ -1,6 +1,13 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useCallback,
+} from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import api, { handleApiError } from '../lib/api';
@@ -8,7 +15,7 @@ import { User } from '../types';
 
 interface AuthContextType {
   user: User | null;
-  login: (token: string) => Promise<void>;
+  login: (_token: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
   isAuthenticated: boolean;
@@ -52,8 +59,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     fetchUserProfile();
   }, [fetchUserProfile]);
 
-  const login = async (token: string) => {
-    Cookies.set('token', token, { expires: 7, secure: process.env.NODE_ENV === 'production' });
+  const login = async (_token: string) => {
+    Cookies.set('token', _token, {
+      expires: 7,
+      secure: process.env.NODE_ENV === 'production',
+    });
     await fetchUserProfile();
   };
 
@@ -66,7 +76,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, isAuthenticated }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, loading, isAuthenticated }}
+    >
       {children}
     </AuthContext.Provider>
   );

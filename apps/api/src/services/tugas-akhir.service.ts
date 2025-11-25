@@ -23,7 +23,7 @@ export class TugasAkhirService {
     action: string,
     url?: string,
     method?: string,
-  ) {
+  ): Promise<void> {
     try {
       await this.prisma.log.create({
         data: {
@@ -153,7 +153,7 @@ export class TugasAkhirService {
       },
     });
 
-    return result as TugasAkhir | null;
+    return result;
   }
 
   async deleteMyTa(userId: number): Promise<TugasAkhir> {
@@ -162,7 +162,7 @@ export class TugasAkhirService {
       include: { tugasAkhir: true },
     });
 
-    if (mahasiswa?.tugasAkhir == null) {
+    if (mahasiswa === null || mahasiswa.tugasAkhir === undefined) {
       throw new Error('Tugas Akhir not found for this student.');
     }
 
@@ -212,7 +212,7 @@ export class TugasAkhirService {
       },
     });
 
-    if (!tugasAkhir) {
+    if (tugasAkhir === null) {
       throw new Error('Tugas Akhir tidak ditemukan.');
     }
 
@@ -226,7 +226,7 @@ export class TugasAkhirService {
       where: { user_id: approverId },
     });
 
-    if (!dosen) {
+    if (dosen === null) {
       throw new Error('Profil dosen tidak ditemukan.');
     }
 
@@ -236,7 +236,7 @@ export class TugasAkhirService {
         (peran.peran === 'pembimbing1' || peran.peran === 'pembimbing2'),
     );
 
-    if (!isPembimbing) {
+    if (isPembimbing === false) {
       throw new Error(
         'Hanya pembimbing yang dapat menyetujui judul tugas akhir ini.',
       );
@@ -282,7 +282,7 @@ export class TugasAkhirService {
       },
     });
 
-    if (!tugasAkhir) {
+    if (tugasAkhir === null) {
       throw new Error('Tugas Akhir tidak ditemukan.');
     }
 
@@ -296,7 +296,7 @@ export class TugasAkhirService {
       where: { user_id: rejecterId },
     });
 
-    if (!dosen) {
+    if (dosen === null) {
       throw new Error('Profil dosen tidak ditemukan.');
     }
 
@@ -306,7 +306,7 @@ export class TugasAkhirService {
         (peran.peran === 'pembimbing1' || peran.peran === 'pembimbing2'),
     );
 
-    if (!isPembimbing) {
+    if (isPembimbing === false) {
       throw new Error(
         'Hanya pembimbing yang dapat menolak judul tugas akhir ini.',
       );
@@ -342,7 +342,7 @@ export class TugasAkhirService {
       where: { user_id: dosenId },
     });
 
-    if (!dosen) {
+    if (dosen === null) {
       throw new Error('Profil dosen tidak ditemukan.');
     }
 

@@ -31,7 +31,10 @@ router.post('/test', authenticateJWT, (req: Request, res: Response) => {
         return;
       }
       const userId = req.user.id;
-      const { message, channel } = req.body as { message?: string, channel?: NotificationChannel };
+      const { message, channel } = req.body as {
+        message?: string;
+        channel?: NotificationChannel;
+      };
 
       await notificationService.send({
         userId,
@@ -39,7 +42,7 @@ router.post('/test', authenticateJWT, (req: Request, res: Response) => {
         recipientPhone: req.user.phone_number,
         subject: 'Test Notification',
         message: message ?? 'This is a test notification',
-        channels: channel != null ? [channel] : undefined
+        channels: channel != null ? [channel] : undefined,
       });
       res.json({ success: true });
     } catch (error) {

@@ -4,7 +4,13 @@ import { FileCheck, FileX, FileClock, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 
 interface SubmissionChartProps {
-  stats: any;
+  stats: {
+    tugasAkhir?: {
+      disetujui?: number;
+      pending?: number;
+      ditolak?: number;
+    };
+  } | null;
   loading: boolean;
 }
 

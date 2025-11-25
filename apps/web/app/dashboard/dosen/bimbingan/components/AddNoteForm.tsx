@@ -20,11 +20,12 @@ export default function AddNoteForm({ sessionId }: { sessionId: number }) {
     resolver: zodResolver(schema),
     defaultValues: {
       catatan: '',
-    }
+    },
   });
 
   const addNoteMutation = useMutation({
-    mutationFn: (data: any) => api.post('/bimbingan/catatan', { bimbingan_ta_id: sessionId, ...data }),
+    mutationFn: (data: { catatan: string }) =>
+      api.post('/bimbingan/catatan', { bimbingan_ta_id: sessionId, ...data }),
     onSuccess: () => {
       toast.success('Catatan berhasil ditambahkan.');
       queryClient.invalidateQueries({ queryKey: ['dosenBimbinganList'] });
@@ -32,10 +33,10 @@ export default function AddNoteForm({ sessionId }: { sessionId: number }) {
     },
     onError: () => {
       toast.error('Gagal menambahkan catatan.');
-    }
+    },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: { catatan: string }) => {
     addNoteMutation.mutate(data);
   };
 
@@ -53,7 +54,11 @@ export default function AddNoteForm({ sessionId }: { sessionId: number }) {
           />
         )}
       />
-      <button type="submit" className="p-2 bg-blue-600 text-white rounded" disabled={addNoteMutation.isPending}>
+      <button
+        type="submit"
+        className="p-2 bg-blue-600 text-white rounded"
+        disabled={addNoteMutation.isPending}
+      >
         <Send size={16} />
       </button>
     </form>

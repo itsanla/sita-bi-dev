@@ -148,8 +148,12 @@ export default function TawaranTopikPage() {
         request<{ data: TawaranTopik[] }>('/tawaran-topik'),
         request<{ data: Application[] }>('/tawaran-topik/applications'),
       ]);
-      setTopics(topicsRes.data);
-      setApplications(appsRes.data);
+      if (Array.isArray(topicsRes.data)) {
+        setTopics(topicsRes.data);
+      }
+      if (Array.isArray(appsRes.data)) {
+        setApplications(appsRes.data);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch data');
     } finally {

@@ -2,15 +2,15 @@ import { PrismaClient } from '@repo/db';
 import type { Log, LogLevel } from '@repo/db';
 
 interface CreateLogDto {
-  user_id?: number | undefined | null; // Loosen type
+  user_id?: number | null | undefined;
   action: string;
-  ip_address?: string | undefined | null;
-  user_agent?: string | undefined | null;
-  url?: string | undefined | null;
-  method?: string | undefined | null;
-  details?: string | undefined | null;
-  module?: string | undefined | null;
-  entity_id?: number | undefined | null;
+  ip_address?: string | null | undefined;
+  user_agent?: string | null | undefined;
+  url?: string | null | undefined;
+  method?: string | null | undefined;
+  details?: string | null | undefined;
+  module?: string | null | undefined;
+  entity_id?: number | null | undefined;
   level?: LogLevel;
 }
 
@@ -53,12 +53,15 @@ export class LogService {
     const skip = (page - 1) * limit;
     const take = limit;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {};
-    if (filters.module) where.module = filters.module;
-    if (filters.level) where.level = filters.level;
-    if (filters.user_id) where.user_id = parseInt(filters.user_id);
-    if (filters.entity_id) where.entity_id = parseInt(filters.entity_id);
+    const where: Record<string, unknown> = {};
+    if (filters.module !== undefined && filters.module.length > 0)
+      where.module = filters.module;
+    if (filters.level !== undefined && filters.level.length > 0)
+      where.level = filters.level;
+    if (filters.user_id !== undefined && filters.user_id.length > 0)
+      where.user_id = parseInt(filters.user_id, 10);
+    if (filters.entity_id !== undefined && filters.entity_id.length > 0)
+      where.entity_id = parseInt(filters.entity_id, 10);
 
     const [logs, total] = await this.prisma.$transaction([
       this.prisma.log.findMany({

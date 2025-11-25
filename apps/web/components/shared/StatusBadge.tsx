@@ -10,7 +10,9 @@ const statusStyles = {
 };
 
 export default function StatusBadge({ status }: { status: string }) {
-  const style = statusStyles[status] || statusStyles['COMPLETED'];
+  const style =
+    statusStyles[status as keyof typeof statusStyles] ||
+    statusStyles['COMPLETED'];
   return (
     <span className={`px-2 py-1 text-xs font-medium rounded-full ${style}`}>
       {status.replace('_', ' ')}

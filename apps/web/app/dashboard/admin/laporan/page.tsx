@@ -35,8 +35,14 @@ export default function LaporanPage() {
         const statsData = await statsRes.json();
         const workloadData = await workloadRes.json();
 
-        if (statsData.status === 'success') setStats(statsData.data);
-        if (workloadData.status === 'success') setWorkload(workloadData.data);
+        if (statsData.status === 'success')
+          if (Array.isArray(statsData.data)) {
+            setStats(statsData.data);
+          }
+        if (workloadData.status === 'success')
+          if (Array.isArray(workloadData.data)) {
+            setWorkload(workloadData.data);
+          }
       } catch (error) {
         console.error('Error fetching reports:', error);
       } finally {

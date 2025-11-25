@@ -16,12 +16,12 @@ interface TugasAkhir {
 // Removed unused Dosen interface
 
 interface DosenLoad {
-    id: number;
-    name: string;
-    email: string;
-    totalLoad: number;
-    bimbinganLoad: number;
-    pengujiLoad: number;
+  id: number;
+  name: string;
+  email: string;
+  totalLoad: number;
+  bimbinganLoad: number;
+  pengujiLoad: number;
 }
 
 // --- Main Page Component ---
@@ -33,7 +33,9 @@ export default function PenugasanPage() {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [assignType, setAssignType] = useState<'pembimbing' | 'penguji'>('pembimbing');
+  const [assignType, setAssignType] = useState<'pembimbing' | 'penguji'>(
+    'pembimbing',
+  );
   const [selectedTA, setSelectedTA] = useState<TugasAkhir | null>(null);
   const [dosen1Id, setDosen1Id] = useState<string>('');
   const [dosen2Id, setDosen2Id] = useState<string>('');
@@ -51,7 +53,9 @@ export default function PenugasanPage() {
         setUnassignedTAs(taRes.data.data);
       }
       if (Array.isArray(dosenRes.data)) {
-        setDosenLoad(dosenRes.data);
+        if (Array.isArray(dosenRes.data)) {
+          setDosenLoad(dosenRes.data);
+        }
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -82,27 +86,32 @@ export default function PenugasanPage() {
   const handleAssignSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!selectedTA || !dosen1Id) {
-      alert(`Please select at least ${assignType === 'pembimbing' ? 'Supervisor' : 'Examiner'} 1.`);
+      alert(
+        `Please select at least ${assignType === 'pembimbing' ? 'Supervisor' : 'Examiner'} 1.`,
+      );
       return;
     }
     setIsSubmitting(true);
     try {
-      const endpoint = assignType === 'pembimbing' ? 'assign' : 'assign-penguji';
+      const endpoint =
+        assignType === 'pembimbing' ? 'assign' : 'assign-penguji';
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const body: any = {};
       if (assignType === 'pembimbing') {
-          body.pembimbing1Id = Number(dosen1Id);
-          body.pembimbing2Id = dosen2Id ? Number(dosen2Id) : undefined;
+        body.pembimbing1Id = Number(dosen1Id);
+        body.pembimbing2Id = dosen2Id ? Number(dosen2Id) : undefined;
       } else {
-          body.penguji1Id = Number(dosen1Id);
-          body.penguji2Id = dosen2Id ? Number(dosen2Id) : undefined;
+        body.penguji1Id = Number(dosen1Id);
+        body.penguji2Id = dosen2Id ? Number(dosen2Id) : undefined;
       }
 
       await request(`/penugasan/${selectedTA.id}/${endpoint}`, {
         method: 'POST',
         data: body,
       });
-      alert(`${assignType === 'pembimbing' ? 'Supervisors' : 'Examiners'} assigned successfully!`);
+      alert(
+        `${assignType === 'pembimbing' ? 'Supervisors' : 'Examiners'} assigned successfully!`,
+      );
       handleCloseModal();
       fetchData();
     } catch (err: unknown) {
@@ -117,12 +126,12 @@ export default function PenugasanPage() {
   // Removed unused getLoadBadgeColor
 
   const renderDosenOption = (d: DosenLoad) => {
-      return (
-          <option key={d.id} value={d.id}>
-              {d.name} (Load: {d.totalLoad} - B:{d.bimbinganLoad}/P:{d.pengujiLoad})
-          </option>
-      )
-  }
+    return (
+      <option key={d.id} value={d.id}>
+        {d.name} (Load: {d.totalLoad} - B:{d.bimbinganLoad}/P:{d.pengujiLoad})
+      </option>
+    );
+  };
 
   if (loading) {
     return (
@@ -191,7 +200,7 @@ export default function PenugasanPage() {
                       <UserPlus className="w-5 h-5 mr-1" />
                       Assign Pembimbing
                     </button>
-                     <button
+                    <button
                       onClick={() => handleOpenModal(ta, 'penguji')}
                       className="inline-flex items-center text-blue-800 hover:text-blue-900 font-semibold"
                     >
@@ -219,7 +228,9 @@ export default function PenugasanPage() {
           <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-gray-800">
-                {assignType === 'pembimbing' ? 'Tugaskan Pembimbing' : 'Tugaskan Penguji'}
+                {assignType === 'pembimbing'
+                  ? 'Tugaskan Pembimbing'
+                  : 'Tugaskan Penguji'}
               </h2>
               <button
                 onClick={handleCloseModal}
@@ -239,11 +250,12 @@ export default function PenugasanPage() {
             </p>
 
             <div className="bg-yellow-50 border border-yellow-200 p-3 rounded mb-4 text-xs text-yellow-800 flex items-start">
-                <AlertCircle size={16} className="mr-2 mt-0.5" />
-                <span>
-                    Info Load Dosen: <strong>Total</strong> (Aktif) - <strong>B</strong> (Bimbingan) / <strong>P</strong> (Penguji).
-                    Pilih dosen dengan beban kerja yang wajar.
-                </span>
+              <AlertCircle size={16} className="mr-2 mt-0.5" />
+              <span>
+                Info Load Dosen: <strong>Total</strong> (Aktif) -{' '}
+                <strong>B</strong> (Bimbingan) / <strong>P</strong> (Penguji).
+                Pilih dosen dengan beban kerja yang wajar.
+              </span>
             </div>
 
             <form onSubmit={handleAssignSubmit} className="space-y-4">
@@ -272,7 +284,9 @@ export default function PenugasanPage() {
                   htmlFor="dosen2"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  {assignType === 'pembimbing' ? 'Pembimbing 2 (Opsional)' : 'Penguji 2 (Opsional)'}
+                  {assignType === 'pembimbing'
+                    ? 'Pembimbing 2 (Opsional)'
+                    : 'Penguji 2 (Opsional)'}
                 </label>
                 <select
                   id="dosen2"

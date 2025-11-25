@@ -1,6 +1,9 @@
 import { Router, type Request, type Response } from 'express';
 import asyncHandler from 'express-async-handler';
-import { assignPengujiSchema, PenugasanService } from '../services/penugasan.service';
+import {
+  assignPengujiSchema,
+  PenugasanService,
+} from '../services/penugasan.service';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { authorizeRoles } from '../middlewares/roles.middleware';
 import { validate } from '../middlewares/validation.middleware';
@@ -66,7 +69,7 @@ router.post(
     const assignedPembimbing = await penugasanService.assignPembimbing(
       parseInt(tugasAkhirId, 10),
       req.body,
-      adminId
+      adminId,
     );
     res.status(200).json({ status: 'sukses', data: assignedPembimbing });
   }),
@@ -80,7 +83,9 @@ router.post(
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { tugasAkhirId } = req.params;
     if (tugasAkhirId == null) {
-      res.status(400).json({ status: 'gagal', message: 'ID Tugas Akhir diperlukan' });
+      res
+        .status(400)
+        .json({ status: 'gagal', message: 'ID Tugas Akhir diperlukan' });
       return;
     }
 
@@ -93,11 +98,10 @@ router.post(
     const assigned = await penugasanService.assignPenguji(
       parseInt(tugasAkhirId, 10),
       req.body,
-      adminId
+      adminId,
     );
     res.status(200).json({ status: 'sukses', data: assigned });
   }),
 );
-
 
 export default router;

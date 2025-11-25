@@ -29,7 +29,8 @@ router.get(
         : undefined;
 
     // Ensure filters are strings and respect exactOptionalPropertyTypes
-    const filters: { module?: string; user_id?: string; entity_id?: string } = {};
+    const filters: { module?: string; user_id?: string; entity_id?: string } =
+      {};
 
     if (typeof req.query['module'] === 'string') {
       filters.module = req.query['module'];
@@ -67,7 +68,7 @@ router.get(
         : undefined;
     // Reuse findAll with user_id filter
     const filters = {
-        user_id: userId.toString(),
+      user_id: userId.toString(),
     };
     const logs = await logService.findAll(page, limit, filters);
     res.status(200).json({ status: 'sukses', data: logs });

@@ -150,7 +150,9 @@ describe('AuthService', () => {
       (crypto.randomBytes as jest.Mock).mockReturnValue({
         toString: () => 'resetToken',
       });
-      (prisma.passwordResetToken.findFirst as jest.Mock).mockResolvedValue(null);
+      (prisma.passwordResetToken.findFirst as jest.Mock).mockResolvedValue(
+        null,
+      );
 
       await authService.forgotPassword({ email: 'test@example.com' });
 

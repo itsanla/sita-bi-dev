@@ -291,7 +291,7 @@ export class BimbinganService {
     const mergedIntervals: { start: number; end: number }[] = [];
     for (const interval of busyIntervals) {
       const lastInterval = mergedIntervals[mergedIntervals.length - 1];
-      if (lastInterval == null || lastInterval.end < interval.start) {
+      if (lastInterval === undefined || lastInterval.end < interval.start) {
         mergedIntervals.push(interval);
       } else {
         lastInterval.end = Math.max(lastInterval.end, interval.end);
@@ -361,91 +361,95 @@ export class BimbinganService {
 
     const userId = dosen?.user_id ?? 0;
 
-    return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const peranDosen = await tx.peranDosenTa.findFirst({
-        where: { tugas_akhir_id: tugasAkhirId, dosen_id: dosenId },
-        include: {
-          tugasAkhir: {
-            include: {
-              mahasiswa: true,
+    return this.prisma
+      .$transaction(async (tx: Prisma.TransactionClient) => {
+        const peranDosen = await tx.peranDosenTa.findFirst({
+          where: { tugas_akhir_id: tugasAkhirId, dosen_id: dosenId },
+          include: {
+            tugasAkhir: {
+              include: {
+                mahasiswa: true,
+              },
             },
           },
-        },
-      });
+        });
 
-      if (peranDosen?.peran?.startsWith('pembimbing') !== true) {
-        throw new Error('You are not a supervisor for this final project.');
-      }
+        if (
+          peranDosen?.peran == null ||
+          peranDosen.peran.startsWith('pembimbing') === false
+        ) {
+          throw new Error('You are not a supervisor for this final project.');
+        }
 
-      const tanggalDate = new Date(tanggal);
-      const startTime = this.timeStringToMinutes(jam);
-      const endTime = startTime + 60;
+        const tanggalDate = new Date(tanggal);
+        const startTime = this.timeStringToMinutes(jam);
+        const endTime = startTime + 60;
 
-      const conflicts = await tx.bimbinganTA.findMany({
-        where: {
-          dosen_id: dosenId,
-          tanggal_bimbingan: tanggalDate,
-          status_bimbingan: 'dijadwalkan',
-        },
-      });
+        const conflicts = await tx.bimbinganTA.findMany({
+          where: {
+            dosen_id: dosenId,
+            tanggal_bimbingan: tanggalDate,
+            status_bimbingan: 'dijadwalkan',
+          },
+        });
 
-      for (const c of conflicts) {
-        if (c.jam_bimbingan != null) {
-          const cStart = this.timeStringToMinutes(c.jam_bimbingan);
-          const cEnd = cStart + 60;
-          if (cStart < endTime && startTime < cEnd) {
-            throw new Error(
-              `Jadwal konflik dengan bimbingan lain pada jam ${c.jam_bimbingan}`,
-            );
+        for (const c of conflicts) {
+          if (c.jam_bimbingan != null) {
+            const cStart = this.timeStringToMinutes(c.jam_bimbingan);
+            const cEnd = cStart + 60;
+            if (cStart < endTime && startTime < cEnd) {
+              throw new Error(
+                `Jadwal konflik dengan bimbingan lain pada jam ${c.jam_bimbingan}`,
+              );
+            }
           }
         }
-      }
 
-      const sidangConflicts = await tx.jadwalSidang.findMany({
-        where: {
-          tanggal: tanggalDate,
-          sidang: {
-            tugasAkhir: {
-              peranDosenTa: {
-                some: {
-                  dosen_id: dosenId,
+        const sidangConflicts = await tx.jadwalSidang.findMany({
+          where: {
+            tanggal: tanggalDate,
+            sidang: {
+              tugasAkhir: {
+                peranDosenTa: {
+                  some: {
+                    dosen_id: dosenId,
+                  },
                 },
               },
             },
           },
-        },
-      });
+        });
 
-      for (const s of sidangConflicts) {
-        const sStart = this.timeStringToMinutes(s.waktu_mulai);
-        const sEnd = this.timeStringToMinutes(s.waktu_selesai);
-        if (sStart < endTime && startTime < sEnd) {
-          throw new Error(
-            `Jadwal konflik dengan sidang pada jam ${s.waktu_mulai} - ${s.waktu_selesai}`,
-          );
+        for (const s of sidangConflicts) {
+          const sStart = this.timeStringToMinutes(s.waktu_mulai);
+          const sEnd = this.timeStringToMinutes(s.waktu_selesai);
+          if (sStart < endTime && startTime < sEnd) {
+            throw new Error(
+              `Jadwal konflik dengan sidang pada jam ${s.waktu_mulai} - ${s.waktu_selesai}`,
+            );
+          }
         }
-      }
 
-      const bimbingan = await tx.bimbinganTA.create({
-        data: {
-          tugas_akhir_id: tugasAkhirId,
-          dosen_id: dosenId,
-          peran: peranDosen.peran,
-          tanggal_bimbingan: tanggalDate,
-          jam_bimbingan: jam,
-          status_bimbingan: 'dijadwalkan',
-        },
+        const bimbingan = await tx.bimbinganTA.create({
+          data: {
+            tugas_akhir_id: tugasAkhirId,
+            dosen_id: dosenId,
+            peran: peranDosen.peran,
+            tanggal_bimbingan: tanggalDate,
+            jam_bimbingan: jam,
+            status_bimbingan: 'dijadwalkan',
+          },
+        });
+
+        return bimbingan;
+      })
+      .then(async (res) => {
+        await this.logActivity(
+          userId,
+          `Menjadwalkan bimbingan baru untuk TA ID ${tugasAkhirId} pada ${tanggal} ${jam}`,
+        );
+        return res;
       });
-
-      return bimbingan;
-    })
-    .then(async (res) => {
-      await this.logActivity(
-        userId,
-        `Menjadwalkan bimbingan baru untuk TA ID ${tugasAkhirId} pada ${tanggal} ${jam}`,
-      );
-      return res;
-    });
   }
 
   async rescheduleBimbingan(
@@ -460,13 +464,13 @@ export class BimbinganService {
         const mahasiswa = await tx.mahasiswa.findUnique({
           where: { user_id: mahasiswaUserId },
         });
-        if (!mahasiswa) throw new Error('Mahasiswa not found');
+        if (mahasiswa === null) throw new Error('Mahasiswa not found');
 
         const bimbingan = await tx.bimbinganTA.findUnique({
           where: { id: bimbinganId },
         });
 
-        if (!bimbingan) throw new Error('Bimbingan not found');
+        if (bimbingan === null) throw new Error('Bimbingan not found');
 
         await tx.historyPerubahanJadwal.create({
           data: {
@@ -499,7 +503,10 @@ export class BimbinganService {
       });
   }
 
-  async cancelBimbingan(bimbinganId: number, dosenId: number): Promise<unknown> {
+  async cancelBimbingan(
+    bimbinganId: number,
+    dosenId: number,
+  ): Promise<unknown> {
     // Get user_id from dosenId
     const dosen = await this.prisma.dosen.findUnique({
       where: { id: dosenId },
@@ -615,7 +622,7 @@ export class BimbinganService {
     bimbinganTaId: number,
     filePath: string,
     fileName: string,
-    fileType: string
+    fileType: string,
   ): Promise<unknown> {
     return this.prisma.bimbinganLampiran.create({
       data: {
@@ -632,19 +639,19 @@ export class BimbinganService {
       where: { id: bimbinganTaId },
     });
 
-    if (!bimbingan) {
-        throw new Error('Bimbingan not found');
+    if (bimbingan === null) {
+      throw new Error('Bimbingan not found');
     }
 
     // Logic to ensure only the assigned dosen can confirm is checked in controller/router via authorizeRoles or check there.
     // Ideally we pass dosenId here to verify ownership if not already done.
 
     return this.prisma.bimbinganTA.update({
-        where: { id: bimbinganTaId },
-        data: {
-            is_konfirmasi: true,
-            konfirmasi_at: new Date(),
-        }
+      where: { id: bimbinganTaId },
+      data: {
+        is_konfirmasi: true,
+        konfirmasi_at: new Date(),
+      },
     });
   }
 }

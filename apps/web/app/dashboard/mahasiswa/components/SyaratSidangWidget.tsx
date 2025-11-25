@@ -22,7 +22,11 @@ interface EligibilityData {
 
 export default function SyaratSidangWidget() {
   const router = useRouter();
-  const { data: eligibility, isLoading, isError } = useQuery<EligibilityData>({
+  const {
+    data: eligibility,
+    isLoading,
+    isError,
+  } = useQuery<EligibilityData>({
     queryKey: ['sidangEligibility'],
     queryFn: async () => {
       const response = await api.get('/pendaftaran-sidang/check-eligibility');
@@ -43,9 +47,13 @@ export default function SyaratSidangWidget() {
     <div className="bg-white rounded-2xl p-6 shadow-sm border">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold">Syarat Pendaftaran Sidang</h3>
-        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-          eligibility.isEligible ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-        }`}>
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+            eligibility.isEligible
+              ? 'bg-green-100 text-green-700'
+              : 'bg-red-100 text-red-700'
+          }`}
+        >
           {eligibility.isEligible ? 'Memenuhi Syarat' : 'Belum Memenuhi'}
         </span>
       </div>
@@ -60,12 +68,16 @@ export default function SyaratSidangWidget() {
           <span>Judul TA Disetujui</span>
         </div>
         <div className="flex items-center gap-3">
-          {eligibility.details.bimbinganCount >= eligibility.details.minBimbingan ? (
+          {eligibility.details.bimbinganCount >=
+          eligibility.details.minBimbingan ? (
             <CheckCircle2 className="h-5 w-5 text-green-500" />
           ) : (
             <Clock className="h-5 w-5 text-yellow-500" />
           )}
-          <span>Bimbingan Terkonfirmasi ({eligibility.details.bimbinganCount}/{eligibility.details.minBimbingan})</span>
+          <span>
+            Bimbingan Terkonfirmasi ({eligibility.details.bimbinganCount}/
+            {eligibility.details.minBimbingan})
+          </span>
         </div>
       </div>
 
@@ -73,7 +85,10 @@ export default function SyaratSidangWidget() {
         <div className="mt-4 p-3 bg-red-50 rounded-lg">
           <ul className="space-y-1">
             {eligibility.reason.map((r, i) => (
-              <li key={i} className="flex gap-2 text-xs text-red-700 items-center">
+              <li
+                key={i}
+                className="flex gap-2 text-xs text-red-700 items-center"
+              >
                 <AlertCircle className="h-4 w-4" />
                 <span>{r}</span>
               </li>

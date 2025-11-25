@@ -1,9 +1,11 @@
-import { PrismaClient, PeranDosen } from '@repo/db';
+import { PrismaClient } from '@repo/db';
 import ExcelJS from 'exceljs';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import fs from 'fs';
-import path from 'path';
+
+interface JsPDFWithAutoTable extends jsPDF {
+  lastAutoTable?: { finalY: number };
+}
 
 export class ExportService {
   private prisma: PrismaClient;
@@ -21,7 +23,9 @@ export class ExportService {
             tugasAkhir: {
               include: {
                 mahasiswa: { include: { user: true } },
-                peranDosenTa: { include: { dosen: { include: { user: true } } } },
+                peranDosenTa: {
+                  include: { dosen: { include: { user: true } } },
+                },
               },
             },
           },
@@ -42,12 +46,12 @@ export class ExportService {
       const mhs = j.sidang.tugasAkhir.mahasiswa.user.name;
       const judul = j.sidang.tugasAkhir.judul;
       const pembimbing = j.sidang.tugasAkhir.peranDosenTa
-        .filter(p => p.peran.startsWith('pembimbing'))
-        .map(p => p.dosen.user.name)
+        .filter((p) => p.peran.startsWith('pembimbing'))
+        .map((p) => p.dosen.user.name)
         .join(', ');
       const penguji = j.sidang.tugasAkhir.peranDosenTa
-        .filter(p => p.peran.startsWith('penguji'))
-        .map(p => p.dosen.user.name)
+        .filter((p) => p.peran.startsWith('penguji'))
+        .map((p) => p.dosen.user.name)
         .join(', ');
 
       return [
@@ -57,13 +61,23 @@ export class ExportService {
         mhs,
         judul,
         pembimbing,
-        penguji
+        penguji,
       ];
     });
 
     autoTable(doc, {
       startY: 32,
-      head: [['Tanggal', 'Waktu', 'Ruangan', 'Mahasiswa', 'Judul', 'Pembimbing', 'Penguji']],
+      head: [
+        [
+          'Tanggal',
+          'Waktu',
+          'Ruangan',
+          'Mahasiswa',
+          'Judul',
+          'Pembimbing',
+          'Penguji',
+        ],
+      ],
       body: tableData,
       styles: { fontSize: 8 },
       headStyles: { fillColor: [41, 128, 185] },
@@ -96,7 +110,9 @@ export class ExportService {
             tugasAkhir: {
               include: {
                 mahasiswa: { include: { user: true } },
-                peranDosenTa: { include: { dosen: { include: { user: true } } } },
+                peranDosenTa: {
+                  include: { dosen: { include: { user: true } } },
+                },
               },
             },
           },
@@ -108,12 +124,12 @@ export class ExportService {
     jadwal.forEach((j) => {
       const ta = j.sidang.tugasAkhir;
       const pembimbing = ta.peranDosenTa
-        .filter(p => p.peran.startsWith('pembimbing'))
-        .map(p => p.dosen.user.name)
+        .filter((p) => p.peran.startsWith('pembimbing'))
+        .map((p) => p.dosen.user.name)
         .join(', ');
       const penguji = ta.peranDosenTa
-        .filter(p => p.peran.startsWith('penguji'))
-        .map(p => p.dosen.user.name)
+        .filter((p) => p.peran.startsWith('penguji'))
+        .map((p) => p.dosen.user.name)
         .join(', ');
 
       sheet.addRow({
@@ -125,11 +141,11 @@ export class ExportService {
         mahasiswa: ta.mahasiswa.user.name,
         judul: ta.judul,
         pembimbing,
-        penguji
+        penguji,
       });
     });
 
-    return await workbook.xlsx.writeBuffer() as Buffer;
+    return (await workbook.xlsx.writeBuffer()) as Buffer;
   }
 
   async generateRekapNilaiExcel(): Promise<Buffer> {
@@ -158,35 +174,38 @@ export class ExportService {
         jadwalSidang: true,
       },
       where: {
-        status_hasil: { not: 'menunggu_penjadwalan' }
-      }
+        status_hasil: { not: 'menunggu_penjadwalan' },
+      },
     });
 
     sidangs.forEach((s) => {
-        const ta = s.tugasAkhir;
-        const pembimbing = ta.peranDosenTa
-            .filter(p => p.peran.startsWith('pembimbing'))
-            .map(p => p.dosen.user.name)
-            .join(', ');
-        const penguji = ta.peranDosenTa
-            .filter(p => p.peran.startsWith('penguji'))
-            .map(p => p.dosen.user.name)
-            .join(', ');
+      const ta = s.tugasAkhir;
+      const pembimbing = ta.peranDosenTa
+        .filter((p) => p.peran.startsWith('pembimbing'))
+        .map((p) => p.dosen.user.name)
+        .join(', ');
+      const penguji = ta.peranDosenTa
+        .filter((p) => p.peran.startsWith('penguji'))
+        .map((p) => p.dosen.user.name)
+        .join(', ');
 
-        const tanggal = s.jadwalSidang[0] ? new Date(s.jadwalSidang[0].tanggal).toLocaleDateString('id-ID') : '-';
+      const tanggal =
+        s.jadwalSidang[0] !== undefined
+          ? new Date(s.jadwalSidang[0].tanggal).toLocaleDateString('id-ID')
+          : '-';
 
-        sheet.addRow({
-            nim: ta.mahasiswa.nim,
-            mahasiswa: ta.mahasiswa.user.name,
-            judul: ta.judul,
-            pembimbing,
-            penguji,
-            status: s.status_hasil.replace('_', ' ').toUpperCase(),
-            tanggal
-        });
+      sheet.addRow({
+        nim: ta.mahasiswa.nim,
+        mahasiswa: ta.mahasiswa.user.name,
+        judul: ta.judul,
+        pembimbing,
+        penguji,
+        status: s.status_hasil.replace('_', ' ').toUpperCase(),
+        tanggal,
+      });
     });
 
-    return await workbook.xlsx.writeBuffer() as Buffer;
+    return (await workbook.xlsx.writeBuffer()) as Buffer;
   }
 
   async generateUsersExcel(): Promise<Buffer> {
@@ -195,62 +214,66 @@ export class ExportService {
     // Mahasiswa Sheet
     const sheetMhs = workbook.addWorksheet('Mahasiswa');
     sheetMhs.columns = [
-        { header: 'NIM', key: 'nim', width: 15 },
-        { header: 'Nama', key: 'nama', width: 30 },
-        { header: 'Email', key: 'email', width: 30 },
-        { header: 'Prodi', key: 'prodi', width: 10 },
-        { header: 'Kelas', key: 'kelas', width: 10 },
+      { header: 'NIM', key: 'nim', width: 15 },
+      { header: 'Nama', key: 'nama', width: 30 },
+      { header: 'Email', key: 'email', width: 30 },
+      { header: 'Prodi', key: 'prodi', width: 10 },
+      { header: 'Kelas', key: 'kelas', width: 10 },
     ];
 
-    const mahasiswas = await this.prisma.mahasiswa.findMany({ include: { user: true } });
-    mahasiswas.forEach(m => {
-        sheetMhs.addRow({
-            nim: m.nim,
-            nama: m.user.name,
-            email: m.user.email,
-            prodi: m.prodi,
-            kelas: m.kelas
-        });
+    const mahasiswas = await this.prisma.mahasiswa.findMany({
+      include: { user: true },
+    });
+    mahasiswas.forEach((m) => {
+      sheetMhs.addRow({
+        nim: m.nim,
+        nama: m.user.name,
+        email: m.user.email,
+        prodi: m.prodi,
+        kelas: m.kelas,
+      });
     });
 
     // Dosen Sheet
     const sheetDosen = workbook.addWorksheet('Dosen');
     sheetDosen.columns = [
-        { header: 'NIDN', key: 'nidn', width: 15 },
-        { header: 'Nama', key: 'nama', width: 30 },
-        { header: 'Email', key: 'email', width: 30 },
-        { header: 'Prodi', key: 'prodi', width: 10 },
+      { header: 'NIDN', key: 'nidn', width: 15 },
+      { header: 'Nama', key: 'nama', width: 30 },
+      { header: 'Email', key: 'email', width: 30 },
+      { header: 'Prodi', key: 'prodi', width: 10 },
     ];
 
-    const dosens = await this.prisma.dosen.findMany({ include: { user: true } });
-    dosens.forEach(d => {
-        sheetDosen.addRow({
-            nidn: d.nidn,
-            nama: d.user.name,
-            email: d.user.email,
-            prodi: d.prodi || '-',
-        });
+    const dosens = await this.prisma.dosen.findMany({
+      include: { user: true },
+    });
+    dosens.forEach((d) => {
+      sheetDosen.addRow({
+        nidn: d.nidn,
+        nama: d.user.name,
+        email: d.user.email,
+        prodi: d.prodi !== null && d.prodi !== '' ? d.prodi : '-',
+      });
     });
 
-    return await workbook.xlsx.writeBuffer() as Buffer;
+    return (await workbook.xlsx.writeBuffer()) as Buffer;
   }
 
   async generateBeritaAcaraPdf(sidangId: number): Promise<Buffer> {
     const sidang = await this.prisma.sidang.findUnique({
-        where: { id: sidangId },
-        include: {
-            tugasAkhir: {
-                include: {
-                    mahasiswa: { include: { user: true } },
-                    peranDosenTa: { include: { dosen: { include: { user: true } } } }
-                }
-            },
-            jadwalSidang: { include: { ruangan: true } },
-            nilaiSidang: { include: { dosen: { include: { user: true } } } }
-        }
+      where: { id: sidangId },
+      include: {
+        tugasAkhir: {
+          include: {
+            mahasiswa: { include: { user: true } },
+            peranDosenTa: { include: { dosen: { include: { user: true } } } },
+          },
+        },
+        jadwalSidang: { include: { ruangan: true } },
+        nilaiSidang: { include: { dosen: { include: { user: true } } } },
+      },
     });
 
-    if (!sidang) throw new Error('Sidang not found');
+    if (sidang === null) throw new Error('Sidang not found');
 
     const doc = new jsPDF();
     const ta = sidang.tugasAkhir;
@@ -272,32 +295,44 @@ export class ExportService {
     doc.text(`Nama Mahasiswa: ${ta.mahasiswa.user.name}`, 20, startY);
     doc.text(`NIM: ${ta.mahasiswa.nim}`, 20, startY + 6);
     doc.text(`Judul TA: ${ta.judul}`, 20, startY + 12);
-    if (jadwal) {
-        doc.text(`Hari/Tanggal: ${new Date(jadwal.tanggal).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`, 20, startY + 24);
-        doc.text(`Waktu: ${jadwal.waktu_mulai} - ${jadwal.waktu_selesai}`, 20, startY + 30);
-        doc.text(`Ruangan: ${jadwal.ruangan.nama_ruangan}`, 20, startY + 36);
+    if (jadwal !== undefined) {
+      doc.text(
+        `Hari/Tanggal: ${new Date(jadwal.tanggal).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`,
+        20,
+        startY + 24,
+      );
+      doc.text(
+        `Waktu: ${jadwal.waktu_mulai} - ${jadwal.waktu_selesai}`,
+        20,
+        startY + 30,
+      );
+      doc.text(`Ruangan: ${jadwal.ruangan.nama_ruangan}`, 20, startY + 36);
     }
 
     // Nilai
-    const nilaiData = sidang.nilaiSidang.map(n => [
-        n.dosen.user.name,
-        n.aspek,
-        n.skor.toString()
+    const nilaiData = sidang.nilaiSidang.map((n) => [
+      n.dosen.user.name,
+      n.aspek,
+      String(n.skor),
     ]);
 
     let finalY = startY + 50;
 
     autoTable(doc, {
-        startY: finalY,
-        head: [['Dosen Penguji', 'Aspek Penilaian', 'Skor']],
-        body: nilaiData,
+      startY: finalY,
+      head: [['Dosen Penguji', 'Aspek Penilaian', 'Skor']],
+      body: nilaiData,
     });
 
-    // @ts-ignore
-    finalY = doc.lastAutoTable.finalY + 20;
+    finalY = (doc as JsPDFWithAutoTable).lastAutoTable?.finalY ?? finalY;
+    finalY += 20;
 
     // Hasil
-    doc.text(`Keputusan Sidang: ${sidang.status_hasil.replace('_', ' ').toUpperCase()}`, 20, finalY);
+    doc.text(
+      `Keputusan Sidang: ${sidang.status_hasil.replace('_', ' ').toUpperCase()}`,
+      20,
+      finalY,
+    );
 
     // Tanda Tangan
     finalY += 30;
@@ -306,9 +341,9 @@ export class ExportService {
     // Assuming first 3 dosens for signature
     const signers = ta.peranDosenTa.slice(0, 3);
     signers.forEach((p, i) => {
-        const x = 20 + (i * 60);
-        doc.text(p.dosen.user.name, x, ttdY);
-        doc.text('(...........................)', x, ttdY + 20);
+      const x = 20 + i * 60;
+      doc.text(p.dosen.user.name, x, ttdY);
+      doc.text('(...........................)', x, ttdY + 20);
     });
 
     return Buffer.from(doc.output('arraybuffer'));

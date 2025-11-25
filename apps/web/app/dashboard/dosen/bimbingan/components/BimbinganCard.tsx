@@ -16,7 +16,7 @@ export default function BimbinganCard({ tugasAkhir }: BimbinganCardProps) {
         <h2 className="text-xl font-bold">{tugasAkhir.mahasiswa.user.name}</h2>
         <p className="text-gray-600">{tugasAkhir.judul}</p>
         <div className="mt-2">
-            <StatusBadge status={tugasAkhir.status} />
+          <StatusBadge status={tugasAkhir.status} />
         </div>
       </div>
       <ScheduleForm tugasAkhirId={tugasAkhir.id} />

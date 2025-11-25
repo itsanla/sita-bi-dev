@@ -87,28 +87,35 @@ export default function JadwalSidangPage() {
         request<{ data: UnscheduledSidang[] }>('/sidang/unscheduled'),
         request<{ data: Room[] }>('/ruangan'),
       ]);
-      
+
       if (Array.isArray(schedulesRes.data)) {
-        setSchedules(schedulesRes.data);
+        if (Array.isArray(schedulesRes.data)) {
+          setSchedules(schedulesRes.data);
+        }
       }
       if (Array.isArray(unscheduledRes.data)) {
-        setUnscheduled(unscheduledRes.data);
+        if (Array.isArray(unscheduledRes.data)) {
+          setUnscheduled(unscheduledRes.data);
+        }
       }
       if (Array.isArray(roomsRes.data)) {
-        setRooms(roomsRes.data);
+        if (Array.isArray(roomsRes.data)) {
+          setRooms(roomsRes.data);
+        }
       }
 
       // Fetch dosens (using generic endpoint or assuming one exists based on previous context, but I will assume /users/dosen is correct or fallback)
       // Given the code review, I should ensure this works.
       try {
-         const dosensRes = await request<{ data: { data: Dosen[] } }>('/users/dosen');
-         if (dosensRes.data?.data && Array.isArray(dosensRes.data.data)) {
-           setDosens(dosensRes.data.data);
-         }
+        const dosensRes = await request<{ data: { data: Dosen[] } }>(
+          '/users/dosen',
+        );
+        if (dosensRes.data?.data && Array.isArray(dosensRes.data.data)) {
+          setDosens(dosensRes.data.data);
+        }
       } catch (e) {
         console.error('[fetchData] Failed to fetch dosens:', e);
       }
-
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message || 'Failed to fetch data');
@@ -171,8 +178,8 @@ export default function JadwalSidangPage() {
   };
 
   const togglePenguji = (id: number) => {
-    setPengujiIds(prev =>
-      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    setPengujiIds((prev) =>
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
     );
   };
 
@@ -192,7 +199,7 @@ export default function JadwalSidangPage() {
           Buat Jadwal Baru
         </h2>
 
-        {submissionError && (
+        {!!submissionError && (
           <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
             <div className="flex items-center">
               <AlertTriangle className="h-6 w-6 text-red-500 mr-3" />
@@ -305,22 +312,33 @@ export default function JadwalSidangPage() {
 
           {/* Dosen Penguji Selection - Simple Multiselect */}
           <div className="lg:col-span-2">
-             <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Pilih Penguji
             </label>
             <div className="h-32 overflow-y-auto border border-gray-300 rounded p-2 grid grid-cols-2 gap-2">
-               {dosens.length > 0 ? dosens.map(d => (
-                 <label key={d.id} className="flex items-center space-x-2 text-sm">
-                   <input
-                     type="checkbox"
-                     checked={pengujiIds.includes(d.id)}
-                     onChange={() => togglePenguji(d.id)}
-                   />
-                   <span>{d.user.name}</span>
-                 </label>
-               )) : <p className="text-gray-500 text-sm col-span-2">Data dosen tidak ditemukan (pastikan endpoint tersedia)</p>}
+              {dosens.length > 0 ? (
+                dosens.map((d) => (
+                  <label
+                    key={d.id}
+                    className="flex items-center space-x-2 text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={pengujiIds.includes(d.id)}
+                      onChange={() => togglePenguji(d.id)}
+                    />
+                    <span>{d.user.name}</span>
+                  </label>
+                ))
+              ) : (
+                <p className="text-gray-500 text-sm col-span-2">
+                  Data dosen tidak ditemukan (pastikan endpoint tersedia)
+                </p>
+              )}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Pilih dosen yang akan menjadi penguji.</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Pilih dosen yang akan menjadi penguji.
+            </p>
           </div>
 
           <div className="flex items-end lg:col-span-3">
@@ -367,7 +385,10 @@ export default function JadwalSidangPage() {
                     <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500 mt-3">
                       <span className="inline-flex items-center gap-2">
                         <Calendar size={16} />{' '}
-                        {new Date(schedule.tanggal).toLocaleDateString('id-ID', { dateStyle: 'full' })}
+                        {new Date(schedule.tanggal).toLocaleDateString(
+                          'id-ID',
+                          { dateStyle: 'full' },
+                        )}
                       </span>
                       <span className="inline-flex items-center gap-2">
                         <Clock size={16} /> {schedule.waktu_mulai} -{' '}
@@ -388,20 +409,32 @@ export default function JadwalSidangPage() {
                 </div>
 
                 {/* History Section */}
-                {schedule.sidang.historyPerubahan && schedule.sidang.historyPerubahan.length > 0 ? (
-                   <div className="mt-4 pt-4 border-t border-gray-100">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <History size={14} /> Riwayat Perubahan
-                      </h4>
-                      <ul className="space-y-2">
-                        {schedule.sidang.historyPerubahan.slice(0, 3).map((log) => (
-                          <li key={log.id} className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
-                             <span className="font-medium">{log.user?.name || 'System'}:</span> {JSON.parse(log.perubahan).action || 'Perubahan'} - {log.alasan_perubahan}
-                             <span className="block text-gray-400 mt-1">{new Date(log.created_at).toLocaleString()}</span>
+                {schedule.sidang.historyPerubahan &&
+                schedule.sidang.historyPerubahan.length > 0 ? (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <History size={14} /> Riwayat Perubahan
+                    </h4>
+                    <ul className="space-y-2">
+                      {schedule.sidang.historyPerubahan
+                        .slice(0, 3)
+                        .map((log) => (
+                          <li
+                            key={log.id}
+                            className="text-xs text-gray-500 bg-gray-50 p-2 rounded"
+                          >
+                            <span className="font-medium">
+                              {log.user?.name || 'System'}:
+                            </span>{' '}
+                            {JSON.parse(log.perubahan).action || 'Perubahan'} -{' '}
+                            {log.alasan_perubahan}
+                            <span className="block text-gray-400 mt-1">
+                              {new Date(log.created_at).toLocaleString()}
+                            </span>
                           </li>
                         ))}
-                      </ul>
-                   </div>
+                    </ul>
+                  </div>
                 ) : null}
               </div>
             ))}

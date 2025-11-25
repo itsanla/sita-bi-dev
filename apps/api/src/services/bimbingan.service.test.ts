@@ -1,4 +1,3 @@
-
 import { BimbinganService } from './bimbingan.service';
 import { PrismaClient } from '@repo/db';
 
@@ -27,13 +26,11 @@ const mPrisma = {
 mPrisma.$transaction.mockImplementation((callback: any) => callback(mPrisma));
 type MockPrismaClient = typeof mPrisma;
 
-
 // Mock @repo/db
 jest.mock('@repo/db', () => ({
   PrismaClient: jest.fn(() => mPrisma),
   StatusTugasAkhir: {},
 }));
-
 
 describe('BimbinganService - Smart Scheduling', () => {
   let service: BimbinganService;
@@ -57,7 +54,7 @@ describe('BimbinganService - Smart Scheduling', () => {
       const conflict = await service.detectScheduleConflicts(
         1,
         new Date(),
-        '10:30'
+        '10:30',
       );
       expect(conflict).toBe(true);
     });
@@ -69,7 +66,7 @@ describe('BimbinganService - Smart Scheduling', () => {
       const conflict = await service.detectScheduleConflicts(
         1,
         new Date(),
-        '10:00'
+        '10:00',
       );
       expect(conflict).toBe(false);
     });

@@ -19,7 +19,9 @@ export default function FileList() {
 
   const fetchFiles = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/files`);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/files`,
+      );
       if (response.ok) {
         const data = await response.json();
         setFiles(data.data);
@@ -59,8 +61,12 @@ export default function FileList() {
               <tr key={file.id}>
                 <td className="py-2 px-4 border-b">{file.original_name}</td>
                 <td className="py-2 px-4 border-b">{file.mime_type}</td>
-                <td className="py-2 px-4 border-b">{(file.size / 1024).toFixed(2)} KB</td>
-                <td className="py-2 px-4 border-b">{new Date(file.created_at).toLocaleString()}</td>
+                <td className="py-2 px-4 border-b">
+                  {(file.size / 1024).toFixed(2)} KB
+                </td>
+                <td className="py-2 px-4 border-b">
+                  {new Date(file.created_at).toLocaleString()}
+                </td>
                 <td className="py-2 px-4 border-b">
                   <a
                     href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}${file.url}`}
@@ -71,8 +77,8 @@ export default function FileList() {
                     Lihat
                   </a>
                   <a
-                     href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/files/download/${file.path.split('/').pop()}`}
-                     className="text-green-600 hover:underline"
+                    href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/files/download/${file.path.split('/').pop()}`}
+                    className="text-green-600 hover:underline"
                   >
                     Unduh
                   </a>

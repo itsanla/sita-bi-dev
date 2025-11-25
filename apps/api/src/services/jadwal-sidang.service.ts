@@ -1,17 +1,19 @@
+import type {
+  JadwalSidang,
+  Ruangan,
+  Sidang,
+  TugasAkhir,
+  Mahasiswa,
+  User,
+  PeranDosenTa,
+  Dosen,
+  Prisma,
+} from '@repo/db';
 import {
   PrismaClient,
   PeranDosen,
   StatusPersetujuan,
   StatusVerifikasi,
-  type JadwalSidang,
-  type Ruangan,
-  type Sidang,
-  type TugasAkhir,
-  type Mahasiswa,
-  type User,
-  type PeranDosenTa,
-  type Dosen,
-  Prisma
 } from '@repo/db';
 import type { CreateJadwalDto } from '../dto/jadwal-sidang.dto';
 
@@ -111,8 +113,12 @@ export class JadwalSidangService {
       where: roomWhere,
       include: {
         ruangan: true,
-        sidang: { include: { tugasAkhir: { include: { mahasiswa: { include: { user: true } } } } } }
-      }
+        sidang: {
+          include: {
+            tugasAkhir: { include: { mahasiswa: { include: { user: true } } } },
+          },
+        },
+      },
     });
 
     if (conflictingRoom !== null) {
@@ -140,32 +146,38 @@ export class JadwalSidangService {
     }
 
     // 2. Cek Konflik Dosen (Sebagai Penguji atau Pembimbing di Sidang Lain)
-    const potentialConflictingJadwals = await this.prisma.jadwalSidang.findMany({
-      where: scheduleWhere,
-      include: {
-        sidang: {
-          include: {
-            tugasAkhir: {
-              include: {
-                peranDosenTa: {
-                  include: {
-                    dosen: {
-                      include: { user: true }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    });
+    const potentialConflictingJadwals = await this.prisma.jadwalSidang.findMany(
+      {
+        where: scheduleWhere,
+        include: {
+          sidang: {
+            include: {
+              tugasAkhir: {
+                include: {
+                  peranDosenTa: {
+                    include: {
+                      dosen: {
+                        include: { user: true },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    );
 
     for (const jadwal of potentialConflictingJadwals) {
       // Cast safely
       const jadwalData = jadwal as unknown as { sidang: SidangWithRelations };
-      const dosenDiJadwalLain = jadwalData.sidang.tugasAkhir.peranDosenTa.map((pd) => pd.dosen_id);
-      const intersection = dosenIds.filter(id => dosenDiJadwalLain.includes(id));
+      const dosenDiJadwalLain = jadwalData.sidang.tugasAkhir.peranDosenTa.map(
+        (pd) => pd.dosen_id,
+      );
+      const intersection = dosenIds.filter(
+        (id) => dosenDiJadwalLain.includes(id) === true,
+      );
 
       if (intersection.length > 0) {
         const bentrokDosenDetails = jadwalData.sidang.tugasAkhir.peranDosenTa
@@ -173,7 +185,7 @@ export class JadwalSidangService {
           .map((pd) => pd.dosen.user.name);
 
         conflicts.push(
-          `Dosen berikut memiliki jadwal sidang lain pada waktu bersamaan: ${bentrokDosenDetails.join(', ')} (Sidang TA ID: ${jadwalData.sidang.tugas_akhir_id}).`
+          `Dosen berikut memiliki jadwal sidang lain pada waktu bersamaan: ${bentrokDosenDetails.join(', ')} (Sidang TA ID: ${jadwalData.sidang.tugas_akhir_id}).`,
         );
       }
     }
@@ -184,7 +196,9 @@ export class JadwalSidangService {
     };
   }
 
-  async checkConflict(dto: CreateJadwalDto): Promise<{ hasConflict: boolean; messages: string[] }> {
+  async checkConflict(
+    dto: CreateJadwalDto,
+  ): Promise<{ hasConflict: boolean; messages: string[] }> {
     const {
       sidangId,
       tanggal,
@@ -210,7 +224,11 @@ export class JadwalSidangService {
     }
 
     const pembimbingIds = sidang.tugasAkhir.peranDosenTa
-      .filter((p) => p.peran === PeranDosen.pembimbing1 || p.peran === PeranDosen.pembimbing2)
+      .filter(
+        (p) =>
+          p.peran === PeranDosen.pembimbing1 ||
+          p.peran === PeranDosen.pembimbing2,
+      )
       .map((p) => p.dosen_id);
 
     const allDosenIds = [...new Set([...pembimbingIds, ...pengujiIds])];
@@ -221,7 +239,7 @@ export class JadwalSidangService {
       waktu_selesai,
       ruangan_id,
       allDosenIds,
-      sidang.id
+      sidang.id,
     );
   }
 
@@ -241,10 +259,10 @@ export class JadwalSidangService {
         where: { id: sidangId },
         include: {
           tugasAkhir: {
-             include: {
-                peranDosenTa: true
-             }
-          }
+            include: {
+              peranDosenTa: true,
+            },
+          },
         },
       });
 
@@ -254,8 +272,12 @@ export class JadwalSidangService {
 
       // Get existing advisors
       const pembimbingIds = sidang.tugasAkhir.peranDosenTa
-        .filter(p => p.peran === PeranDosen.pembimbing1 || p.peran === PeranDosen.pembimbing2)
-        .map(p => p.dosen_id);
+        .filter(
+          (p) =>
+            p.peran === PeranDosen.pembimbing1 ||
+            p.peran === PeranDosen.pembimbing2,
+        )
+        .map((p) => p.dosen_id);
 
       const allDosenIds = [...new Set([...pembimbingIds, ...pengujiIds])];
 
@@ -266,7 +288,7 @@ export class JadwalSidangService {
         waktu_selesai,
         ruangan_id,
         allDosenIds,
-        sidang.id
+        sidang.id,
       );
 
       if (conflictCheck.hasConflict) {
@@ -309,7 +331,9 @@ export class JadwalSidangService {
       }
 
       // 5. Log History
-      const ruangan = await prisma.ruangan.findUnique({ where: { id: ruangan_id } });
+      const ruangan = await prisma.ruangan.findUnique({
+        where: { id: ruangan_id },
+      });
       await prisma.historyPerubahanSidang.create({
         data: {
           sidang_id: sidang.id,
@@ -319,15 +343,15 @@ export class JadwalSidangService {
             tanggal: tanggal,
             waktu: `${waktu_mulai}-${waktu_selesai}`,
             ruangan: ruangan?.nama_ruangan,
-            penguji: pengujiIds
+            penguji: pengujiIds,
           }),
           alasan_perubahan: 'Penjadwalan awal sidang',
-        }
+        },
       });
 
       await prisma.sidang.update({
         where: { id: sidang.id },
-        data: { status_hasil: 'dijadwalkan' }
+        data: { status_hasil: 'dijadwalkan' },
       });
 
       return jadwal;
@@ -417,8 +441,8 @@ export class JadwalSidangService {
         nilaiSidang: true,
         historyPerubahan: {
           include: { user: true },
-          orderBy: { created_at: 'desc' }
-        }
+          orderBy: { created_at: 'desc' },
+        },
       },
       orderBy: { created_at: 'desc' },
     });

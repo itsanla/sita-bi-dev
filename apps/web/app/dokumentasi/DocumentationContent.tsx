@@ -262,7 +262,7 @@ export default function DocumentationContent() {
                       />
                       <span>{item.label}</span>
                     </div>
-                    {hasChildren && (
+                    {!!hasChildren && (
                       <ChevronRight
                         size={14}
                         className={`transition-transform text-gray-400 ${isExpanded ? 'rotate-90' : ''}`}
@@ -270,7 +270,7 @@ export default function DocumentationContent() {
                     )}
                   </button>
 
-                  {hasChildren && isExpanded && (
+                  {hasChildren && isExpanded ? (
                     <div className="ml-6 mt-1 space-y-0.5 border-l border-gray-200 pl-3">
                       {item.children?.map((child) => {
                         const isChildActive = activeSection === child.id;
@@ -293,7 +293,7 @@ export default function DocumentationContent() {
                         );
                       })}
                     </div>
-                  )}
+                  ) : null}
                 </div>
               );
             })}
@@ -301,12 +301,12 @@ export default function DocumentationContent() {
         </aside>
 
         {/* Overlay untuk mobile */}
-        {sidebarOpen && (
+        {sidebarOpen ? (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
-        )}
+        ) : null}
 
         {/* Main Content */}
         <main className="flex-1 lg:ml-64">
@@ -390,7 +390,9 @@ export default function DocumentationContent() {
               </div>
             </section>
 
-            <style jsx>{`
+            <style
+              dangerouslySetInnerHTML={{
+                __html: `
               .roadmap-line-animated {
                 animation: expandLine 0.8s ease-in-out forwards;
                 animation-play-state: paused;
@@ -408,7 +410,9 @@ export default function DocumentationContent() {
                   height: 100%;
                 }
               }
-            `}</style>
+            `,
+              }}
+            />
 
             {/* Introduction Section */}
             <section id="introduction" className="mb-20 scroll-mt-24">

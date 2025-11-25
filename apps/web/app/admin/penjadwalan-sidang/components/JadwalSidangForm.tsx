@@ -7,7 +7,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { Ruangan, Sidang, ConflictCheckResult as ConflictCheckResultType } from '../types';
+import {
+  Ruangan,
+  Sidang,
+  ConflictCheckResult as ConflictCheckResultType,
+} from '../types';
 import ConflictCheckResult from './ConflictCheckResult';
 import { useDebounce } from 'use-debounce';
 
@@ -20,15 +24,17 @@ const schema = z.object({
 });
 
 export default function JadwalSidangForm() {
-    const [conflictResult, setConflictResult] = useState<ConflictCheckResultType | null>(null);
+  const [conflictResult, setConflictResult] =
+    useState<ConflictCheckResultType | null>(null);
   const { data: sidangList } = useQuery<Sidang[]>({
     queryKey: ['sidangListReady'],
-    queryFn: () => api.get('/sidang?status=DISETUJUI').then(res => res.data.data),
+    queryFn: () =>
+      api.get('/sidang?status=DISETUJUI').then((res) => res.data.data),
   });
 
   const { data: ruanganList } = useQuery<Ruangan[]>({
     queryKey: ['ruanganList'],
-    queryFn: () => api.get('/ruangan').then(res => res.data.data),
+    queryFn: () => api.get('/ruangan').then((res) => res.data.data),
   });
 
   // const { data: dosenList } = useQuery<Dosen[]>({
@@ -36,7 +42,12 @@ export default function JadwalSidangForm() {
   //   queryFn: () => api.get('/users?role=dosen').then(res => res.data.data),
   // });
 
-  const { control, handleSubmit, formState: { errors }, watch } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       sidang_id: 0,
@@ -44,7 +55,7 @@ export default function JadwalSidangForm() {
       waktu_mulai: '',
       waktu_selesai: '',
       ruangan_id: 0,
-    }
+    },
   });
 
   const watchedFields = watch();
@@ -57,11 +68,18 @@ export default function JadwalSidangForm() {
     ruangan_id: number;
   }
 
-  const conflictCheckMutation = useMutation<ConflictCheckResultType, Error, ConflictCheckPayload>({
-    mutationFn: (data) => api.post('/jadwal-sidang/check-conflict', data).then(res => res.data.data),
+  const conflictCheckMutation = useMutation<
+    ConflictCheckResultType,
+    Error,
+    ConflictCheckPayload
+  >({
+    mutationFn: (data) =>
+      api
+        .post('/jadwal-sidang/check-conflict', data)
+        .then((res) => res.data.data),
     onSuccess: (data) => {
-        setConflictResult(data);
-    }
+      setConflictResult(data);
+    },
   });
 
   useEffect(() => {
@@ -83,58 +101,132 @@ export default function JadwalSidangForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 rounded-lg shadow-md border space-y-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="bg-white p-6 rounded-lg shadow-md border space-y-4"
+    >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-            <label>Sidang Mahasiswa</label>
-            <Controller
+          <label>Sidang Mahasiswa</label>
+          <Controller
             name="sidang_id"
             control={control}
             render={({ field }) => (
-                <select {...field} value={String(field.value)} onChange={(e) => field.onChange(Number(e.target.value))} className="w-full border p-2 rounded">
+              <select
+                {...field}
+                value={String(field.value)}
+                onChange={(e) => field.onChange(Number(e.target.value))}
+                className="w-full border p-2 rounded"
+              >
                 <option value={0}>Pilih Sidang</option>
-                {sidangList?.map(s => <option key={s.id} value={s.id}>{s.mahasiswa.nama} - {s.judul}</option>)}
-                </select>
+                {sidangList?.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.mahasiswa.nama} - {s.judul}
+                  </option>
+                ))}
+              </select>
             )}
-            />
-            {errors.sidang_id ? <p className="text-red-500 text-sm">{errors.sidang_id.message}</p> : null}
+          />
+          {errors.sidang_id ? (
+            <p className="text-red-500 text-sm">{errors.sidang_id.message}</p>
+          ) : null}
         </div>
         <div>
-            <label>Ruangan</label>
-            <Controller
+          <label>Ruangan</label>
+          <Controller
             name="ruangan_id"
             control={control}
             render={({ field }) => (
-                <select {...field} value={String(field.value)} onChange={(e) => field.onChange(Number(e.target.value))} className="w-full border p-2 rounded">
+              <select
+                {...field}
+                value={String(field.value)}
+                onChange={(e) => field.onChange(Number(e.target.value))}
+                className="w-full border p-2 rounded"
+              >
                 <option value={0}>Pilih Ruangan</option>
-                {ruanganList?.map(r => <option key={r.id} value={r.id}>{r.nama}</option>)}
-                </select>
+                {ruanganList?.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.nama}
+                  </option>
+                ))}
+              </select>
             )}
-            />
-            {errors.ruangan_id ? <p className="text-red-500 text-sm">{errors.ruangan_id.message}</p> : null}
+          />
+          {errors.ruangan_id ? (
+            <p className="text-red-500 text-sm">{errors.ruangan_id.message}</p>
+          ) : null}
         </div>
         <div>
-            <label>Tanggal</label>
-            <Controller name="tanggal" control={control} render={({ field }) => <input type="date" {...field} className="w-full border p-2 rounded" />} />
-            {errors.tanggal ? <p className="text-red-500 text-sm">{errors.tanggal.message}</p> : null}
+          <label>Tanggal</label>
+          <Controller
+            name="tanggal"
+            control={control}
+            render={({ field }) => (
+              <input
+                type="date"
+                {...field}
+                className="w-full border p-2 rounded"
+              />
+            )}
+          />
+          {errors.tanggal ? (
+            <p className="text-red-500 text-sm">{errors.tanggal.message}</p>
+          ) : null}
         </div>
         <div className="grid grid-cols-2 gap-4">
-            <div>
-                <label>Waktu Mulai</label>
-                <Controller name="waktu_mulai" control={control} render={({ field }) => <input type="time" {...field} className="w-full border p-2 rounded" />} />
-                {errors.waktu_mulai ? <p className="text-red-500 text-sm">{errors.waktu_mulai.message}</p> : null}
-            </div>
-            <div>
-                <label>Waktu Selesai</label>
-                <Controller name="waktu_selesai" control={control} render={({ field }) => <input type="time" {...field} className="w-full border p-2 rounded" />} />
-                {errors.waktu_selesai ? <p className="text-red-500 text-sm">{errors.waktu_selesai.message}</p> : null}
-            </div>
+          <div>
+            <label>Waktu Mulai</label>
+            <Controller
+              name="waktu_mulai"
+              control={control}
+              render={({ field }) => (
+                <input
+                  type="time"
+                  {...field}
+                  className="w-full border p-2 rounded"
+                />
+              )}
+            />
+            {errors.waktu_mulai ? (
+              <p className="text-red-500 text-sm">
+                {errors.waktu_mulai.message}
+              </p>
+            ) : null}
+          </div>
+          <div>
+            <label>Waktu Selesai</label>
+            <Controller
+              name="waktu_selesai"
+              control={control}
+              render={({ field }) => (
+                <input
+                  type="time"
+                  {...field}
+                  className="w-full border p-2 rounded"
+                />
+              )}
+            />
+            {errors.waktu_selesai ? (
+              <p className="text-red-500 text-sm">
+                {errors.waktu_selesai.message}
+              </p>
+            ) : null}
+          </div>
         </div>
       </div>
 
-      <ConflictCheckResult conflictResult={conflictResult} isLoading={conflictCheckMutation.isPending} />
+      <ConflictCheckResult
+        conflictResult={conflictResult}
+        isLoading={conflictCheckMutation.isPending}
+      />
 
-      <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded" disabled={conflictResult?.hasConflict}>Simpan Jadwal</button>
+      <button
+        type="submit"
+        className="w-full bg-blue-600 text-white p-2 rounded"
+        disabled={conflictResult?.hasConflict}
+      >
+        Simpan Jadwal
+      </button>
     </form>
-  )
+  );
 }

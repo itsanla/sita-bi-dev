@@ -10,7 +10,10 @@ interface ConflictCheckResultProps {
   isLoading: boolean;
 }
 
-export default function ConflictCheckResult({ conflictResult, isLoading }: ConflictCheckResultProps) {
+export default function ConflictCheckResult({
+  conflictResult,
+  isLoading,
+}: ConflictCheckResultProps) {
   if (isLoading) {
     return (
       <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-md text-sm text-yellow-700">
@@ -45,7 +48,9 @@ export default function ConflictCheckResult({ conflictResult, isLoading }: Confl
     <div className="bg-green-50 border border-green-200 p-4 rounded-md text-sm text-green-700">
       <div className="flex items-center">
         <CheckCircle2 className="w-5 h-5 mr-3" />
-        <p className="font-bold">Jadwal tersedia. Tidak ada konflik yang ditemukan.</p>
+        <p className="font-bold">
+          Jadwal tersedia. Tidak ada konflik yang ditemukan.
+        </p>
       </div>
     </div>
   );

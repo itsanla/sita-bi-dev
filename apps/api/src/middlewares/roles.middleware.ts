@@ -37,10 +37,7 @@ export const authorizeRoles = (allowedRoles: Role[]) => {
       }
     }
     // Kaprodi inherits Dosen access
-    else if (
-      userRole === Role.kaprodi_d3 ||
-      userRole === Role.kaprodi_d4
-    ) {
+    else if (userRole === Role.kaprodi_d3 || userRole === Role.kaprodi_d4) {
       if (
         allowedRoles.includes(userRole) ||
         allowedRoles.includes(Role.dosen)

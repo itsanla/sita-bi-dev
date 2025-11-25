@@ -22,9 +22,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // The API now returns { status: 'sukses', data: { userId, user } }
       const response = await request<{
-        status: string;
         data: {
           userId: number;
           user: {
@@ -39,19 +37,17 @@ export default function LoginPage() {
         data: { identifier, password },
       });
 
-      if (response.status !== 'sukses') {
-        throw new Error('Login failed');
-      }
-
-      const user = response.data.user;
+      const user = response.data?.data?.user;
 
       // Store user data and userId as token in localStorage
-      login({ ...user, id: String(user.id) });
-      localStorage.setItem('token', String(response.data.userId));
-      localStorage.setItem('userId', String(response.data.userId));
+      if (user) {
+        const token = String(response.data?.data?.userId);
+        await login(token);
+        localStorage.setItem('userId', token);
+      }
 
       // Redirect based on role
-      const userRole = user.roles[0]?.name;
+      const userRole = user?.roles[0]?.name;
 
       if (userRole === 'dosen') {
         router.push('/dashboard/dosen');

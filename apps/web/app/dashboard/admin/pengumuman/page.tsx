@@ -29,9 +29,11 @@ export default function AdminPengumumanPage() {
       const response = await request<{ data: { data: Pengumuman[] } }>(
         '/pengumuman/all?limit=100',
       );
-      if (Array.isArray(response.data?.data)) { setPengumuman(response.data.data); };
-    } catch (err) {
-      console.error(err);
+      if (Array.isArray(response.data?.data)) {
+        setPengumuman(response.data.data);
+      }
+    } catch (_err) {
+      console.error(_err);
     } finally {
       setLoading(false);
     }
@@ -42,7 +44,7 @@ export default function AdminPengumumanPage() {
     try {
       await request(`/pengumuman/${id}`, { method: 'DELETE' });
       fetchPengumuman();
-    } catch (err) {
+    } catch {
       alert('Gagal menghapus');
     }
   };

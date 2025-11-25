@@ -26,7 +26,7 @@ export default function SubmittedTitlesTable() {
   // Reset to page 1 when search changes
   useMemo(() => {
     setCurrentPage(1);
-  }, [searchQuery]);
+  }, []);
 
   if (loading) {
     return <TableSkeleton />;
@@ -90,7 +90,7 @@ export default function SubmittedTitlesTable() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-12 py-3 border border-gray-200 rounded-xl bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-3 focus:ring-maroon-900/10 focus:border-maroon-900 hover:border-gray-300 transition-all duration-300 text-sm text-gray-800 placeholder-gray-400"
             />
-            {searchQuery && (
+            {searchQuery ? (
               <button
                 onClick={() => setSearchQuery('')}
                 className="absolute right-4 top-1/2 -translate-y-1/2 bg-gray-100 hover:bg-gray-200 p-1.5 rounded-lg transition-colors duration-200 group/clear"
@@ -109,7 +109,7 @@ export default function SubmittedTitlesTable() {
                   />
                 </svg>
               </button>
-            )}
+            ) : null}
           </div>
         </div>
 

@@ -119,25 +119,25 @@ router.post(
     }
 
     if (!req.files || (Array.isArray(req.files) && req.files.length === 0)) {
-        res.status(400).json({ status: 'gagal', message: 'No files uploaded' });
-        return;
+      res.status(400).json({ status: 'gagal', message: 'No files uploaded' });
+      return;
     }
 
     const files = req.files as Express.Multer.File[];
     // Process each file
     const results = [];
     for (const file of files) {
-        // You would typically move the file or get its path here
-        // And save it to the database
-        // For now, assuming bimbinganService has a method or we add one
-        // We'll just call a service method
-        const result = await bimbinganService.addLampiran(
-            parseInt(id, 10),
-            file.path, // Or relative path
-            file.originalname,
-            file.mimetype
-        );
-        results.push(result);
+      // You would typically move the file or get its path here
+      // And save it to the database
+      // For now, assuming bimbinganService has a method or we add one
+      // We'll just call a service method
+      const result = await bimbinganService.addLampiran(
+        parseInt(id, 10),
+        file.path, // Or relative path
+        file.originalname,
+        file.mimetype,
+      );
+      results.push(result);
     }
 
     res.status(201).json({ status: 'sukses', data: results });
@@ -296,8 +296,8 @@ router.get(
 
     const hasConflict = await bimbinganService.detectScheduleConflicts(
       dosenId,
-      new Date(tanggal as string),
-      jam as string,
+      new Date(tanggal),
+      jam,
     );
     res.status(200).json({ status: 'sukses', data: { hasConflict } });
   }),
@@ -326,7 +326,7 @@ router.get(
 
     const slots = await bimbinganService.suggestAvailableSlots(
       dosenId,
-      tanggal as string,
+      tanggal,
     );
     res.status(200).json({ status: 'sukses', data: slots });
   }),

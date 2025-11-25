@@ -20,9 +20,9 @@ export default function SitaBotButton() {
         <MessageCircle className="w-5 h-5" />
         SitaBot
       </button>
-      {isOpen && (
+      {isOpen ? (
         <ChatbotModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
-      )}
+      ) : null}
     </>
   );
 }

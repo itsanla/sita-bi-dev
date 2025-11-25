@@ -29,7 +29,9 @@ export default function Header() {
         <h1 className="text-lg font-semibold">Dashboard</h1>
       </div>
       <div className="flex items-center gap-4">
-        <p className="text-sm text-gray-600 hidden md:block">Selamat datang, {user?.nama}</p>
+        <p className="text-sm text-gray-600 hidden md:block">
+          Selamat datang, {user?.nama}
+        </p>
         <Button variant="ghost" size="icon" onClick={logout}>
           <LogOut className="h-5 w-5" />
           <span className="sr-only">Logout</span>

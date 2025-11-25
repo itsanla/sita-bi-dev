@@ -108,7 +108,7 @@ export default function Header({
         </div>
 
         {/* Mobile Navigation Menu */}
-        {isMenuOpen && (
+        {isMenuOpen ? (
           <div className="lg:hidden">
             <div className="pt-2 pb-4 space-y-1">
               {['hero', 'tawarantopik', 'jadwal', 'pengumuman'].map(
@@ -151,7 +151,7 @@ export default function Header({
               </div>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </header>
   );

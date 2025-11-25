@@ -14,15 +14,17 @@ import { useAuth } from '../../../context/AuthContext';
 
 export default function DosenDashboardPage() {
   const { user } = useAuth();
-  const roles = user?.roles.map(r => r.name) || [];
+  const roles = user?.roles.map((r) => r.name) || [];
 
   const isKajur = roles.includes('kajur');
-  const isKaprodi = roles.includes('kaprodi_d3') || roles.includes('kaprodi_d4');
+  const isKaprodi =
+    roles.includes('kaprodi_d3') || roles.includes('kaprodi_d4');
 
   const featureCards = [
     {
       title: 'Bimbingan Mahasiswa',
-      description: 'Kelola dan pantau kemajuan bimbingan tugas akhir mahasiswa.',
+      description:
+        'Kelola dan pantau kemajuan bimbingan tugas akhir mahasiswa.',
       href: '/dashboard/dosen/bimbingan',
       icon: BookUser,
       color: 'text-red-700',
@@ -56,7 +58,9 @@ export default function DosenDashboardPage() {
     // Kaprodi/Kajur Specific
     {
       title: 'Manajemen Mahasiswa & TA',
-      description: isKajur ? 'Kelola semua mahasiswa dan TA Jurusan' : 'Kelola mahasiswa dan TA Prodi',
+      description: isKajur
+        ? 'Kelola semua mahasiswa dan TA Jurusan'
+        : 'Kelola mahasiswa dan TA Prodi',
       href: '/dashboard/admin/users', // Assuming redirection to admin features for these roles
       icon: Users,
       color: 'text-blue-700',
@@ -64,21 +68,23 @@ export default function DosenDashboardPage() {
     },
     {
       title: 'Dashboard Monitoring',
-      description: 'Pantau statistik dan progres TA tingkat ' + (isKajur ? 'Jurusan' : 'Prodi'),
+      description:
+        'Pantau statistik dan progres TA tingkat ' +
+        (isKajur ? 'Jurusan' : 'Prodi'),
       href: '/dashboard/admin', // Assuming redirection to admin dashboard
       icon: LayoutDashboard,
       color: 'text-blue-700',
       show: isKajur || isKaprodi,
-    }
+    },
   ];
 
-  const visibleCards = featureCards.filter(card => card.show);
+  const visibleCards = featureCards.filter((card) => card.show);
 
   return (
     <div className="bg-white p-8 rounded-2xl shadow-lg">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-800 mb-2">
-          Selamat Datang, {user?.name}
+          Selamat Datang, {user?.nama}
         </h1>
         <p className="text-lg text-gray-600 mb-4">
           Peran: {roles.join(', ').toUpperCase()}
@@ -92,7 +98,9 @@ export default function DosenDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {visibleCards.map((card) => (
           <Link href={card.href} key={card.title}>
-            <div className={`group bg-gray-50 hover:bg-opacity-50 border border-gray-200 p-6 rounded-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-xl cursor-pointer ${card.color.replace('text', 'hover:border')}`}>
+            <div
+              className={`group bg-gray-50 hover:bg-opacity-50 border border-gray-200 p-6 rounded-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-xl cursor-pointer ${card.color.replace('text', 'hover:border')}`}
+            >
               <div className="flex justify-between items-start">
                 <div>
                   <card.icon
@@ -103,7 +111,9 @@ export default function DosenDashboardPage() {
                   </h3>
                   <p className="text-gray-600 mb-4">{card.description}</p>
                 </div>
-                <ChevronRight className={`w-6 h-6 text-gray-400 ${card.color.replace('text-', 'group-hover:text-')} transition-transform group-hover:translate-x-1`} />
+                <ChevronRight
+                  className={`w-6 h-6 text-gray-400 ${card.color.replace('text-', 'group-hover:text-')} transition-transform group-hover:translate-x-1`}
+                />
               </div>
             </div>
           </Link>

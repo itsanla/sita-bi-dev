@@ -10,13 +10,22 @@ import { AxiosResponse } from 'axios';
 import { ApiResponse } from '@/types';
 
 interface UploadStepProps {
-  setFile: (file: File | null) => void;
+  setFile: (_file: File | null) => void;
   file: File | null;
   importType: ImportType;
-  validateMutation: UseMutationResult<AxiosResponse<ApiResponse<ValidationResult>>, Error, FormData>;
+  validateMutation: UseMutationResult<
+    AxiosResponse<ApiResponse<ValidationResult>>,
+    Error,
+    FormData
+  >;
 }
 
-export default function UploadStep({ setFile, file, importType, validateMutation }: UploadStepProps) {
+export default function UploadStep({
+  setFile,
+  file,
+  importType,
+  validateMutation,
+}: UploadStepProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0] || null);
@@ -24,9 +33,10 @@ export default function UploadStep({ setFile, file, importType, validateMutation
   };
 
   const downloadTemplate = () => {
-    const content = importType === 'mahasiswa'
-      ? 'nim,nama,email,prodi,kelas\n'
-      : 'nidn,nama,email,prodi\n';
+    const content =
+      importType === 'mahasiswa'
+        ? 'nim,nama,email,prodi,kelas\n'
+        : 'nidn,nama,email,prodi\n';
     const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -47,9 +57,13 @@ export default function UploadStep({ setFile, file, importType, validateMutation
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800">Langkah 1: Unggah File CSV</h2>
+      <h2 className="text-xl font-semibold mb-4 text-gray-800">
+        Langkah 1: Unggah File CSV
+      </h2>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-gray-600">Unduh template untuk memastikan format yang benar.</p>
+        <p className="text-sm text-gray-600">
+          Unduh template untuk memastikan format yang benar.
+        </p>
         <button
           onClick={downloadTemplate}
           className="flex items-center gap-2 text-sm text-blue-600 hover:underline"
@@ -60,7 +74,10 @@ export default function UploadStep({ setFile, file, importType, validateMutation
       </div>
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
         <FileUp className="mx-auto h-12 w-12 text-gray-400" />
-        <label htmlFor="file-upload" className="mt-4 block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="file-upload"
+          className="mt-4 block text-sm font-medium text-gray-700"
+        >
           Tarik file ke sini atau{' '}
           <span className="text-blue-600 cursor-pointer">pilih file</span>
         </label>
@@ -72,7 +89,9 @@ export default function UploadStep({ setFile, file, importType, validateMutation
           accept=".csv"
           onChange={handleFileChange}
         />
-        {file && <p className="mt-2 text-sm text-gray-500">{file.name}</p>}
+        {file ? (
+          <p className="mt-2 text-sm text-gray-500">{file.name}</p>
+        ) : null}
       </div>
       <button
         onClick={handleValidate}

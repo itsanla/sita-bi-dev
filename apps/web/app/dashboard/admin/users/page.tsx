@@ -16,7 +16,7 @@ import {
 // --- Interfaces (Updated) ---
 interface User {
   id: number;
-  name: string;
+  nama: string;
   email: string;
   roles: { name: string }[];
   dosen?: { nidn: string };
@@ -37,7 +37,7 @@ const UserModal = ({
 }) => {
   const [formData, setFormData] = useState({
     role: user?.roles[0]?.name || 'mahasiswa',
-    name: user?.name || '',
+    name: user?.nama || '',
     email: user?.email || '',
     password: '',
     nim: user?.mahasiswa?.nim || '',
@@ -279,13 +279,15 @@ export default function KelolaPenggunaPage() {
         request<{ data: { data: User[] } }>('/users/mahasiswa'),
       ]);
 
-      const mappedDosen = Array.isArray(dosenRes.data?.data) ? dosenRes.data.data : [];
-      const mappedMahasiswa = Array.isArray(mahasiswaRes.data?.data) ? mahasiswaRes.data.data : [];
+      const mappedDosen = Array.isArray(dosenRes.data?.data)
+        ? dosenRes.data.data
+        : [];
+      const mappedMahasiswa = Array.isArray(mahasiswaRes.data?.data)
+        ? mahasiswaRes.data.data
+        : [];
 
       const allUsers = [...mappedDosen, ...mappedMahasiswa];
       setUsers(allUsers);
-
-
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message || 'Failed to fetch users');
@@ -345,7 +347,7 @@ export default function KelolaPenggunaPage() {
     const roleMatch =
       roleFilter === 'all' || user.roles.some((r) => r.name === roleFilter);
     const searchMatch =
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (user.mahasiswa?.nim && user.mahasiswa.nim.includes(searchQuery)) ||
       (user.dosen?.nidn && user.dosen.nidn.includes(searchQuery));
@@ -458,7 +460,7 @@ export default function KelolaPenggunaPage() {
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
-                      {user.name}
+                      {user.nama}
                     </div>
                     <div className="text-sm text-gray-500">{user.email}</div>
                   </td>
@@ -480,7 +482,7 @@ export default function KelolaPenggunaPage() {
                     <RoleBadge roles={user.roles} />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {isLocked && (
+                    {isLocked ? (
                       <button
                         onClick={() => handleUnlock(user.id)}
                         className="text-orange-600 hover:text-orange-900 mr-4"
@@ -488,7 +490,7 @@ export default function KelolaPenggunaPage() {
                       >
                         <Unlock className="w-5 h-5" />
                       </button>
-                    )}
+                    ) : null}
                     <button
                       onClick={() => handleOpenModal(user)}
                       className="text-indigo-600 hover:text-indigo-900 mr-4"

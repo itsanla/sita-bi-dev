@@ -48,7 +48,7 @@ export function useChatLogic() {
   const stop = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
-      console.log('>>> [FRONTEND] Stream stopped by user.');
+      console.warn('>>> [FRONTEND] Stream stopped by user.');
     }
   };
 
@@ -148,7 +148,7 @@ export function useChatLogic() {
       }
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
-        console.log('Fetch aborted by user.');
+        console.warn('Fetch aborted by user.');
         setMessages((prev) => {
           const last = prev[prev.length - 1];
           if (last && last.role === 'assistant' && last.content.trim() === '') {
@@ -162,7 +162,7 @@ export function useChatLogic() {
           const allButLast = prev.slice(0, -1);
           const last = prev[prev.length - 1];
           if (last && last.role === 'assistant' && last.content.trim() === '') {
-             return allButLast;
+            return allButLast;
           }
           return prev;
         });

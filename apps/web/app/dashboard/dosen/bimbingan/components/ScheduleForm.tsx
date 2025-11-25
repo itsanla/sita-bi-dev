@@ -14,47 +14,94 @@ const schema = z.object({
   jam_bimbingan: z.string().min(1, 'Jam harus diisi'),
 });
 
-export default function ScheduleForm({ tugasAkhirId }: { tugasAkhirId: number }) {
+export default function ScheduleForm({
+  tugasAkhirId,
+}: {
+  tugasAkhirId: number;
+}) {
   const queryClient = useQueryClient();
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       tanggal_bimbingan: '',
       jam_bimbingan: '',
-    }
+    },
   });
 
   const scheduleMutation = useMutation({
-    mutationFn: (data: any) => api.post(`/bimbingan/${tugasAkhirId}/jadwal`, data),
+    mutationFn: (data: { tanggal_bimbingan: string; jam_bimbingan: string }) =>
+      api.post(`/bimbingan/${tugasAkhirId}/jadwal`, data),
     onSuccess: () => {
       toast.success('Sesi bimbingan berhasil dijadwalkan.');
       queryClient.invalidateQueries({ queryKey: ['dosenBimbinganList'] });
     },
     onError: () => {
       toast.error('Gagal menjadwalkan sesi bimbingan.');
-    }
+    },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: {
+    tanggal_bimbingan: string;
+    jam_bimbingan: string;
+  }) => {
     scheduleMutation.mutate(data);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="p-4 bg-gray-50 rounded-lg border mt-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="p-4 bg-gray-50 rounded-lg border mt-4"
+    >
       <h4 className="font-semibold mb-2">Jadwalkan Sesi Baru</h4>
       <div className="flex gap-4">
         <div>
           <label>Tanggal</label>
-          <Controller name="tanggal_bimbingan" control={control} render={({ field }) => <input type="date" {...field} className="w-full border p-2 rounded" />} />
-          {errors.tanggal_bimbingan && <p className="text-red-500 text-sm">{errors.tanggal_bimbingan.message}</p>}
+          <Controller
+            name="tanggal_bimbingan"
+            control={control}
+            render={({ field }) => (
+              <input
+                type="date"
+                {...field}
+                className="w-full border p-2 rounded"
+              />
+            )}
+          />
+          {errors.tanggal_bimbingan ? (
+            <p className="text-red-500 text-sm">
+              {errors.tanggal_bimbingan.message}
+            </p>
+          ) : null}
         </div>
         <div>
           <label>Jam</label>
-          <Controller name="jam_bimbingan" control={control} render={({ field }) => <input type="time" {...field} className="w-full border p-2 rounded" />} />
-          {errors.jam_bimbingan && <p className="text-red-500 text-sm">{errors.jam_bimbingan.message}</p>}
+          <Controller
+            name="jam_bimbingan"
+            control={control}
+            render={({ field }) => (
+              <input
+                type="time"
+                {...field}
+                className="w-full border p-2 rounded"
+              />
+            )}
+          />
+          {errors.jam_bimbingan ? (
+            <p className="text-red-500 text-sm">
+              {errors.jam_bimbingan.message}
+            </p>
+          ) : null}
         </div>
         <div className="self-end">
-          <button type="submit" className="bg-blue-600 text-white p-2 rounded" disabled={scheduleMutation.isPending}>
+          <button
+            type="submit"
+            className="bg-blue-600 text-white p-2 rounded"
+            disabled={scheduleMutation.isPending}
+          >
             {scheduleMutation.isPending ? 'Menjadwalkan...' : 'Jadwalkan'}
           </button>
         </div>

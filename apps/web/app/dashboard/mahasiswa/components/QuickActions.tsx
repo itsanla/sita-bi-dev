@@ -34,7 +34,9 @@ export default function QuickActions() {
 
         if (response.ok) {
           const result = await response.json();
-          setSystemStats(result.data);
+          if (Array.isArray(result.data)) {
+            setSystemStats(result.data);
+          }
         }
       } catch (error) {
         console.error('Error fetching system stats:', error);

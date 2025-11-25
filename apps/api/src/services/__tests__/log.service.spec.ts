@@ -16,11 +16,11 @@ jest.mock('@repo/db', () => {
   return {
     PrismaClient: jest.fn(() => mPrismaClient),
     LogLevel: {
-        INFO: 'INFO',
-        WARN: 'WARN',
-        ERROR: 'ERROR',
-        DEBUG: 'DEBUG'
-    }
+      INFO: 'INFO',
+      WARN: 'WARN',
+      ERROR: 'ERROR',
+      DEBUG: 'DEBUG',
+    },
   };
 });
 
@@ -44,7 +44,7 @@ describe('LogService', () => {
       const logData = {
         action: 'TEST_ACTION',
         module: 'TEST',
-        level: 'INFO' as const
+        level: 'INFO' as const,
       };
 
       const expectedResult = { id: 1, ...logData, created_at: new Date() };
@@ -55,20 +55,20 @@ describe('LogService', () => {
       expect(prisma.log.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           action: 'TEST_ACTION',
-          level: 'INFO'
+          level: 'INFO',
         }),
       });
       expect(result).toEqual(expectedResult);
     });
 
     it('should default level to INFO', async () => {
-        const logData = { action: 'TEST' };
-        await service.create(logData);
-        expect(prisma.log.create).toHaveBeenCalledWith({
-            data: expect.objectContaining({
-                level: 'INFO'
-            })
-        });
+      const logData = { action: 'TEST' };
+      await service.create(logData);
+      expect(prisma.log.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          level: 'INFO',
+        }),
+      });
     });
   });
 
@@ -93,10 +93,12 @@ describe('LogService', () => {
     });
 
     it('should apply filters', async () => {
-        await service.findAll(1, 10, { module: 'AUTH' });
-        expect(prisma.log.findMany).toHaveBeenCalledWith(expect.objectContaining({
-            where: expect.objectContaining({ module: 'AUTH' })
-        }));
+      await service.findAll(1, 10, { module: 'AUTH' });
+      expect(prisma.log.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ module: 'AUTH' }),
+        }),
+      );
     });
   });
 });

@@ -30,7 +30,9 @@ export default function ValidasiTAPage() {
       const response = await request<{ data: { data: Submission[] } }>(
         '/tugas-akhir/validasi',
       );
-      if (Array.isArray(response.data?.data)) { setSubmissions(response.data.data); };
+      if (Array.isArray(response.data?.data)) {
+        setSubmissions(response.data.data);
+      }
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message || 'Failed to fetch submissions');

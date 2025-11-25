@@ -1,4 +1,8 @@
-import { PrismaClient, NotificationChannel, type NotificationHistory } from '@prisma/client';
+import {
+  PrismaClient,
+  NotificationChannel,
+  type NotificationHistory,
+} from '@prisma/client';
 import { EmailService } from './email.service';
 import { whatsappService } from './whatsapp.service';
 import { getSocketIO } from '../socket';
@@ -24,51 +28,108 @@ export class NotificationService {
   }
 
   async send(params: SendNotificationParams): Promise<void> {
-    const { userId, recipientEmail, recipientPhone, subject, message, channels } = params;
+    const {
+      userId,
+      recipientEmail,
+      recipientPhone,
+      subject,
+      message,
+      channels,
+    } = params;
 
     // Default to both if not specified
-    const targetChannels = channels ?? [NotificationChannel.EMAIL, NotificationChannel.WHATSAPP];
+    const targetChannels = channels ?? [
+      NotificationChannel.EMAIL,
+      NotificationChannel.WHATSAPP,
+    ];
 
     // 0. Send via Socket.IO (Real-time) - Always try to send if user is connected
     try {
-        const io = getSocketIO();
-        if (io != null) {
-            io.to(`user_${userId}`).emit('notification', {
-                subject,
-                message,
-                createdAt: new Date(),
-            });
-        }
+      const io = getSocketIO();
+      if (io != null) {
+        io.to(`user_${userId}`).emit('notification', {
+          subject,
+          message,
+          createdAt: new Date(),
+        });
+      }
     } catch (error) {
-        console.error('Failed to send socket notification:', error);
+      console.error('Failed to send socket notification:', error);
     }
 
-
     // 1. Send via Email
-    if (targetChannels.includes(NotificationChannel.EMAIL) && (recipientEmail != null)) {
+    if (
+      targetChannels.includes(NotificationChannel.EMAIL) &&
+      recipientEmail != null
+    ) {
       try {
-        await this.emailService.sendEmail(recipientEmail, subject ?? 'Notifikasi SITA-BI', `<div>${message}</div>`);
+        await this.emailService.sendEmail(
+          recipientEmail,
+          subject ?? 'Notifikasi SITA-BI',
+          `<div>${message}</div>`,
+        );
 
         // Log success
-        await this.logHistory(userId, NotificationChannel.EMAIL, recipientEmail, subject, message, 'SENT');
+        await this.logHistory(
+          userId,
+          NotificationChannel.EMAIL,
+          recipientEmail,
+          subject,
+          message,
+          'SENT',
+        );
       } catch (error) {
         console.error('Failed to send email:', error);
-        await this.logHistory(userId, NotificationChannel.EMAIL, recipientEmail, subject, message, 'FAILED', error instanceof Error ? error.message : 'Unknown error');
+        await this.logHistory(
+          userId,
+          NotificationChannel.EMAIL,
+          recipientEmail,
+          subject,
+          message,
+          'FAILED',
+          error instanceof Error ? error.message : 'Unknown error',
+        );
       }
     }
 
     // 2. Send via WhatsApp
-    if (targetChannels.includes(NotificationChannel.WHATSAPP) && (recipientPhone != null)) {
+    if (
+      targetChannels.includes(NotificationChannel.WHATSAPP) &&
+      recipientPhone != null
+    ) {
       try {
         const sent = await whatsappService.sendMessage(recipientPhone, message);
         if (sent) {
-             await this.logHistory(userId, NotificationChannel.WHATSAPP, recipientPhone, subject, message, 'SENT');
+          await this.logHistory(
+            userId,
+            NotificationChannel.WHATSAPP,
+            recipientPhone,
+            subject,
+            message,
+            'SENT',
+          );
         } else {
-             await this.logHistory(userId, NotificationChannel.WHATSAPP, recipientPhone, subject, message, 'FAILED', 'Whatsapp service returned false');
+          await this.logHistory(
+            userId,
+            NotificationChannel.WHATSAPP,
+            recipientPhone,
+            subject,
+            message,
+            'FAILED',
+            'Whatsapp service returned false',
+          );
         }
       } catch (error) {
         console.error('Failed to send whatsapp:', error);
-         await this.logHistory(userId, NotificationChannel.WHATSAPP, recipientPhone, subject, message, 'FAILED', error instanceof Error ? error.message : 'Unknown error');
+        await this.logHistory(
+          userId,
+          NotificationChannel.WHATSAPP,
+          recipientPhone,
+          subject,
+          message,
+          'FAILED',
+          error instanceof Error ? error.message : 'Unknown error',
+        );
       }
     }
   }
@@ -80,7 +141,7 @@ export class NotificationService {
     subject: string | undefined,
     message: string,
     status: string,
-    error?: string
+    error?: string,
   ): Promise<void> {
     try {
       await prisma.notificationHistory.create({
@@ -100,10 +161,10 @@ export class NotificationService {
   }
 
   async getHistory(userId: number): Promise<NotificationHistory[]> {
-      return await prisma.notificationHistory.findMany({
-          where: { user_id: userId },
-          orderBy: { sent_at: 'desc' }
-      });
+    return await prisma.notificationHistory.findMany({
+      where: { user_id: userId },
+      orderBy: { sent_at: 'desc' },
+    });
   }
 }
 

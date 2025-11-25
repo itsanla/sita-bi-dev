@@ -47,11 +47,9 @@ describe('ReportService', () => {
   describe('getLecturerWorkload', () => {
     it('should return workload per lecturer', async () => {
       const workloads = [
-        { dosen_id: 1, peran: 'pembimbing1', _count: { tugas_akhir_id: 5 } }
+        { dosen_id: 1, peran: 'pembimbing1', _count: { tugas_akhir_id: 5 } },
       ];
-      const lecturers = [
-        { id: 1, nidn: '123', user: { name: 'Dr. Test' } }
-      ];
+      const lecturers = [{ id: 1, nidn: '123', user: { name: 'Dr. Test' } }];
 
       prisma.peranDosenTa.groupBy.mockResolvedValue(workloads);
       prisma.dosen.findMany.mockResolvedValue(lecturers);

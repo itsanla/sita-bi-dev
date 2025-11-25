@@ -51,7 +51,7 @@ export default function WelcomeSection() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <h1 className="text-3xl font-bold text-white">
-                  {greeting}, {user?.name || 'Mahasiswa'}!
+                  {greeting}, {user?.nama || 'Mahasiswa'}!
                 </h1>
                 <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
               </div>
@@ -79,7 +79,7 @@ export default function WelcomeSection() {
         <div className="flex flex-wrap gap-2 mt-4">
           <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1 text-xs font-medium text-white hover:bg-white/20 transition-all duration-300 cursor-pointer">
             <span className="w-1.5 h-1.5 bg-blue-300 rounded-full"></span>
-            NIM: {user?.mahasiswa?.nim || '-'}
+            NIM: {user?.nim || '-'}
           </span>
           <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-3 py-1 text-xs font-medium text-white hover:bg-white/20 transition-all duration-300 cursor-pointer">
             <span className="w-1.5 h-1.5 bg-green-300 rounded-full"></span>

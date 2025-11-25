@@ -10,7 +10,11 @@ interface ExportButtonProps {
   disabled?: boolean;
 }
 
-export default function ExportButton({ onClick, fileType, disabled = false }: ExportButtonProps) {
+export default function ExportButton({
+  onClick,
+  fileType,
+  disabled = false,
+}: ExportButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handleClick = async () => {
@@ -20,7 +24,9 @@ export default function ExportButton({ onClick, fileType, disabled = false }: Ex
   };
 
   const isPdf = fileType === 'PDF';
-  const bgColor = isPdf ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700';
+  const bgColor = isPdf
+    ? 'bg-red-600 hover:bg-red-700'
+    : 'bg-green-600 hover:bg-green-700';
   const iconColor = isPdf ? 'text-red-300' : 'text-green-300';
 
   return (

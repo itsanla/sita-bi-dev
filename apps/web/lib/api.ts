@@ -1,5 +1,10 @@
 // apps/web/lib/api.ts
-import axios, { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from 'axios';
 import { toast } from 'sonner';
 import { ApiResponse } from '../types';
 
@@ -25,7 +30,7 @@ apiClient.interceptors.request.use(
   (error: AxiosError) => {
     console.error('[API Request] Error:', error);
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor dengan comprehensive error handling
@@ -35,21 +40,24 @@ apiClient.interceptors.response.use(
     // Network error
     if (!error.response) {
       console.error('[API Response] Network error:', error);
-      
+
       if (error.code === 'ECONNABORTED') {
         toast.error('Permintaan timeout. Silakan coba lagi.');
       } else if (error.message === 'Network Error') {
-        toast.error('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+        toast.error(
+          'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.',
+        );
       } else {
         toast.error('Terjadi kesalahan jaringan.');
       }
-      
+
       return Promise.reject(new Error('Network error'));
     }
 
     // HTTP errors
     const status = error.response.status;
-    const message = (error.response.data as ApiResponse)?.message || error.message;
+    const message =
+      (error.response.data as ApiResponse)?.message || error.message;
 
     console.error(`[API Response] HTTP ${status}:`, message);
 
@@ -57,7 +65,7 @@ apiClient.interceptors.response.use(
       case 400:
         toast.error(`Data tidak valid: ${message}`);
         break;
-        
+
       case 401:
         toast.error('Sesi Anda telah berakhir. Silakan login kembali.');
         if (typeof window !== 'undefined') {
@@ -66,43 +74,43 @@ apiClient.interceptors.response.use(
           window.location.href = '/login';
         }
         break;
-        
+
       case 403:
         toast.error('Anda tidak memiliki izin untuk melakukan aksi ini.');
         break;
-        
+
       case 404:
         toast.error('Data tidak ditemukan.');
         break;
-        
+
       case 409:
         toast.error(`Konflik data: ${message}`);
         break;
-        
+
       case 422:
         toast.error(`Validasi gagal: ${message}`);
         break;
-        
+
       case 429:
         toast.error('Terlalu banyak permintaan. Silakan tunggu sebentar.');
         break;
-        
+
       case 500:
         toast.error('Terjadi kesalahan di server. Tim kami telah diberitahu.');
         break;
-        
+
       case 502:
       case 503:
       case 504:
         toast.error('Server sedang sibuk. Silakan coba lagi nanti.');
         break;
-        
+
       default:
         toast.error('Terjadi kesalahan. Silakan coba lagi.');
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // Generic function to handle API errors
@@ -119,23 +127,41 @@ export const handleApiError = (error: unknown): string => {
 
 // Safe API wrapper methods
 export const api = {
-  get: async <T>(url: string, config?: Parameters<typeof apiClient.get>[1]): Promise<AxiosResponse<ApiResponse<T>>> => {
+  get: async <T>(
+    url: string,
+    config?: Parameters<typeof apiClient.get>[1],
+  ): Promise<AxiosResponse<ApiResponse<T>>> => {
     return apiClient.get<ApiResponse<T>>(url, config);
   },
-  
-  post: async <T>(url: string, data?: unknown, config?: Parameters<typeof apiClient.post>[2]): Promise<AxiosResponse<ApiResponse<T>>> => {
+
+  post: async <T>(
+    url: string,
+    data?: unknown,
+    config?: Parameters<typeof apiClient.post>[2],
+  ): Promise<AxiosResponse<ApiResponse<T>>> => {
     return apiClient.post<ApiResponse<T>>(url, data, config);
   },
-  
-  put: async <T>(url: string, data?: unknown, config?: Parameters<typeof apiClient.put>[2]): Promise<AxiosResponse<ApiResponse<T>>> => {
+
+  put: async <T>(
+    url: string,
+    data?: unknown,
+    config?: Parameters<typeof apiClient.put>[2],
+  ): Promise<AxiosResponse<ApiResponse<T>>> => {
     return apiClient.put<ApiResponse<T>>(url, data, config);
   },
-  
-  delete: async <T>(url: string, config?: Parameters<typeof apiClient.delete>[1]): Promise<AxiosResponse<ApiResponse<T>>> => {
+
+  delete: async <T>(
+    url: string,
+    config?: Parameters<typeof apiClient.delete>[1],
+  ): Promise<AxiosResponse<ApiResponse<T>>> => {
     return apiClient.delete<ApiResponse<T>>(url, config);
   },
-  
-  patch: async <T>(url: string, data?: unknown, config?: Parameters<typeof apiClient.patch>[2]): Promise<AxiosResponse<ApiResponse<T>>> => {
+
+  patch: async <T>(
+    url: string,
+    data?: unknown,
+    config?: Parameters<typeof apiClient.patch>[2],
+  ): Promise<AxiosResponse<ApiResponse<T>>> => {
     return apiClient.patch<ApiResponse<T>>(url, data, config);
   },
 };

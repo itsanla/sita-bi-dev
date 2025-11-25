@@ -36,11 +36,11 @@ function ResetPasswordForm() {
           headers: {
             'Content-Type': 'application/json',
           },
-          data: { token, newPassword },
+          body: JSON.stringify({ token, newPassword }),
         },
       );
 
-      const data = await res.json();
+      const data = (await res.json()) as { message?: string };
 
       if (!res.ok) {
         throw new Error(data.message || 'Terjadi kesalahan');
@@ -48,8 +48,8 @@ function ResetPasswordForm() {
 
       toast.success(data.message || 'Password berhasil diubah. Silakan login.');
       router.push('/login');
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      toast.error((error as Error).message);
     } finally {
       setIsLoading(false);
     }

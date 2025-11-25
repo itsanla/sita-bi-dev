@@ -106,19 +106,26 @@ export default function BimbinganPage() {
         '/bimbingan/sebagai-mahasiswa',
       );
 
-      if (taResponse.data && taResponse.data.peranDosenTa.length > 0) {
-        setTugasAkhir(taResponse.data);
+      if (
+        taResponse.data?.data &&
+        (taResponse.data.data as TugasAkhir).peranDosenTa?.length > 0
+      ) {
+        setTugasAkhir(taResponse.data.data);
       } else {
         setTugasAkhir(null);
         const pengajuanResponse = await request<{ data: PengajuanBimbingan[] }>(
           '/pengajuan/mahasiswa',
         );
-        setPengajuan(pengajuanResponse.data || []);
+        if (Array.isArray(pengajuanResponse.data)) {
+          setPengajuan(pengajuanResponse.data);
+        }
 
         const dosenResponse = await request<{
           data: { data: DosenAvailable[] };
         }>('/users/dosen');
-        setAvailableDosen(dosenResponse.data.data || []);
+        if (Array.isArray(dosenResponse.data?.data)) {
+          setAvailableDosen(dosenResponse.data.data);
+        }
       }
     } catch (err: unknown) {
       setError((err as Error).message || 'Failed to fetch data');
@@ -195,10 +202,10 @@ export default function BimbinganPage() {
 
     const formData = new FormData();
     for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file) {
-            formData.append('files', file);
-        }
+      const file = files[i];
+      if (file) {
+        formData.append('files', file);
+      }
     }
 
     setUploading(true);
@@ -212,7 +219,7 @@ export default function BimbinganPage() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          data: formData,
+          body: formData,
         },
       );
 
@@ -413,7 +420,10 @@ export default function BimbinganPage() {
                                 )}
                               </span>
                             </div>
-                            <div className="text-gray-600 mt-1 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: note.catatan }} />
+                            <div
+                              className="text-gray-600 mt-1 prose prose-sm max-w-none"
+                              dangerouslySetInnerHTML={{ __html: note.catatan }}
+                            />
                           </div>
                         ))
                       ) : (
@@ -426,35 +436,33 @@ export default function BimbinganPage() {
 
                   {/* History Log (Collapsed by default could be better, but showing for now) */}
                   {bimbingan.historyPerubahan &&
-                    bimbingan.historyPerubahan.length > 0 && (
-                      <div className="border-t pt-4">
-                        <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">
-                          Riwayat Aktivitas
-                        </h4>
-                        <div className="space-y-2">
-                          {bimbingan.historyPerubahan.map((log) => (
-                            <div
-                              key={log.id}
-                              className="text-xs flex gap-2 text-gray-500"
-                            >
-                              <span className="min-w-[120px]">
-                                {new Date(log.created_at).toLocaleString(
-                                  'id-ID',
-                                )}
+                  bimbingan.historyPerubahan.length > 0 ? (
+                    <div className="border-t pt-4">
+                      <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">
+                        Riwayat Aktivitas
+                      </h4>
+                      <div className="space-y-2">
+                        {bimbingan.historyPerubahan.map((log) => (
+                          <div
+                            key={log.id}
+                            className="text-xs flex gap-2 text-gray-500"
+                          >
+                            <span className="min-w-[120px]">
+                              {new Date(log.created_at).toLocaleString('id-ID')}
+                            </span>
+                            <span>
+                              Status:{' '}
+                              <span className="font-semibold">
+                                {log.status}
                               </span>
-                              <span>
-                                Status:{' '}
-                                <span className="font-semibold">
-                                  {log.status}
-                                </span>
-                                {log.alasan_perubahan &&
-                                  ` - ${log.alasan_perubahan}`}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
+                              {!!log.alasan_perubahan &&
+                                ` - ${log.alasan_perubahan}`}
+                            </span>
+                          </div>
+                        ))}
                       </div>
-                    )}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ))

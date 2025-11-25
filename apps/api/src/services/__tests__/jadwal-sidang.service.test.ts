@@ -33,31 +33,26 @@ describe('JadwalSidangService', () => {
         pengujiIds: [2, 3],
       };
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       prismaMock.sidang.findUnique.mockResolvedValue({
         id: 1,
         tugasAkhir: {
-          peranDosenTa: [
-            { dosen_id: 1, peran: 'pembimbing1' },
-          ],
+          peranDosenTa: [{ dosen_id: 1, peran: 'pembimbing1' }],
         },
-      } as any);
+      } as unknown as never);
 
-      // Mock finding a conflicting room
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       prismaMock.jadwalSidang.findFirst.mockResolvedValue({
         id: 99,
         waktu_mulai: '09:30',
         waktu_selesai: '10:30',
         ruangan: { nama_ruangan: 'Room 101' },
         sidang: {
-            tugasAkhir: {
-                mahasiswa: {
-                    user: { name: 'Student B' }
-                }
-            }
-        }
-      } as any);
+          tugasAkhir: {
+            mahasiswa: {
+              user: { name: 'Student B' },
+            },
+          },
+        },
+      } as unknown as never);
 
       prismaMock.jadwalSidang.findMany.mockResolvedValue([]);
 
@@ -79,44 +74,29 @@ describe('JadwalSidangService', () => {
         pengujiIds: [2, 3],
       };
 
-      
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
       prismaMock.sidang.findUnique.mockResolvedValue({
-
         id: 1,
-
         tugasAkhir: {
-
-          peranDosenTa: [
-
-            { dosen_id: 1, peran: 'pembimbing1' },
-
-          ],
-
+          peranDosenTa: [{ dosen_id: 1, peran: 'pembimbing1' }],
         },
-
-      } as any);
+      } as unknown as never);
       // No room conflict
       prismaMock.jadwalSidang.findFirst.mockResolvedValue(null);
 
-      // Dosen conflict
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       prismaMock.jadwalSidang.findMany.mockResolvedValue([
         {
           sidang: {
-              tugas_akhir_id: 999,
+            tugas_akhir_id: 999,
             tugasAkhir: {
               peranDosenTa: [
                 {
-                    dosen_id: 1,
-                    dosen: { user: { name: 'Prof A' } }
+                  dosen_id: 1,
+                  dosen: { user: { name: 'Prof A' } },
                 },
               ],
             },
           },
-        } as any,
+        } as unknown as never,
       ]);
 
       const result = await service.checkConflict(dto);

@@ -15,10 +15,14 @@ export default function ResultStep({ importResult, onReset }: ResultStepProps) {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800">Hasil Impor Selesai</h2>
+      <h2 className="text-xl font-semibold mb-4 text-gray-800">
+        Hasil Impor Selesai
+      </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-center">
         <div className="bg-gray-100 p-4 rounded-lg">
-          <p className="text-2xl font-bold text-gray-700">{importResult.total}</p>
+          <p className="text-2xl font-bold text-gray-700">
+            {importResult.total}
+          </p>
           <p className="text-sm text-gray-500">Total Diproses</p>
         </div>
         <div className="bg-green-100 p-4 rounded-lg">
@@ -35,7 +39,7 @@ export default function ResultStep({ importResult, onReset }: ResultStepProps) {
         </div>
       </div>
 
-      {hasErrors && (
+      {hasErrors ? (
         <div className="mb-6 max-h-60 overflow-y-auto border p-4 rounded-md bg-red-50">
           <h3 className="font-bold text-red-800 mb-2">Detail Kegagalan:</h3>
           <ul className="list-disc pl-5 text-sm text-red-700 space-y-1">
@@ -46,7 +50,7 @@ export default function ResultStep({ importResult, onReset }: ResultStepProps) {
             ))}
           </ul>
         </div>
-      )}
+      ) : null}
 
       <button
         onClick={onReset}

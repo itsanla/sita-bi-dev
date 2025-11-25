@@ -11,10 +11,7 @@ interface FileUploadData {
   uploadedBy?: number;
 }
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-// Dummy types to fix build
-type File = {
+interface FileRecord {
   id: number;
   original_name: string;
   filename: string;
@@ -24,41 +21,34 @@ type File = {
   uploaded_by: number | null;
   created_at: Date;
   updated_at: Date;
-};
+}
 
-type User = {
+interface User {
   id: number;
   name: string;
   email: string;
-};
+}
 
-type FileWithUploader = File & {
+interface FileWithUploader extends FileRecord {
   uploader: Pick<User, 'email' | 'name'> | null;
-};
+}
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const create = async (data: FileUploadData): Promise<File> => {
+export const create = async (_data: FileUploadData): Promise<FileRecord> => {
   // const relativePath = getRelativePath(data.path);
   // return await prisma.file.create({ ... });
   throw new Error('File model is missing in schema. Service unavailable.');
 };
 
 export const list = async (): Promise<FileWithUploader[]> => {
-  // return await prisma.file.findMany({ ... });
   return [];
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getById = async (id: number): Promise<FileWithUploader | null> => {
-  // return await prisma.file.findUnique({ ... });
+export const getById = async (
+  _id: number,
+): Promise<FileWithUploader | null> => {
   return null;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const deleteFile = async (id: number): Promise<File> => {
-  // const file = await prisma.file.findUnique({ where: { id } });
-  // if (file === null) throw new Error('File not found');
-  // await prisma.file.delete({ where: { id } });
-  // return file;
+export const deleteFile = async (): Promise<FileRecord> => {
   throw new Error('File model is missing in schema. Service unavailable.');
 };

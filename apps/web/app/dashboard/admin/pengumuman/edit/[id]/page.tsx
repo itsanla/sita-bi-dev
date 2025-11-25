@@ -32,12 +32,11 @@ export default function EditPengumumanPage() {
     const fetchAnnouncement = async () => {
       try {
         setLoading(true);
-        const response = await request(
-          `/pengumuman/${id}`,
-        );
-        // Handle both possible response structures
-        const pengumuman = (response.data as any)?.data || response.data;
-        if (pengumuman && pengumuman.judul) {
+        const response = await request<{
+          data: { judul: string; isi: string; audiens: string };
+        }>(`/pengumuman/${id}`);
+        const pengumuman = response.data.data || response.data;
+        if (pengumuman && 'judul' in pengumuman) {
           setJudul(pengumuman.judul);
           setIsi(pengumuman.isi);
           setAudiens(pengumuman.audiens);

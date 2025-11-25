@@ -11,7 +11,13 @@ interface ConfirmDialogProps {
   message: string;
 }
 
-export default function ConfirmDialog({ isOpen, onConfirm, onCancel, title, message }: ConfirmDialogProps) {
+export default function ConfirmDialog({
+  isOpen,
+  onConfirm,
+  onCancel,
+  title,
+  message,
+}: ConfirmDialogProps) {
   if (!isOpen) {
     return null;
   }
@@ -22,10 +28,16 @@ export default function ConfirmDialog({ isOpen, onConfirm, onCancel, title, mess
         <h2 className="text-xl font-bold mb-4">{title}</h2>
         <p className="mb-6">{message}</p>
         <div className="flex justify-end gap-4">
-          <button onClick={onCancel} className="px-4 py-2 rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300"
+          >
             Batal
           </button>
-          <button onClick={onConfirm} className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700">
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+          >
             Konfirmasi
           </button>
         </div>

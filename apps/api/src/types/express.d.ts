@@ -1,4 +1,4 @@
-import { Role } from '../middlewares/auth.middleware';
+import type { Role } from '../middlewares/auth.middleware';
 
 declare global {
   namespace Express {

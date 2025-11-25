@@ -55,8 +55,12 @@ export default function ViewPengumumanPage() {
 
     const fetchPengumuman = async () => {
       try {
-        const response = await request<{ data: { data: Pengumuman[] } }>(endpoint);
-        if (Array.isArray(response.data?.data)) { setPengumuman(response.data.data); };
+        const response = await request<{ data: { data: Pengumuman[] } }>(
+          endpoint,
+        );
+        if (Array.isArray(response.data?.data)) {
+          setPengumuman(response.data.data);
+        }
       } catch {
         setError('Gagal memuat pengumuman.');
       } finally {
@@ -143,7 +147,7 @@ export default function ViewPengumumanPage() {
                       <span className="text-xs bg-gray-200 px-2 py-1 rounded-full">
                         {p.kategori}
                       </span>
-                      {!isRead && user && (
+                      {!isRead && !!user && (
                         <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
                           Baru
                         </span>
@@ -170,7 +174,7 @@ export default function ViewPengumumanPage() {
                       })}
                     </p>
                   </div>
-                  {user && !isRead && (
+                  {!!user && !isRead && (
                     <button
                       onClick={() => markAsRead(p.id)}
                       className="text-xs text-blue-600 underline"
@@ -184,7 +188,7 @@ export default function ViewPengumumanPage() {
                   <p className="whitespace-pre-wrap">{p.isi}</p>
                 </div>
 
-                {p.lampiran && p.lampiran.length > 0 && (
+                {p.lampiran && p.lampiran.length > 0 ? (
                   <div className="mt-4 pt-4 border-t">
                     <h4 className="text-sm font-semibold mb-2">Lampiran:</h4>
                     <ul className="list-disc pl-5">
@@ -202,7 +206,7 @@ export default function ViewPengumumanPage() {
                       ))}
                     </ul>
                   </div>
-                )}
+                ) : null}
               </div>
             );
           })
