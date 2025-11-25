@@ -1,96 +1,37 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+// apps/web/lib/api.ts
+import axios, { AxiosError } from 'axios';
+import { ApiResponse } from '../types';
 
-// Definisikan tipe kustom untuk error agar bisa menyertakan detail
-export class FetchError extends Error {
-  response: Response;
-  data: unknown;
+const api = axios.create({
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/api`,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-  constructor(response: Response, data: unknown) {
-    const message =
-      (data as { message: string })?.message ||
-      `Request failed with status ${response.status}`;
-    super(message);
-    this.response = response;
-    this.data = data;
-  }
-}
-
-interface CustomRequestInit extends Omit<RequestInit, 'body'> {
-  body?: BodyInit | Record<string, unknown> | null;
-}
-
-async function request<T>(
-  endpoint: string,
-  options: CustomRequestInit = {},
-): Promise<T> {
-  // Get user from localStorage to send user ID in header
-  const storedUser =
-    typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-
-  // Bangun konfigurasi secara manual untuk menghindari masalah dengan spread operator
-  const config: RequestInit = {
-    method: options.method || 'GET',
-    headers: new Headers(options.headers),
-    cache: options.cache,
-    credentials: options.credentials,
-    mode: options.mode,
-    redirect: options.redirect,
-    referrer: options.referrer,
-    referrerPolicy: options.referrerPolicy,
-    integrity: options.integrity,
-  };
-
-  // Add the x-user-id header if the user is logged in
-  if (storedUser) {
-    try {
-      const user = JSON.parse(storedUser);
-      if (user && user.id) {
-        (config.headers as Headers).append('x-user-id', user.id);
+// Interceptor to add the token to every request
+api.interceptors.request.use(
+  (config) => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
-    } catch (e) {
-      console.error(
-        'Failed to parse user from localStorage for API request',
-        e,
-      );
     }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
+);
 
-  // Logika cerdas untuk body
-  if (options.body) {
-    if (options.body instanceof FormData) {
-      // Untuk FormData, jangan set Content-Type header
-      // Browser akan otomatis set multipart/form-data dengan boundary
-      config.body = options.body;
-    } else if (typeof options.body === 'object') {
-      config.body = JSON.stringify(options.body);
-      (config.headers as Headers).set('Content-Type', 'application/json');
-    } else {
-      config.body = options.body;
-    }
+// Generic function to handle API errors
+export const handleApiError = (error: unknown): string => {
+  if (error instanceof AxiosError) {
+    const errorData = error.response?.data as ApiResponse;
+    return errorData?.message || 'Terjadi kesalahan pada server.';
   }
+  return 'Gagal menghubungi server. Silakan coba lagi.';
+};
 
-  const fullUrl = `${API_URL}/api${endpoint}`;
-  try {
-    const response = await fetch(fullUrl, config);
-    if (!response.ok) {
-      const errorData = await response
-        .json()
-        .catch(() => ({ message: 'An unexpected error occurred' }));
-      console.error('Request failed:', errorData);
-      throw new FetchError(response, errorData);
-    }
-
-    // Handle kasus 204 No Content
-    if (response.status === 204) {
-      return null as T;
-    }
-
-    const result = await response.json();
-    return result;
-  } catch (error) {
-    console.error('Request error:', error);
-    throw error;
-  }
-}
-
-export default request;
+export default api;
